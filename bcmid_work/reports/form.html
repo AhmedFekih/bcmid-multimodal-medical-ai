@@ -1,2235 +1,1338 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="scroll-smooth">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BCMID AI · Console Médicale Multimodale — Détection Cancer du Sein</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-        /* ═══════════════════════════════════════
-           DESIGN TOKENS & CSS VARIABLES
-        ═══════════════════════════════════════ */
-        :root {
-            /* Brand Blues */
-            --blue-950: #03111f;
-            --blue-900: #061c33;
-            --blue-800: #0a2d52;
-            --blue-700: #103f72;
-            --blue-600: #1653a0;
-            --blue-500: #1d6fbf;
-            --blue-400: #3b8fd4;
-            --blue-300: #7ab8e8;
-            --blue-100: #dbeafe;
-            --blue-50:  #eff6ff;
-
-            /* Clinical Status */
-            --red-700:  #b91c1c;
-            --red-600:  #dc2626;
-            --red-500:  #ef4444;
-            --red-100:  #fee2e2;
-            --red-50:   #fef2f2;
-
-            --amber-700: #b45309;
-            --amber-600: #d97706;
-            --amber-500: #f59e0b;
-            --amber-100: #fef3c7;
-            --amber-50:  #fffbeb;
-
-            --emerald-700: #047857;
-            --emerald-600: #059669;
-            --emerald-500: #10b981;
-            --emerald-100: #d1fae5;
-            --emerald-50:  #ecfdf5;
-
-            /* Neutrals */
-            --slate-950: #020617;
-            --slate-900: #0f172a;
-            --slate-800: #1e293b;
-            --slate-700: #334155;
-            --slate-600: #475569;
-            --slate-500: #64748b;
-            --slate-400: #94a3b8;
-            --slate-300: #cbd5e1;
-            --slate-200: #e2e8f0;
-            --slate-100: #f1f5f9;
-            --slate-50:  #f8fafc;
-
-            /* Accent / Highlight */
-            --violet-600: #7c3aed;
-            --violet-100: #ede9fe;
-
-            /* Shadows */
-            --shadow-xs: 0 1px 2px rgba(0,0,0,.04);
-            --shadow-sm: 0 2px 4px rgba(0,0,0,.06);
-            --shadow-md: 0 4px 12px rgba(0,0,0,.08);
-            --shadow-lg: 0 8px 24px rgba(10,37,69,.1);
-            --shadow-xl: 0 16px 40px rgba(10,37,69,.12);
-            --shadow-glow-blue: 0 0 0 3px rgba(29,111,191,.18);
-            --shadow-glow-red:  0 0 0 3px rgba(220,38,38,.18);
-            --shadow-glow-amber:0 0 0 3px rgba(217,119,6,.18);
-            --shadow-glow-emerald: 0 0 0 3px rgba(5,150,105,.18);
-
-            /* Borders */
-            --radius-sm: 6px;
-            --radius-md: 10px;
-            --radius-lg: 14px;
-            --radius-xl: 18px;
-            --radius-2xl: 24px;
-            --radius-full: 9999px;
-        }
-
-        /* ═══════════════════════════════════════
-           RESET & BASE
-        ═══════════════════════════════════════ */
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-        html { scroll-behavior: smooth; }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background-color: #f0f4f8;
-            background-image:
-                radial-gradient(ellipse at 0% 0%, rgba(29,111,191,.08) 0, transparent 55%),
-                radial-gradient(ellipse at 100% 100%, rgba(10,45,82,.07) 0, transparent 55%),
-                url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%230284c7' fill-opacity='0.025'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-            color: var(--slate-800);
-            min-height: 100vh;
-            padding: 0 0 60px 0;
-            line-height: 1.55;
-        }
-
-        /* ═══════════════════════════════════════
-           TOP NAVIGATION
-        ═══════════════════════════════════════ */
-        .topbar {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: rgba(255,255,255,.88);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border-bottom: 1px solid rgba(203,213,225,.7);
-            box-shadow: 0 1px 8px rgba(10,37,69,.07);
-            padding: 0 28px;
-        }
-
-        .topbar-inner {
-            max-width: 1260px;
-            margin: 0 auto;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-        }
-
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-            color: inherit;
-            flex-shrink: 0;
-        }
-
-        .brand-logo {
-            width: 36px;
-            height: 36px;
-            border-radius: 9px;
-            background: linear-gradient(135deg, var(--blue-800), var(--blue-500));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-size: 18px;
-            box-shadow: 0 3px 10px rgba(16,63,114,.35);
-            flex-shrink: 0;
-        }
-
-        .brand-text-name {
-            font-size: 15px;
-            font-weight: 800;
-            color: var(--blue-900);
-            letter-spacing: -.3px;
-            line-height: 1.1;
-        }
-
-        .brand-text-sub {
-            font-size: 10.5px;
-            color: var(--slate-500);
-            font-weight: 500;
-            line-height: 1.2;
-        }
-
-        .topbar-center {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
-
-        .sys-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 4px 10px;
-            border-radius: var(--radius-full);
-            font-size: 11px;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-
-        .sys-badge.online {
-            background: var(--emerald-50);
-            color: var(--emerald-700);
-            border: 1px solid rgba(5,150,105,.25);
-        }
-
-        .sys-badge.model {
-            background: var(--blue-50);
-            color: var(--blue-700);
-            border: 1px solid rgba(29,111,191,.2);
-        }
-
-        .sys-badge.rag {
-            background: var(--violet-100);
-            color: var(--violet-600);
-            border: 1px solid rgba(124,58,237,.2);
-        }
-
-        .sys-badge.webhook {
-            background: var(--amber-50);
-            color: var(--amber-700);
-            border: 1px solid rgba(217,119,6,.2);
-        }
-
-        .pulse-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: var(--emerald-500);
-            animation: dotPulse 1.8s ease-in-out infinite;
-        }
-
-        @keyframes dotPulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.4); opacity: .7; }
-        }
-
-        .topbar-right {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            flex-shrink: 0;
-        }
-
-        .nav-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 6px 13px;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--slate-700);
-            background: var(--slate-50);
-            border: 1px solid var(--slate-200);
-            border-radius: var(--radius-sm);
-            text-decoration: none;
-            transition: all .2s;
-            white-space: nowrap;
-        }
-
-        .nav-btn:hover {
-            background: var(--blue-700);
-            color: #fff;
-            border-color: var(--blue-700);
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-md);
-        }
-
-        /* ═══════════════════════════════════════
-           PAGE HERO
-        ═══════════════════════════════════════ */
-        .hero {
-            background: linear-gradient(135deg, var(--blue-950) 0%, var(--blue-800) 50%, #0f2f5a 100%);
-            padding: 40px 28px 36px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: -120px; right: -120px;
-            width: 500px; height: 500px;
-            background: radial-gradient(circle, rgba(29,111,191,.2) 0%, transparent 65%);
-            pointer-events: none;
-        }
-
-        .hero::after {
-            content: '';
-            position: absolute;
-            bottom: -80px; left: -80px;
-            width: 380px; height: 380px;
-            background: radial-gradient(circle, rgba(5,150,105,.1) 0%, transparent 65%);
-            pointer-events: none;
-        }
-
-        .hero-inner {
-            max-width: 1260px;
-            margin: 0 auto;
-            position: relative;
-            z-index: 1;
-        }
-
-        .hero-eyebrow {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-            font-size: 11.5px;
-            font-weight: 700;
-            letter-spacing: .8px;
-            text-transform: uppercase;
-            color: var(--blue-300);
-            background: rgba(59,143,212,.12);
-            border: 1px solid rgba(59,143,212,.25);
-            padding: 4px 12px;
-            border-radius: var(--radius-full);
-            margin-bottom: 14px;
-        }
-
-        .hero-title {
-            font-size: 30px;
-            font-weight: 900;
-            color: #fff;
-            letter-spacing: -.6px;
-            line-height: 1.1;
-            margin-bottom: 10px;
-        }
-
-        .hero-title .highlight {
-            background: linear-gradient(90deg, var(--blue-300), #a5f3fc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .hero-desc {
-            font-size: 14px;
-            color: rgba(203,213,225,.85);
-            max-width: 780px;
-            line-height: 1.65;
-            margin-bottom: 20px;
-        }
-
-        .hero-chips {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .hero-chip {
-            font-size: 11px;
-            font-weight: 600;
-            padding: 5px 12px;
-            border-radius: var(--radius-full);
-            background: rgba(255,255,255,.08);
-            border: 1px solid rgba(255,255,255,.14);
-            color: rgba(255,255,255,.88);
-            backdrop-filter: blur(6px);
-            letter-spacing: .2px;
-        }
-
-        /* ═══════════════════════════════════════
-           MAIN CONTAINER
-        ═══════════════════════════════════════ */
-        .container {
-            max-width: 1260px;
-            margin: 0 auto;
-            padding: 0 28px;
-        }
-
-        /* ═══════════════════════════════════════
-           BENCHMARK PRESETS SECTION
-        ═══════════════════════════════════════ */
-        .presets-section {
-            background: #fff;
-            border-bottom: 1px solid var(--slate-200);
-            padding: 20px 28px;
-        }
-
-        .presets-inner {
-            max-width: 1260px;
-            margin: 0 auto;
-        }
-
-        .section-label {
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: .7px;
-            text-transform: uppercase;
-            color: var(--slate-500);
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .section-label::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: var(--slate-200);
-        }
-
-        .presets-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-        }
-
-        .preset-card {
-            position: relative;
-            border-radius: var(--radius-lg);
-            border: 1.5px solid var(--slate-200);
-            padding: 16px 18px;
-            cursor: pointer;
-            background: #fff;
-            transition: all .22s cubic-bezier(.4,0,.2,1);
-            overflow: hidden;
-        }
-
-        .preset-card::before {
-            content: '';
-            position: absolute;
-            left: 0; top: 0; bottom: 0;
-            width: 4px;
-            border-radius: 4px 0 0 4px;
-        }
-
-        .preset-card.urgent::before  { background: var(--red-500); }
-        .preset-card.watch::before   { background: var(--amber-500); }
-        .preset-card.routine::before { background: var(--emerald-500); }
-
-        .preset-card:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .preset-card.urgent:hover  { border-color: var(--red-500);     box-shadow: var(--shadow-lg), var(--shadow-glow-red); }
-        .preset-card.watch:hover   { border-color: var(--amber-500);   box-shadow: var(--shadow-lg), var(--shadow-glow-amber); }
-        .preset-card.routine:hover { border-color: var(--emerald-500); box-shadow: var(--shadow-lg), var(--shadow-glow-emerald); }
-
-        .preset-top {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 8px;
-        }
-
-        .preset-pid {
-            font-size: 13px;
-            font-weight: 800;
-            color: var(--slate-900);
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .preset-badge {
-            font-size: 10px;
-            font-weight: 800;
-            letter-spacing: .4px;
-            padding: 2px 9px;
-            border-radius: var(--radius-full);
-        }
-
-        .preset-badge.urgent  { background: var(--red-100);     color: var(--red-700); }
-        .preset-badge.watch   { background: var(--amber-100);   color: var(--amber-700); }
-        .preset-badge.routine { background: var(--emerald-100); color: var(--emerald-700); }
-
-        .preset-info {
-            font-size: 12px;
-            color: var(--slate-600);
-            line-height: 1.5;
-            margin-bottom: 10px;
-        }
-
-        .preset-footer {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .preset-birads {
-            font-size: 11.5px;
-            font-weight: 700;
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .preset-birads.urgent  { color: var(--red-600); }
-        .preset-birads.watch   { color: var(--amber-600); }
-        .preset-birads.routine { color: var(--emerald-600); }
-
-        .preset-cta {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--blue-600);
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        /* ═══════════════════════════════════════
-           MAIN WORKSPACE
-        ═══════════════════════════════════════ */
-        .workspace-wrap {
-            max-width: 1260px;
-            margin: 24px auto 0;
-            padding: 0 28px;
-            display: grid;
-            grid-template-columns: 400px 1fr;
-            gap: 20px;
-            align-items: start;
-        }
-
-        /* ═══════════════════════════════════════
-           SIDEBAR: INGESTION FORM
-        ═══════════════════════════════════════ */
-        .sidebar-card {
-            background: #fff;
-            border-radius: var(--radius-xl);
-            border: 1px solid var(--slate-200);
-            box-shadow: var(--shadow-md);
-            overflow: hidden;
-            position: sticky;
-            top: 76px;
-        }
-
-        .card-header {
-            padding: 18px 22px 14px;
-            border-bottom: 1px solid var(--slate-100);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .card-header-icon {
-            width: 34px;
-            height: 34px;
-            border-radius: 9px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            flex-shrink: 0;
-        }
-
-        .card-header-icon.blue    { background: var(--blue-50); }
-        .card-header-icon.emerald { background: var(--emerald-50); }
-        .card-header-icon.amber   { background: var(--amber-50); }
-
-        .card-header-title {
-            font-size: 14px;
-            font-weight: 800;
-            color: var(--slate-900);
-            line-height: 1.1;
-        }
-
-        .card-header-sub {
-            font-size: 11px;
-            color: var(--slate-500);
-            font-weight: 500;
-        }
-
-        .card-body {
-            padding: 20px 22px;
-        }
-
-        /* ═══════════════════════════════════════
-           FORM ELEMENTS
-        ═══════════════════════════════════════ */
-        .field-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 14px;
-            margin-bottom: 14px;
-        }
-
-        .field-group { margin-bottom: 14px; }
-
-        .field-label {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--slate-700);
-            margin-bottom: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .field-required {
-            font-size: 10px;
-            font-weight: 600;
-            color: var(--red-500);
-            background: var(--red-50);
-            padding: 1px 6px;
-            border-radius: 4px;
-        }
-
-        .field-optional {
-            font-size: 10px;
-            font-weight: 500;
-            color: var(--slate-400);
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 10px 13px;
-            font-size: 13.5px;
-            font-family: inherit;
-            border: 1.5px solid var(--slate-200);
-            border-radius: var(--radius-md);
-            background: var(--slate-50);
-            color: var(--slate-900);
-            transition: all .18s;
-            line-height: 1.4;
-        }
-
-        .form-input:focus {
-            outline: none;
-            background: #fff;
-            border-color: var(--blue-400);
-            box-shadow: var(--shadow-glow-blue);
-        }
-
-        .form-input::placeholder { color: var(--slate-400); font-size: 12.5px; }
-
-        textarea.form-input {
-            resize: vertical;
-            min-height: 72px;
-        }
-
-        select.form-input { cursor: pointer; }
-
-        /* ═══════════════════════════════════════
-           DROPZONES
-        ═══════════════════════════════════════ */
-        .dropzones-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 14px;
-        }
-
-        .dropzone {
-            position: relative;
-            border: 2px dashed var(--slate-300);
-            border-radius: var(--radius-lg);
-            padding: 16px 12px;
-            text-align: center;
-            cursor: pointer;
-            background: var(--slate-50);
-            transition: all .2s;
-            overflow: hidden;
-            min-height: 120px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .dropzone input[type="file"] {
-            position: absolute;
-            inset: 0;
-            opacity: 0;
-            cursor: pointer;
-            width: 100%;
-            height: 100%;
-        }
-
-        .dropzone:hover {
-            border-color: var(--blue-400);
-            background: var(--blue-50);
-        }
-
-        .dropzone-ico {
-            font-size: 26px;
-            margin-bottom: 6px;
-        }
-
-        .dropzone-label {
-            font-size: 11.5px;
-            font-weight: 700;
-            color: var(--slate-700);
-            margin-bottom: 2px;
-        }
-
-        .dropzone-hint {
-            font-size: 10.5px;
-            color: var(--slate-400);
-        }
-
-        .dropzone-preview-wrap {
-            display: none;
-            position: relative;
-            width: 100%;
-        }
-
-        .dropzone-preview-wrap img {
-            width: 100%;
-            max-height: 110px;
-            object-fit: contain;
-            border-radius: 6px;
-            background: #000;
-        }
-
-        .dropzone-file-chip {
-            margin-top: 5px;
-            font-size: 10px;
-            font-weight: 600;
-            color: var(--blue-700);
-            word-break: break-all;
-            text-align: left;
-        }
-
-        .info-note {
-            font-size: 11px;
-            color: var(--slate-500);
-            text-align: center;
-            padding: 8px 12px;
-            background: var(--slate-50);
-            border-radius: var(--radius-md);
-            border: 1px solid var(--slate-200);
-            margin-bottom: 16px;
-            line-height: 1.5;
-        }
-
-        /* ═══════════════════════════════════════
-           SUBMIT BUTTON
-        ═══════════════════════════════════════ */
-        .btn-primary {
-            width: 100%;
-            padding: 14px 20px;
-            background: linear-gradient(135deg, var(--blue-700) 0%, var(--blue-500) 100%);
-            color: #fff;
-            border: none;
-            border-radius: var(--radius-lg);
-            font-size: 14.5px;
-            font-weight: 800;
-            font-family: inherit;
-            cursor: pointer;
-            transition: all .22s;
-            box-shadow: 0 4px 16px rgba(16,63,114,.35);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 9px;
-            letter-spacing: -.1px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-primary::before {
-            content: '';
-            position: absolute;
-            top: -100%; left: -100%;
-            width: 300%; height: 300%;
-            background: radial-gradient(circle, rgba(255,255,255,.15) 0%, transparent 60%);
-            transition: all .4s;
-            opacity: 0;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(16,63,114,.45);
-        }
-
-        .btn-primary:hover::before { opacity: 1; top: -50%; left: -50%; }
-
-        .btn-primary:disabled {
-            background: var(--slate-300);
-            box-shadow: none;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* ═══════════════════════════════════════
-           KAGGLE REGISTRY TAB TOGGLE
-        ═══════════════════════════════════════ */
-        .tab-toggle {
-            display: flex;
-            gap: 0;
-            background: var(--slate-100);
-            border-radius: var(--radius-md);
-            padding: 3px;
-            margin-bottom: 16px;
-        }
-
-        .tab-toggle-btn {
-            flex: 1;
-            padding: 8px 14px;
-            font-size: 12px;
-            font-weight: 700;
-            font-family: inherit;
-            border: none;
-            border-radius: 7px;
-            background: transparent;
-            color: var(--slate-500);
-            cursor: pointer;
-            transition: all .2s;
-        }
-
-        .tab-toggle-btn.active {
-            background: #fff;
-            color: var(--blue-700);
-            box-shadow: var(--shadow-sm);
-        }
-
-        /* ═══════════════════════════════════════
-           PIPELINE STEPPER
-        ═══════════════════════════════════════ */
-        .pipeline-box {
-            display: none;
-            background: #fff;
-            border-radius: var(--radius-xl);
-            border: 1px solid var(--slate-200);
-            box-shadow: var(--shadow-md);
-            padding: 20px 22px;
-        }
-
-        .pipeline-title {
-            font-size: 12.5px;
-            font-weight: 700;
-            color: var(--blue-800);
-            margin-bottom: 14px;
-            display: flex;
-            align-items: center;
-            gap: 7px;
-        }
-
-        .pipeline-spinner {
-            width: 14px; height: 14px;
-            border: 2.5px solid var(--blue-100);
-            border-top-color: var(--blue-500);
-            border-radius: 50%;
-            animation: spin .8s linear infinite;
-        }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        .pipeline-steps {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .step-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 9px 12px;
-            border-radius: var(--radius-md);
-            background: var(--slate-50);
-            border: 1px solid transparent;
-            transition: all .2s;
-            font-size: 12px;
-            color: var(--slate-400);
-            font-weight: 500;
-        }
-
-        .step-row.active {
-            background: var(--blue-50);
-            border-color: rgba(29,111,191,.2);
-            color: var(--blue-700);
-            font-weight: 700;
-        }
-
-        .step-row.done {
-            background: var(--emerald-50);
-            border-color: rgba(5,150,105,.2);
-            color: var(--emerald-700);
-        }
-
-        .step-num {
-            width: 22px; height: 22px;
-            border-radius: 50%;
-            background: var(--slate-200);
-            color: var(--slate-500);
-            font-size: 11px;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .step-row.active .step-num {
-            background: var(--blue-600);
-            color: #fff;
-            animation: stepPulse 1.2s ease-in-out infinite;
-        }
-
-        @keyframes stepPulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(29,111,191,.4); }
-            50% { box-shadow: 0 0 0 5px rgba(29,111,191,.0); }
-        }
-
-        .step-row.done .step-num {
-            background: var(--emerald-500);
-            color: #fff;
-        }
-
-        /* ═══════════════════════════════════════
-           RESULTS COLUMN (main right side)
-        ═══════════════════════════════════════ */
-        .results-col { display: flex; flex-direction: column; gap: 16px; }
-
-        /* Alert Banner */
-        .alert-banner {
-            display: none;
-            border-radius: var(--radius-xl);
-            overflow: hidden;
-            box-shadow: var(--shadow-xl);
-            animation: fadeSlideUp .45s cubic-bezier(.16,1,.3,1);
-        }
-
-        @keyframes fadeSlideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-
-        .banner-bar {
-            padding: 16px 26px;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 14px;
-        }
-
-        .banner-bar.urgent     { background: linear-gradient(135deg, #991b1b, var(--red-600)); }
-        .banner-bar.watch      { background: linear-gradient(135deg, #92400e, var(--amber-600)); }
-        .banner-bar.routine    { background: linear-gradient(135deg, #065f46, var(--emerald-600)); }
-
-        .banner-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .banner-icon-wrap {
-            width: 42px; height: 42px;
-            border-radius: 10px;
-            background: rgba(255,255,255,.18);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            flex-shrink: 0;
-        }
-
-        .banner-heading {
-            font-size: 17px;
-            font-weight: 900;
-            line-height: 1.1;
-        }
-
-        .banner-sub {
-            font-size: 12.5px;
-            opacity: .85;
-            margin-top: 2px;
-        }
-
-        .banner-pill {
-            font-size: 12px;
-            font-weight: 800;
-            background: rgba(255,255,255,.2);
-            border: 1px solid rgba(255,255,255,.3);
-            padding: 5px 14px;
-            border-radius: var(--radius-full);
-            white-space: nowrap;
-            letter-spacing: .3px;
-        }
-
-        /* ═══════════════════════════════════════
-           KPI CARDS ROW
-        ═══════════════════════════════════════ */
-        .kpi-row {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-        }
-
-        .kpi-card {
-            background: #fff;
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--slate-200);
-            padding: 16px 18px;
-            box-shadow: var(--shadow-sm);
-            transition: transform .2s, box-shadow .2s;
-        }
-
-        .kpi-card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .kpi-eyebrow {
-            font-size: 10.5px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: .5px;
-            color: var(--slate-400);
-            margin-bottom: 8px;
-        }
-
-        .kpi-main {
-            font-size: 22px;
-            font-weight: 900;
-            line-height: 1.1;
-            margin-bottom: 6px;
-        }
-
-        .kpi-sub {
-            font-size: 11px;
-            color: var(--slate-500);
-            font-weight: 500;
-        }
-
-        /* Confidence progress bar */
-        .conf-bar-wrap {
-            height: 5px;
-            background: var(--slate-100);
-            border-radius: var(--radius-full);
-            margin: 8px 0 4px;
-            overflow: hidden;
-        }
-
-        .conf-bar-fill {
-            height: 100%;
-            border-radius: var(--radius-full);
-            background: linear-gradient(90deg, var(--emerald-500), var(--emerald-400));
-            transition: width 1s cubic-bezier(.4,0,.2,1);
-            width: 0%;
-        }
-
-        /* ═══════════════════════════════════════
-           XAI IMAGING STUDIO
-        ═══════════════════════════════════════ */
-        .studio-card {
-            background: #fff;
-            border-radius: var(--radius-xl);
-            border: 1px solid var(--slate-200);
-            box-shadow: var(--shadow-md);
-            overflow: hidden;
-        }
-
-        .studio-header {
-            padding: 16px 22px;
-            border-bottom: 1px solid var(--slate-100);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-        }
-
-        .studio-title {
-            font-size: 14px;
-            font-weight: 800;
-            color: var(--blue-900);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .studio-controls {
-            display: flex;
-            gap: 4px;
-        }
-
-        .view-toggle-btn {
-            font-size: 11px;
-            font-weight: 600;
-            font-family: inherit;
-            padding: 5px 12px;
-            border-radius: 7px;
-            border: 1px solid var(--slate-200);
-            background: var(--slate-50);
-            color: var(--slate-600);
-            cursor: pointer;
-            transition: all .18s;
-        }
-
-        .view-toggle-btn.active {
-            background: var(--blue-700);
-            border-color: var(--blue-700);
-            color: #fff;
-        }
-
-        .studio-body {
-            padding: 20px;
-        }
-
-        .modalities-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-
-        .modality-panel {
-            border-radius: var(--radius-lg);
-            background: var(--slate-900);
-            overflow: hidden;
-        }
-
-        .modality-top-bar {
-            padding: 10px 14px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: var(--slate-800);
-        }
-
-        .modality-name {
-            font-size: 12px;
-            font-weight: 700;
-            color: #e2e8f0;
-        }
-
-        .modality-tech-tag {
-            font-size: 10px;
-            font-weight: 600;
-            background: rgba(255,255,255,.08);
-            border: 1px solid rgba(255,255,255,.12);
-            color: var(--slate-300);
-            padding: 2px 8px;
-            border-radius: var(--radius-full);
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .modality-scans {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2px;
-            padding: 2px;
-        }
-
-        .scan-cell {
-            background: #000;
-            position: relative;
-            aspect-ratio: 1;
-        }
-
-        .scan-cell img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            display: block;
-        }
-
-        .scan-caption {
-            position: absolute;
-            bottom: 0; left: 0; right: 0;
-            padding: 4px 8px;
-            background: linear-gradient(transparent, rgba(0,0,0,.75));
-            font-size: 10px;
-            font-weight: 600;
-            color: #e2e8f0;
-        }
-
-        .scan-label-chip {
-            position: absolute;
-            top: 6px; left: 6px;
-            font-size: 9px;
-            font-weight: 700;
-            letter-spacing: .4px;
-            text-transform: uppercase;
-            padding: 2px 6px;
-            border-radius: 4px;
-        }
-
-        .scan-label-chip.input { background: rgba(30,41,59,.85); color: #94a3b8; }
-        .scan-label-chip.gcam  { background: rgba(220,38,38,.7); color: #fef2f2; }
-
-        /* Colorbar */
-        .colorbar-strip {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 14px;
-            background: var(--slate-800);
-            font-size: 10px;
-            color: var(--slate-400);
-            font-weight: 600;
-        }
-
-        .colorbar-gradient {
-            flex: 1;
-            height: 7px;
-            border-radius: var(--radius-full);
-            background: linear-gradient(to right, #0000ff, #00ffff, #00ff00, #ffff00, #ff0000);
-        }
-
-        /* ═══════════════════════════════════════
-           CLINICAL DETAILS CARD
-        ═══════════════════════════════════════ */
-        .details-card {
-            background: #fff;
-            border-radius: var(--radius-xl);
-            border: 1px solid var(--slate-200);
-            box-shadow: var(--shadow-sm);
-            overflow: hidden;
-        }
-
-        .details-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .details-table tr {
-            border-bottom: 1px solid var(--slate-100);
-        }
-
-        .details-table tr:last-child { border-bottom: none; }
-
-        .details-table td {
-            padding: 12px 20px;
-            font-size: 13px;
-        }
-
-        .details-table td:first-child {
-            width: 38%;
-            color: var(--slate-500);
-            font-weight: 600;
-        }
-
-        .details-table td:last-child {
-            color: var(--slate-900);
-            font-weight: 700;
-            text-align: right;
-        }
-
-        /* ═══════════════════════════════════════
-           REASONING / INTERPRETATION BOX
-        ═══════════════════════════════════════ */
-        .reasoning-card {
-            background: var(--blue-50);
-            border: 1px solid rgba(29,111,191,.2);
-            border-left: 4px solid var(--blue-500);
-            border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
-            padding: 16px 20px;
-        }
-
-        .reasoning-title {
-            font-size: 12px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: .5px;
-            color: var(--blue-700);
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .reasoning-text {
-            font-size: 13px;
-            color: var(--slate-700);
-            line-height: 1.7;
-        }
-
-        /* ═══════════════════════════════════════
-           ACTION TOOLBAR
-        ═══════════════════════════════════════ */
-        .action-bar {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .btn-download {
-            flex: 2;
-            min-width: 200px;
-            padding: 13px 20px;
-            background: linear-gradient(135deg, var(--blue-700), var(--blue-500));
-            color: #fff;
-            border: none;
-            border-radius: var(--radius-lg);
-            font-size: 13.5px;
-            font-weight: 700;
-            font-family: inherit;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all .2s;
-            box-shadow: var(--shadow-md);
-        }
-
-        .btn-download:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-            background: linear-gradient(135deg, var(--blue-800), var(--blue-600));
-        }
-
-        .btn-outline {
-            flex: 1;
-            min-width: 130px;
-            padding: 13px 16px;
-            background: #fff;
-            color: var(--slate-700);
-            border: 1.5px solid var(--slate-200);
-            border-radius: var(--radius-lg);
-            font-size: 13px;
-            font-weight: 700;
-            font-family: inherit;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 7px;
-            transition: all .2s;
-        }
-
-        .btn-outline:hover {
-            border-color: var(--blue-400);
-            color: var(--blue-700);
-            background: var(--blue-50);
-            transform: translateY(-1px);
-        }
-
-        /* ═══════════════════════════════════════
-           EMAIL HUB CARD
-        ═══════════════════════════════════════ */
-        .email-card {
-            background: #fff;
-            border-radius: var(--radius-xl);
-            border: 1.5px dashed var(--slate-300);
-            box-shadow: var(--shadow-sm);
-            padding: 20px 22px;
-        }
-
-        .email-header {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-
-        .email-icon-wrap {
-            width: 38px; height: 38px;
-            border-radius: 10px;
-            background: var(--blue-50);
-            border: 1px solid rgba(29,111,191,.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            flex-shrink: 0;
-        }
-
-        .email-title {
-            font-size: 14px;
-            font-weight: 800;
-            color: var(--slate-900);
-            margin-bottom: 2px;
-        }
-
-        .email-subtitle {
-            font-size: 12px;
-            color: var(--slate-500);
-            line-height: 1.4;
-        }
-
-        .email-input-row {
-            display: flex;
-            gap: 8px;
-        }
-
-        .email-field {
-            flex: 1;
-            padding: 10px 13px;
-            font-size: 13.5px;
-            font-family: inherit;
-            border: 1.5px solid var(--slate-200);
-            border-radius: var(--radius-md);
-            background: var(--slate-50);
-            transition: all .18s;
-        }
-
-        .email-field:focus {
-            outline: none;
-            border-color: var(--blue-400);
-            background: #fff;
-            box-shadow: var(--shadow-glow-blue);
-        }
-
-        .btn-send {
-            padding: 10px 20px;
-            background: var(--blue-700);
-            color: #fff;
-            border: none;
-            border-radius: var(--radius-md);
-            font-size: 13px;
-            font-weight: 700;
-            font-family: inherit;
-            cursor: pointer;
-            transition: all .18s;
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn-send:hover { background: var(--blue-800); transform: translateY(-1px); }
-        .btn-send:disabled { background: var(--slate-300); cursor: not-allowed; transform: none; }
-
-        .email-feedback {
-            display: none;
-            margin-top: 12px;
-            padding: 12px 16px;
-            border-radius: var(--radius-md);
-            font-size: 12.5px;
-            line-height: 1.5;
-        }
-
-        .email-feedback a { color: var(--blue-700); font-weight: 700; }
-
-        /* ═══════════════════════════════════════
-           KAGGLE REGISTRY PANEL
-        ═══════════════════════════════════════ */
-        .registry-card {
-            background: #fff;
-            border-radius: var(--radius-xl);
-            border: 1px solid var(--slate-200);
-            box-shadow: var(--shadow-md);
-            padding: 20px 22px;
-        }
-
-        .registry-desc {
-            font-size: 12.5px;
-            color: var(--slate-600);
-            line-height: 1.5;
-            margin-bottom: 14px;
-        }
-
-        /* ═══════════════════════════════════════
-           FOOTER
-        ═══════════════════════════════════════ */
-        .page-footer {
-            max-width: 1260px;
-            margin: 32px auto 0;
-            padding: 0 28px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 8px;
-            font-size: 11px;
-            color: var(--slate-400);
-        }
-
-        .footer-disclaimer {
-            background: var(--amber-50);
-            border: 1px solid var(--amber-100);
-            border-radius: var(--radius-md);
-            padding: 8px 14px;
-            font-size: 11px;
-            color: var(--amber-700);
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        /* ═══════════════════════════════════════
-           RESPONSIVE
-        ═══════════════════════════════════════ */
-        @media (max-width: 1100px) {
-            .workspace-wrap { grid-template-columns: 1fr; }
-            .sidebar-card { position: static; }
-            .kpi-row { grid-template-columns: 1fr 1fr; }
-        }
-
-        @media (max-width: 768px) {
-            .topbar-center { display: none; }
-            .presets-grid { grid-template-columns: 1fr; }
-            .hero-title { font-size: 22px; }
-            .modalities-grid { grid-template-columns: 1fr; }
-            .kpi-row { grid-template-columns: 1fr 1fr; }
-            .action-bar { flex-direction: column; }
-        }
-
-        @media (max-width: 540px) {
-            .kpi-row { grid-template-columns: 1fr; }
-            .field-row { grid-template-columns: 1fr; }
-            .dropzones-row { grid-template-columns: 1fr; }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BCMID AI · Console Médicale Multimodale v3</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter','sans-serif'], mono: ['JetBrains Mono','monospace'] },
+          colors: {
+            brand: { 950:'#02111e', 900:'#061828', 800:'#0a2540', 700:'#0e3460', 600:'#1450a0', 500:'#1a6dc0', 400:'#3a8fd6', 300:'#7ab8e8', 200:'#bddff5', 100:'#deeefb', 50:'#eef7fd' },
+            med: { red:'#e53e3e', amber:'#d97706', green:'#059669', violet:'#7c3aed' }
+          },
+          animation: {
+            'spin-slow': 'spin 3s linear infinite',
+            'ping-slow': 'ping 2s cubic-bezier(0,0,.2,1) infinite',
+            'float': 'float 4s ease-in-out infinite',
+            'glow-pulse': 'glowPulse 2s ease-in-out infinite',
+            'shimmer': 'shimmer 1.8s linear infinite',
+            'orbit': 'orbit 4s linear infinite',
+          },
+          keyframes: {
+            float: { '0%,100%':{transform:'translateY(0px)'}, '50%':{transform:'translateY(-8px)'} },
+            glowPulse: { '0%,100%':{boxShadow:'0 0 8px 2px rgba(26,109,192,.4)'}, '50%':{boxShadow:'0 0 28px 8px rgba(26,109,192,.7)'} },
+            shimmer: { '0%':{transform:'translateX(-100%)'}, '100%':{transform:'translateX(100%)'} },
+            orbit: { '0%':{transform:'rotate(0deg) translateX(24px) rotate(0deg)'}, '100%':{transform:'rotate(360deg) translateX(24px) rotate(-360deg)'} },
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* ── 3D Card Perspective ── */
+    .perspective { perspective: 1200px; }
+    .card-3d {
+      transform-style: preserve-3d;
+      transition: transform .4s cubic-bezier(.25,.8,.25,1), box-shadow .4s ease;
+    }
+    .card-3d:hover { transform: rotateY(-4deg) rotateX(2deg) translateZ(8px); }
+
+    /* ── Holographic Border ── */
+    .holo-border {
+      position: relative;
+      border-radius: 16px;
+      background: linear-gradient(135deg,#0a2540,#0e3460);
+    }
+    .holo-border::before {
+      content:'';
+      position:absolute;inset:-1.5px;
+      border-radius:17px;
+      background: conic-gradient(from 0deg, #1a6dc0, #10b981, #7c3aed, #e53e3e, #1a6dc0);
+      z-index:-1;
+      animation: rotateBorder 4s linear infinite;
+      opacity:.6;
+    }
+    @keyframes rotateBorder { to { transform: rotate(360deg); } }
+
+    /* ── Glassmorphism ── */
+    .glass {
+      background: rgba(255,255,255,.06);
+      backdrop-filter: blur(18px) saturate(180%);
+      -webkit-backdrop-filter: blur(18px) saturate(180%);
+      border: 1px solid rgba(255,255,255,.1);
+    }
+    .glass-white {
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(20px) saturate(200%);
+      -webkit-backdrop-filter: blur(20px) saturate(200%);
+      border: 1px solid rgba(203,213,225,.6);
+    }
+
+    /* ── Pipeline Step 3D Effect ── */
+    .step-3d-card {
+      position: relative;
+      transform-style: preserve-3d;
+      transition: all .4s cubic-bezier(.34,1.56,.64,1);
+    }
+    .step-3d-card.idle {
+      background: rgba(15,23,42,.6);
+      border: 1px solid rgba(71,85,105,.4);
+    }
+    .step-3d-card.active {
+      background: linear-gradient(135deg, rgba(14,52,96,.9), rgba(26,109,192,.4));
+      border: 1px solid rgba(26,109,192,.8);
+      transform: translateZ(12px) scale(1.02);
+      box-shadow:
+        0 0 0 1px rgba(26,109,192,.5),
+        0 0 24px rgba(26,109,192,.35),
+        0 0 60px rgba(26,109,192,.15),
+        inset 0 1px 0 rgba(255,255,255,.08);
+    }
+    .step-3d-card.done {
+      background: linear-gradient(135deg, rgba(4,120,87,.6), rgba(5,150,105,.3));
+      border: 1px solid rgba(16,185,129,.6);
+      box-shadow: 0 0 18px rgba(16,185,129,.3), inset 0 1px 0 rgba(255,255,255,.06);
+    }
+
+    /* ── Active Ring Pulse ── */
+    .ring-pulse {
+      position:absolute;inset:-6px;border-radius:18px;
+      border: 2px solid rgba(26,109,192,.6);
+      animation: ringExpand 1.5s ease-out infinite;
+    }
+    .ring-pulse-2 {
+      position:absolute;inset:-12px;border-radius:22px;
+      border: 1px solid rgba(26,109,192,.3);
+      animation: ringExpand 1.5s ease-out .4s infinite;
+    }
+    @keyframes ringExpand {
+      0%   { opacity:1; transform:scale(1); }
+      100% { opacity:0; transform:scale(1.2); }
+    }
+
+    /* ── Particle Orbit ── */
+    .particle-orbit {
+      position:absolute;
+      width:6px;height:6px;
+      background: #1a6dc0;
+      border-radius:50%;
+      box-shadow: 0 0 8px 3px rgba(26,109,192,.7);
+      animation: orbit 2.5s linear infinite;
+    }
+    .particle-orbit-2 { animation-delay: -1.25s; background:#10b981; box-shadow:0 0 8px 3px rgba(16,185,129,.7); }
+
+    /* ── Step Number 3D orb ── */
+    .step-orb {
+      position:relative;
+      width:44px;height:44px;flex-shrink:0;
+      border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      font-weight:800;font-size:15px;
+      transition: all .4s cubic-bezier(.34,1.56,.64,1);
+      transform-style:preserve-3d;
+    }
+    .step-orb.idle {
+      background: radial-gradient(circle at 35% 35%, #334155, #1e293b);
+      color:#64748b;
+      box-shadow: 4px 4px 12px rgba(0,0,0,.5), inset -2px -2px 6px rgba(0,0,0,.3), inset 1px 1px 4px rgba(255,255,255,.05);
+    }
+    .step-orb.active {
+      background: radial-gradient(circle at 35% 35%, #3b8fd6, #1a6dc0);
+      color:#fff;
+      box-shadow:
+        4px 4px 16px rgba(0,0,0,.5),
+        0 0 0 3px rgba(26,109,192,.3),
+        0 0 24px rgba(26,109,192,.5),
+        inset -2px -2px 6px rgba(0,0,0,.2),
+        inset 1px 1px 6px rgba(255,255,255,.25);
+      animation: orbPulse 1s ease-in-out infinite;
+    }
+    .step-orb.done {
+      background: radial-gradient(circle at 35% 35%, #34d399, #059669);
+      color:#fff;
+      box-shadow:
+        4px 4px 14px rgba(0,0,0,.4),
+        0 0 18px rgba(16,185,129,.4),
+        inset -2px -2px 4px rgba(0,0,0,.15),
+        inset 1px 1px 5px rgba(255,255,255,.2);
+    }
+    @keyframes orbPulse {
+      0%,100%{box-shadow:4px 4px 16px rgba(0,0,0,.5),0 0 0 3px rgba(26,109,192,.3),0 0 24px rgba(26,109,192,.5),inset -2px -2px 6px rgba(0,0,0,.2),inset 1px 1px 6px rgba(255,255,255,.25);}
+      50%{box-shadow:4px 4px 16px rgba(0,0,0,.5),0 0 0 5px rgba(26,109,192,.15),0 0 40px rgba(26,109,192,.8),inset -2px -2px 6px rgba(0,0,0,.2),inset 1px 1px 6px rgba(255,255,255,.25);}
+    }
+
+    /* ── Progress laser beam ── */
+    .laser-line {
+      height:2px;
+      background: linear-gradient(90deg, transparent, #1a6dc0, transparent);
+      animation: laserSweep 1.5s ease-in-out infinite;
+    }
+    @keyframes laserSweep {
+      0%   { background: linear-gradient(90deg, transparent 0%, #1a6dc0 0%, #1a6dc0 0%, transparent 0%); }
+      50%  { background: linear-gradient(90deg, transparent 0%, #1a6dc0 30%, #7ab8e8 50%, #1a6dc0 70%, transparent 100%); }
+      100% { background: linear-gradient(90deg, transparent 100%, #1a6dc0 100%, transparent 100%); }
+    }
+
+    /* ── Step connector line ── */
+    .step-connector {
+      position:absolute;left:21px;top:44px;bottom:0;
+      width:2px;
+      background: linear-gradient(to bottom, rgba(71,85,105,.6) 0%, rgba(71,85,105,.1) 100%);
+    }
+    .step-connector.done {
+      background: linear-gradient(to bottom, rgba(16,185,129,.8) 0%, rgba(16,185,129,.2) 100%);
+    }
+    .step-connector.active {
+      background: linear-gradient(to bottom, rgba(26,109,192,.9) 0%, rgba(26,109,192,.1) 100%);
+      box-shadow: 0 0 8px rgba(26,109,192,.4);
+    }
+
+    /* ── Scanlines overlay ── */
+    .scanlines::after {
+      content:'';
+      position:absolute;inset:0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,.04) 3px, rgba(0,0,0,.04) 4px);
+      pointer-events:none;
+      z-index:1;
+    }
+
+    /* ── Data Grid bg ── */
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(26,109,192,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(26,109,192,.06) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+
+    /* ── Shimmer Button ── */
+    .btn-shimmer {
+      position:relative;overflow:hidden;
+    }
+    .btn-shimmer::after {
+      content:'';
+      position:absolute;inset:0;
+      background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,.18) 50%, transparent 60%);
+      transform:translateX(-100%);
+      transition:transform .6s ease;
+    }
+    .btn-shimmer:hover::after { transform:translateX(100%); }
+
+    /* ── Neon text ── */
+    .neon-blue { text-shadow: 0 0 8px rgba(26,109,192,.8), 0 0 20px rgba(26,109,192,.4); }
+    .neon-green { text-shadow: 0 0 8px rgba(16,185,129,.8), 0 0 20px rgba(16,185,129,.4); }
+    .neon-red   { text-shadow: 0 0 8px rgba(229,62,62,.8),  0 0 20px rgba(229,62,62,.4); }
+
+    /* ── Dropzone ── */
+    .dropzone-area {
+      position:relative;
+      border: 2px dashed rgba(71,85,105,.5);
+      border-radius:12px;
+      padding:20px 14px;
+      text-align:center;
+      cursor:pointer;
+      background: rgba(15,23,42,.4);
+      transition: all .25s;
+    }
+    .dropzone-area:hover {
+      border-color: rgba(26,109,192,.7);
+      background: rgba(14,52,96,.4);
+      box-shadow: 0 0 20px rgba(26,109,192,.15);
+    }
+    .dropzone-area input[type=file] {
+      position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;
+    }
+
+    /* ── Form inputs dark ── */
+    .dark-input {
+      background: rgba(15,23,42,.7);
+      border: 1px solid rgba(71,85,105,.5);
+      color: #e2e8f0;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 13.5px;
+      width:100%;
+      transition: all .2s;
+      font-family: inherit;
+    }
+    .dark-input::placeholder { color:#475569; }
+    .dark-input:focus {
+      outline:none;
+      border-color: rgba(26,109,192,.7);
+      box-shadow: 0 0 0 3px rgba(26,109,192,.15), 0 0 16px rgba(26,109,192,.1);
+      background: rgba(14,52,96,.4);
+    }
+
+    /* ── KPI Card 3D ── */
+    .kpi-3d {
+      position:relative;
+      background: linear-gradient(135deg, rgba(10,37,64,.9), rgba(14,52,96,.6));
+      border: 1px solid rgba(58,143,214,.25);
+      border-radius:14px;
+      padding:18px 20px;
+      overflow:hidden;
+      transition: all .3s cubic-bezier(.25,.8,.25,1);
+    }
+    .kpi-3d::before {
+      content:'';
+      position:absolute;top:-30px;right:-30px;
+      width:80px;height:80px;
+      background: radial-gradient(circle, rgba(26,109,192,.2) 0%, transparent 70%);
+      border-radius:50%;
+    }
+    .kpi-3d:hover {
+      transform: translateY(-4px) scale(1.02);
+      border-color: rgba(58,143,214,.5);
+      box-shadow: 0 12px 40px rgba(0,0,0,.4), 0 0 24px rgba(26,109,192,.15);
+    }
+
+    /* ── Modality scanner frame ── */
+    .scanner-frame {
+      position:relative;background:#000;
+      border-radius:8px;overflow:hidden;
+    }
+    .scanner-frame::after {
+      content:'';
+      position:absolute;left:0;right:0;height:2px;
+      background: linear-gradient(90deg, transparent, rgba(26,109,192,.8), rgba(122,184,232,.9), rgba(26,109,192,.8), transparent);
+      animation: scanLine 3s ease-in-out infinite;
+      pointer-events:none;
+      box-shadow: 0 0 12px rgba(26,109,192,.6);
+    }
+    @keyframes scanLine {
+      0%   { top:0%; }
+      100% { top:100%; }
+    }
+
+    /* Scrollbar dark */
+    ::-webkit-scrollbar { width:6px; }
+    ::-webkit-scrollbar-track { background:rgba(15,23,42,.5); }
+    ::-webkit-scrollbar-thumb { background:rgba(58,143,214,.4); border-radius:3px; }
+  </style>
 </head>
-<body>
+<body class="bg-brand-950 text-slate-200 min-h-screen font-sans antialiased overflow-x-hidden">
 
-<!-- ══════════════════════ TOP NAVIGATION ══════════════════════ -->
-<header class="topbar">
-    <div class="topbar-inner">
-        <a href="/form" class="brand">
-            <div class="brand-logo">🩺</div>
-            <div>
-                <div class="brand-text-name">BCMID Medical AI <span style="font-size:10px;background:var(--blue-100);color:var(--blue-700);padding:2px 7px;border-radius:12px;font-weight:700;margin-left:4px;">v2.0</span></div>
-                <div class="brand-text-sub">Breast Cancer Multimodal Intelligent Diagnostic</div>
-            </div>
-        </a>
-
-        <div class="topbar-center">
-            <span class="sys-badge online"><span class="pulse-dot"></span>API FastAPI Active</span>
-            <span class="sys-badge model">🧠 ResNet-18 Dual-Encoder</span>
-            <span class="sys-badge rag">📚 ACR BI-RADS RAG (v5)</span>
-            <span class="sys-badge webhook">⚡ n8n Webhook</span>
-        </div>
-
-        <div class="topbar-right">
-            <a href="/dashboard" class="nav-btn">📊 Dashboard</a>
-            <a href="/docs" target="_blank" class="nav-btn">📑 API Docs ↗</a>
-            <a href="http://localhost:5678" target="_blank" class="nav-btn">⚡ n8n ↗</a>
-        </div>
-    </div>
-</header>
-
-<!-- ══════════════════════ HERO SECTION ══════════════════════ -->
-<section class="hero">
-    <div class="hero-inner">
-        <div class="hero-eyebrow">
-            <span>🔬</span>
-            Système d'Aide à la Décision Clinique · Imagerie Médicale IA
-        </div>
-        <h1 class="hero-title">
-            Diagnostic IA <span class="highlight">Multimodal</span><br>du Cancer du Sein
-        </h1>
-        <p class="hero-desc">
-            Plateforme clinique combinant un <strong>CNN ResNet-18 Dual-Encoder</strong>, des cartes d'explicabilité
-            <strong>Grad-CAM XAI</strong>, un moteur de recherche <strong>RAG vectoriel ACR BI-RADS</strong> (5e éd.) et
-            une boucle de sécurité anti-hallucination à <strong>10 garde-fous</strong>. Conforme aux directives ACR/EUSOBI.
-        </p>
-        <div class="hero-chips">
-            <span class="hero-chip">📷 Mammographie L-MLO / CC</span>
-            <span class="hero-chip">📡 Échographie Ciblée</span>
-            <span class="hero-chip">🎯 Cartes Grad-CAM XAI</span>
-            <span class="hero-chip">🛡️ Boucle Sécurité 10 Règles</span>
-            <span class="hero-chip">📄 Rapport Officiel Box 7 PDF</span>
-            <span class="hero-chip">📧 SMTP Gmail Sécurisé</span>
-        </div>
-    </div>
-</section>
-
-<!-- ══════════════════════ BENCHMARK PRESETS ══════════════════════ -->
-<section class="presets-section">
-    <div class="presets-inner">
-        <div class="section-label">🧪 Cas cliniques benchmark — Test Set Hold-Out (strictement inconnus du modèle) &mdash; Cliquez pour pré-charger instantanément</div>
-        <div class="presets-grid">
-
-            <!-- Case 1: URGENT -->
-            <div class="preset-card urgent" onclick="loadCase('P1eb742860c','58','Masse spiculée irrégulière au quadrant supéro-externe gauche, mesurant 18 mm. Atténuation acoustique postérieure franche avec engainement tissulaire et microcalcifications polymorphes groupées. Biopsie guidée au trocart (CNB) requise en urgence.','high',0)" tabindex="0" role="button">
-                <div class="preset-top">
-                    <span class="preset-pid">P1eb742860c</span>
-                    <span class="preset-badge urgent">🚨 URGENT</span>
-                </div>
-                <div class="preset-info">
-                    Âge : <strong>58 ans</strong> &bull; Masse spiculée 18 mm (QSE gauche). Atténuation acoustique franche &amp; microcalcifications polymorphes.
-                </div>
-                <div class="preset-footer">
-                    <span class="preset-birads urgent">BI-RADS 4A / 5</span>
-                    <span class="preset-cta">Biopsie CNB Immédiate →</span>
-                </div>
-            </div>
-
-            <!-- Case 2: SURVEILLANCE -->
-            <div class="preset-card watch" onclick="loadCase('Pf9bea655cf','46','Nodule circonscrit ovale, grand axe parallèle à la peau, mesurant 9 mm, sans atténuation postérieure. Aspect échographique compatible avec un fibroadénome bénin ou kyste compliqué stable. Absence d\'adénopathie axillaire suspecte.','moderate',1)" tabindex="0" role="button">
-                <div class="preset-top">
-                    <span class="preset-pid">Pf9bea655cf</span>
-                    <span class="preset-badge watch">🟡 SURVEILLANCE</span>
-                </div>
-                <div class="preset-info">
-                    Âge : <strong>46 ans</strong> &bull; Nodule circonscrit ovale 9 mm. Fibroadénome bénin ou kyste compliqué stable.
-                </div>
-                <div class="preset-footer">
-                    <span class="preset-birads watch">BI-RADS 3</span>
-                    <span class="preset-cta">Suivi 6 Mois →</span>
-                </div>
-            </div>
-
-            <!-- Case 3: ROUTINE -->
-            <div class="preset-card routine" onclick="loadCase('Paacb1ec57b','51','Examen de dépistage annuel bilatéral systématique. Absence de masse palpable, pas de distorsion architecturale ni de microcalcifications groupées suspectes. Tissu glandulaire homogène.','low',2)" tabindex="0" role="button">
-                <div class="preset-top">
-                    <span class="preset-pid">Paacb1ec57b</span>
-                    <span class="preset-badge routine">✅ ROUTINE</span>
-                </div>
-                <div class="preset-info">
-                    Âge : <strong>51 ans</strong> &bull; Dépistage annuel bilatéral négatif. Absence de masse ou de microcalcifications suspectes.
-                </div>
-                <div class="preset-footer">
-                    <span class="preset-birads routine">BI-RADS 1 / 2</span>
-                    <span class="preset-cta">Routine Annuelle →</span>
-                </div>
-            </div>
-
-        </div>
-    </div>
-</section>
-
-<!-- ══════════════════════ MAIN WORKSPACE ══════════════════════ -->
-<div class="workspace-wrap">
-
-    <!-- ─── LEFT SIDEBAR: INGESTION FORM ─── -->
-    <div>
-        <!-- Tab Toggle -->
-        <div class="tab-toggle" style="margin-bottom:16px;">
-            <button class="tab-toggle-btn active" id="btn-tab-upload" onclick="switchTab('upload')">
-                📤 Nouveau Dossier Patient
-            </button>
-            <button class="tab-toggle-btn" id="btn-tab-select" onclick="switchTab('select')">
-                📋 Registre Kaggle (20)
-            </button>
-        </div>
-
-        <!-- Upload Panel -->
-        <div id="panel-upload">
-            <div class="sidebar-card">
-                <div class="card-header">
-                    <div class="card-header-icon blue">📋</div>
-                    <div>
-                        <div class="card-header-title">Ingestion du Dossier Patient</div>
-                        <div class="card-header-sub">Analyse multimodale complète en temps réel</div>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <form id="upload-form" onsubmit="handleUploadSubmit(event)">
-
-                        <div class="field-row">
-                            <div class="field-group">
-                                <label class="field-label" for="up-id">
-                                    ID Patient
-                                    <span class="field-required">Requis</span>
-                                </label>
-                                <input type="text" id="up-id" class="form-input" required value="Paacb1ec57b" placeholder="ex: Paacb1ec57b" autocomplete="off">
-                            </div>
-                            <div class="field-group">
-                                <label class="field-label" for="up-age">
-                                    Âge
-                                    <span class="field-optional">Années</span>
-                                </label>
-                                <input type="number" id="up-age" class="form-input" value="51" min="18" max="105">
-                            </div>
-                        </div>
-
-                        <div class="field-group">
-                            <label class="field-label" for="up-notes">Observations Cliniques &amp; Anamnèse</label>
-                            <textarea id="up-notes" class="form-input" placeholder="Données cliniques, antécédents familiaux, caractéristiques palpatoires..."></textarea>
-                        </div>
-
-                        <div class="field-group">
-                            <label class="field-label" for="up-suspicion">Hypothèse Clinique de Travail</label>
-                            <select id="up-suspicion" class="form-input">
-                                <option value="high">🚨 Suspicion Forte → BI-RADS 4A/5 (Biopsie CNB)</option>
-                                <option value="moderate">🟡 Probablement Bénin → BI-RADS 3 (Suivi 6 mois)</option>
-                                <option value="low" selected>✅ Dépistage Négatif → BI-RADS 1/2 (Routine)</option>
-                            </select>
-                        </div>
-
-                        <!-- Dual Modality Dropzones -->
-                        <div class="dropzones-row">
-                            <div class="dropzone" onclick="document.getElementById('file-mammo').click()">
-                                <input type="file" id="file-mammo" accept="image/*" onchange="previewFile(this,'prev-mammo','txt-mammo','cnt-mammo','lbl-mammo')">
-                                <div class="dropzone-ico">📷</div>
-                                <div class="dropzone-label">Mammographie</div>
-                                <div class="dropzone-hint" id="txt-mammo">L-MLO / CC · PNG, DICOM</div>
-                                <div id="cnt-mammo" class="dropzone-preview-wrap">
-                                    <img id="prev-mammo" alt="">
-                                    <div class="dropzone-file-chip" id="lbl-mammo"></div>
-                                </div>
-                            </div>
-                            <div class="dropzone" onclick="document.getElementById('file-us').click()">
-                                <input type="file" id="file-us" accept="image/*" onchange="previewFile(this,'prev-us','txt-us','cnt-us','lbl-us')">
-                                <div class="dropzone-ico">📡</div>
-                                <div class="dropzone-label">Échographie</div>
-                                <div class="dropzone-hint" id="txt-us">Coupe ciblée · PNG, DICOM</div>
-                                <div id="cnt-us" class="dropzone-preview-wrap">
-                                    <img id="prev-us" alt="">
-                                    <div class="dropzone-file-chip" id="lbl-us"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="info-note">
-                            ℹ️ Si aucun fichier n'est uploadé, le pipeline utilisera automatiquement les scans validés du dataset BCMID.
-                        </div>
-
-                        <button type="submit" class="btn-primary" id="btn-submit-upload">
-                            <span>🚀</span>
-                            <span>Lancer le Pipeline IA Multimodal</span>
-                        </button>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Pipeline Stepper -->
-            <div id="progress-box" class="pipeline-box" style="margin-top:14px;">
-                <div class="pipeline-title">
-                    <div class="pipeline-spinner"></div>
-                    Exécution du Pipeline Hospitalier...
-                </div>
-                <div class="pipeline-steps">
-                    <div class="step-row" id="step-1"><span class="step-num">1</span>Ingestion &amp; Contrôle Qualité (SHA-256)</div>
-                    <div class="step-row" id="step-2"><span class="step-num">2</span>Vision CNN Dual-Encoder (ResNet-18)</div>
-                    <div class="step-row" id="step-3"><span class="step-num">3</span>Cartographie XAI Grad-CAM</div>
-                    <div class="step-row" id="step-4"><span class="step-num">4</span>Recherche RAG ACR BI-RADS (FAISS)</div>
-                    <div class="step-row" id="step-5"><span class="step-num">5</span>Audit Sécurité &amp; Triage n8n (Box 7)</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Kaggle Registry Panel -->
-        <div id="panel-select" style="display:none;">
-            <div class="registry-card">
-                <div class="card-header" style="border:none;padding:0 0 14px;">
-                    <div class="card-header-icon blue">📋</div>
-                    <div>
-                        <div class="card-header-title">Registre des 20 Dossiers Pré-Calculés</div>
-                        <div class="card-header-sub">Dataset Kaggle BCMID · Résultats GPU validés</div>
-                    </div>
-                </div>
-                <div class="registry-desc">
-                    Sélectionnez un cas parmi les 20 dossiers de référence calculés lors de l'exécution GPU pour inspecter instantanément le diagnostic structuré complet :
-                </div>
-                <div class="field-group">
-                    <label class="field-label" for="select-existing">Dossier Clinique Patient</label>
-                    <select id="select-existing" class="form-input" onchange="handleSelectExisting(this.value)">
-                        <option value="">— Sélectionnez une patiente dans le registre hospitalier —</option>
-                        <optgroup label="🚨 CAS URGENTS (Biopsie CNB Requise)">
-                            <option value="P0159">P0159 — BI-RADS 4A (Suspicion Modérée, Biopsie Recommandée)</option>
-                            <option value="P0309">P0309 — BI-RADS 5 (Forte Suspicion de Malignité)</option>
-                        </optgroup>
-                        <optgroup label="🟡 CAS SOUS SURVEILLANCE (Contrôle 6 Mois)">
-                            <option value="P0193">P0193 — BI-RADS 3 (Probablement Bénin)</option>
-                            <option value="P0207">P0207 — BI-RADS 3 (Probablement Bénin)</option>
-                            <option value="P0280">P0280 — BI-RADS 3 (Probablement Bénin)</option>
-                            <option value="P0284">P0284 — BI-RADS 3 (Probablement Bénin)</option>
-                            <option value="P0276">P0276 — BI-RADS 3 (Probablement Bénin)</option>
-                            <option value="P0017">P0017 — BI-RADS 3 (Probablement Bénin)</option>
-                            <option value="P0264">P0264 — BI-RADS 3 (Probablement Bénin)</option>
-                            <option value="P0022">P0022 — BI-RADS 3 (Probablement Bénin)</option>
-                            <option value="P0260">P0260 — BI-RADS 3 (Probablement Bénin)</option>
-                        </optgroup>
-                        <optgroup label="✅ CAS DE ROUTINE (Dépistage Annuel)">
-                            <option value="P0206">P0206 — BI-RADS 1 (Négatif)</option>
-                            <option value="P0221">P0221 — BI-RADS 1 (Négatif)</option>
-                            <option value="P0081">P0081 — BI-RADS 2 (Bénin)</option>
-                            <option value="P0176">P0176 — BI-RADS 2 (Bénin)</option>
-                        </optgroup>
-                    </select>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ─── RIGHT COLUMN: RESULTS ─── -->
-    <div class="results-col">
-
-        <!-- Alert Banner (initially hidden) -->
-        <div class="alert-banner" id="result-box">
-            <div class="banner-bar" id="banner-bar">
-                <div class="banner-left">
-                    <div class="banner-icon-wrap" id="res-badge-icon">🚨</div>
-                    <div>
-                        <div class="banner-heading" id="res-badge-title">ALERTE CLINIQUE URGENTE</div>
-                        <div class="banner-sub">Rapport généré · Signature radiologue requise</div>
-                    </div>
-                </div>
-                <div class="banner-pill" id="res-badge-prio">PRIORITÉ : URGENT</div>
-            </div>
-
-            <!-- KPI Row -->
-            <div class="kpi-row" style="padding:16px;background:#f8fafc;border-bottom:1px solid var(--slate-200);">
-                <div class="kpi-card">
-                    <div class="kpi-eyebrow">Catégorie BI-RADS</div>
-                    <div class="kpi-main" id="kpi-birads" style="color:var(--blue-700);">—</div>
-                    <div class="kpi-sub" id="kpi-birads-sub">Évaluation Multimodale</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-eyebrow">Indice de Confiance</div>
-                    <div class="kpi-main" id="kpi-conf" style="color:var(--emerald-600);">—</div>
-                    <div class="conf-bar-wrap"><div class="conf-bar-fill" id="conf-bar-fill"></div></div>
-                    <div class="kpi-sub">Concordance Vision + RAG</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-eyebrow">Priorité n8n Triage</div>
-                    <div class="kpi-main" id="kpi-priority">—</div>
-                    <div class="kpi-sub" id="kpi-action-short">Aiguillage Hospitalier</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-eyebrow">Audit Sécurité IA</div>
-                    <div class="kpi-main" style="color:var(--emerald-600);">100%</div>
-                    <div class="kpi-sub">10 Garde-Fous ACR Validés</div>
-                </div>
-            </div>
-
-            <!-- XAI Imaging Studio -->
-            <div class="studio-card" style="border-radius:0;border-left:none;border-right:none;border-bottom:none;">
-                <div class="studio-header">
-                    <div class="studio-title">
-                        🔬 Studio Imagerie Multimodale &amp; XAI Grad-CAM
-                    </div>
-                    <div class="studio-controls">
-                        <button type="button" class="view-toggle-btn active" onclick="setStudioLayout('both')">Vue Complète (4)</button>
-                        <button type="button" class="view-toggle-btn" onclick="setStudioLayout('heatmaps')">Grad-CAM Seuls</button>
-                    </div>
-                </div>
-                <div class="studio-body">
-                    <div class="modalities-grid" id="studio-grid">
-
-                        <!-- Mammography -->
-                        <div class="modality-panel">
-                            <div class="modality-top-bar">
-                                <span class="modality-name">📷 Mammographie (L-MLO / CC)</span>
-                                <span class="modality-tech-tag">CLAHE 512×512</span>
-                            </div>
-                            <div class="modality-scans">
-                                <div class="scan-cell" id="card-mammo-input">
-                                    <img id="img-mammo-input" src="" alt="Scan Mammographique">
-                                    <span class="scan-label-chip input">INPUT</span>
-                                    <div class="scan-caption">Scan d'Entrée</div>
-                                </div>
-                                <div class="scan-cell">
-                                    <img id="img-mammo-res" src="" alt="Grad-CAM Mammo">
-                                    <span class="scan-label-chip gcam">GRAD-CAM</span>
-                                    <div class="scan-caption">Carte d'Attention</div>
-                                </div>
-                            </div>
-                            <div class="colorbar-strip">
-                                <span>0.0 Normal</span>
-                                <div class="colorbar-gradient"></div>
-                                <span>1.0 Suspect</span>
-                            </div>
-                        </div>
-
-                        <!-- Ultrasound -->
-                        <div class="modality-panel">
-                            <div class="modality-top-bar">
-                                <span class="modality-name">📡 Échographie Mammaire Ciblée</span>
-                                <span class="modality-tech-tag">Médian 512×512</span>
-                            </div>
-                            <div class="modality-scans">
-                                <div class="scan-cell" id="card-us-input">
-                                    <img id="img-us-input" src="" alt="Scan Échographique">
-                                    <span class="scan-label-chip input">INPUT</span>
-                                    <div class="scan-caption">Scan d'Entrée</div>
-                                </div>
-                                <div class="scan-cell">
-                                    <img id="img-us-res" src="" alt="Grad-CAM US">
-                                    <span class="scan-label-chip gcam">GRAD-CAM</span>
-                                    <div class="scan-caption">Carte d'Attention</div>
-                                </div>
-                            </div>
-                            <div class="colorbar-strip">
-                                <span>0.0 Normal</span>
-                                <div class="colorbar-gradient"></div>
-                                <span>1.0 Suspect</span>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
-            <!-- Clinical Details Table -->
-            <div class="details-card" style="border-radius:0;border-left:none;border-right:none;border-bottom:none;border-top:1px solid var(--slate-200);">
-                <table class="details-table">
-                    <tr>
-                        <td>Identifiant Patient :</td>
-                        <td id="td-pid" style="font-family:'JetBrains Mono',monospace;font-size:12.5px;">—</td>
-                    </tr>
-                    <tr>
-                        <td>Source des Images :</td>
-                        <td id="td-img-source" style="font-size:12px;color:var(--slate-500);">—</td>
-                    </tr>
-                    <tr>
-                        <td>Catégorie BI-RADS Prédite :</td>
-                        <td id="td-birads" style="font-size:16px;color:var(--blue-700);">—</td>
-                    </tr>
-                    <tr>
-                        <td>Confiance du Modèle Multimodal :</td>
-                        <td id="td-conf">—</td>
-                    </tr>
-                    <tr>
-                        <td>Priorité Clinique (n8n Triage) :</td>
-                        <td id="td-prio">—</td>
-                    </tr>
-                    <tr>
-                        <td>Action Médicale Recommandée :</td>
-                        <td id="td-action">—</td>
-                    </tr>
-                    <tr>
-                        <td>Orchestration n8n :</td>
-                        <td id="td-n8n" style="color:var(--emerald-600);">⚡ Prêt pour Exécution</td>
-                    </tr>
-                    <tr>
-                        <td>Audit Sécurité Anti-Hallucination :</td>
-                        <td id="td-safety" style="color:var(--emerald-600);">✅ checks_passed (100% conforme)</td>
-                    </tr>
-                    <tr>
-                        <td>Validation Humaine :</td>
-                        <td style="color:var(--red-600);">⚠️ Signature Radiologue Diplômé Requise</td>
-                    </tr>
-                </table>
-            </div>
-
-            <!-- Interpretation Box -->
-            <div style="padding:16px 20px;background:#fff;">
-                <div class="reasoning-card">
-                    <div class="reasoning-title">
-                        🧠 Synthèse Clinique &amp; Interprétation IA (Agent de Raisonnement RAG)
-                    </div>
-                    <div class="reasoning-text" id="td-interp">
-                        Analyse multimodale en cours de traitement…
-                    </div>
-                </div>
-            </div>
-
-            <!-- Action Toolbar -->
-            <div style="padding:0 20px 16px;">
-                <div class="action-bar">
-                    <a id="btn-pdf-download" class="btn-download" href="#" download>
-                        📥 Télécharger Rapport Officiel PDF (Box 7)
-                    </a>
-                    <a id="btn-html-view" class="btn-outline" href="#" target="_blank">
-                        👁️ Dossier HTML ↗
-                    </a>
-                    <button type="button" class="btn-outline" onclick="window.print()">
-                        🖨️ Imprimer
-                    </button>
-                </div>
-            </div>
-
-            <!-- Email Hub -->
-            <div style="padding:0 20px 20px;">
-                <div class="email-card">
-                    <div class="email-header">
-                        <div class="email-icon-wrap">📧</div>
-                        <div>
-                            <div class="email-title">Expédition Sécurisée du Dossier Médical</div>
-                            <div class="email-subtitle">Envoie le rapport officiel <strong>Medical_Report_{ID}_BIRADS_{Cat}.pdf</strong> directement via Gmail SMTP au médecin référent.</div>
-                        </div>
-                    </div>
-                    <div class="email-input-row">
-                        <input type="email" id="email-recipient" class="email-field" placeholder="Adresse du médecin référent (ex: doctor@hospital.tn)" value="doctor.radiology@hospital.tn">
-                        <button type="button" class="btn-send" onclick="handleSendEmail()" id="btn-send-email">
-                            📤 Expédier
-                        </button>
-                    </div>
-                    <div id="email-status-box" class="email-feedback"></div>
-                </div>
-            </div>
-
-        </div><!-- end result-box -->
-
-        <!-- Empty state (shown before first analysis) -->
-        <div id="empty-state" style="background:#fff;border-radius:var(--radius-xl);border:1px solid var(--slate-200);padding:60px 40px;text-align:center;box-shadow:var(--shadow-sm);">
-            <div style="font-size:48px;margin-bottom:16px;">🩻</div>
-            <div style="font-size:16px;font-weight:800;color:var(--slate-700);margin-bottom:8px;">Aucune analyse en cours</div>
-            <div style="font-size:13px;color:var(--slate-500);max-width:360px;margin:0 auto;line-height:1.6;">
-                Renseignez un dossier patient à gauche et lancez le pipeline IA, ou cliquez sur un cas de benchmark ci-dessus pour un diagnostic instantané.
-            </div>
-        </div>
-
-    </div><!-- end results-col -->
-</div><!-- end workspace-wrap -->
-
-<!-- ══════════════════════ FOOTER ══════════════════════ -->
-<div class="page-footer">
-    <div style="display:flex;align-items:center;gap:10px;">
-        <span>BCMID Medical AI v2.0 PACS</span>
-        <span style="color:var(--slate-300);">|</span>
-        <span>FastAPI + ResNet-18 + RAG Llama-3 + n8n</span>
-        <span style="color:var(--slate-300);">|</span>
-        <span>ESPRIT 2025–2026</span>
-    </div>
-    <div class="footer-disclaimer">
-        ⚠️ Outil d'aide à la décision — Ne remplace pas le jugement clinique d'un radiologue certifié ACR.
-    </div>
+<!-- ████████████████ ANIMATED BACKGROUND ████████████████ -->
+<div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+  <!-- Grid -->
+  <div class="absolute inset-0 grid-bg opacity-60"></div>
+  <!-- Ambient Orbs -->
+  <div class="absolute -top-40 -left-40 w-96 h-96 rounded-full opacity-20 blur-3xl" style="background:radial-gradient(circle,#1a6dc0,transparent)"></div>
+  <div class="absolute -bottom-40 -right-40 w-96 h-96 rounded-full opacity-15 blur-3xl" style="background:radial-gradient(circle,#7c3aed,transparent)"></div>
+  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full opacity-10 blur-3xl" style="background:radial-gradient(circle,#059669,transparent)"></div>
 </div>
 
-<!-- ══════════════════════ JAVASCRIPT ══════════════════════ -->
+<!-- ████████████████ TOP NAVBAR ████████████████ -->
+<header class="glass-white sticky top-0 z-50 border-b border-slate-200/70 shadow-lg shadow-black/5">
+  <div class="max-w-7xl mx-auto px-6 h-[60px] flex items-center justify-between gap-4">
+
+    <!-- Brand -->
+    <a href="/form" class="flex items-center gap-3 no-underline flex-shrink-0">
+      <div class="w-9 h-9 rounded-xl flex items-center justify-center text-xl shadow-lg" style="background:linear-gradient(135deg,#0e3460,#1a6dc0);box-shadow:0 4px 14px rgba(26,109,192,.4)">🩺</div>
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="text-[15px] font-black text-brand-900 tracking-tight">BCMID Medical AI</span>
+          <span class="text-[10px] font-bold bg-brand-100 text-brand-700 px-2 py-0.5 rounded-full">v3.0 PACS</span>
+        </div>
+        <div class="text-[10.5px] text-slate-500 font-medium">Breast Cancer Multimodal Intelligent Diagnostic</div>
+      </div>
+    </a>
+
+    <!-- Status badges -->
+    <div class="hidden lg:flex items-center gap-2">
+      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+        API Active
+      </span>
+      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-brand-50 text-brand-700 border border-brand-200/60">🧠 ResNet-18 Dual</span>
+      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-violet-50 text-violet-700 border border-violet-200/60">📚 ACR BI-RADS RAG</span>
+      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200/60">⚡ n8n Webhook</span>
+    </div>
+
+    <!-- Nav Links -->
+    <div class="flex items-center gap-2 flex-shrink-0">
+      <a href="/dashboard" class="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-semibold text-slate-600 bg-slate-100 border border-slate-200 rounded-lg hover:bg-brand-700 hover:text-white hover:border-brand-700 transition-all duration-200 no-underline">📊 Dashboard</a>
+      <a href="/docs" target="_blank" class="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-semibold text-slate-600 bg-slate-100 border border-slate-200 rounded-lg hover:bg-brand-700 hover:text-white hover:border-brand-700 transition-all duration-200 no-underline">📑 API ↗</a>
+      <a href="http://localhost:5678" target="_blank" class="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-semibold text-slate-600 bg-slate-100 border border-slate-200 rounded-lg hover:bg-amber-600 hover:text-white hover:border-amber-600 transition-all duration-200 no-underline">⚡ n8n ↗</a>
+    </div>
+  </div>
+</header>
+
+<!-- ████████████████ HERO BANNER ████████████████ -->
+<section class="relative z-10 overflow-hidden" style="background:linear-gradient(135deg,#02111e 0%,#061828 40%,#0a2540 80%,#0e3460 100%)">
+  <div class="absolute inset-0 grid-bg opacity-40"></div>
+  <div class="absolute top-0 right-0 w-[600px] h-[600px] rounded-full blur-3xl opacity-10 pointer-events-none" style="background:radial-gradient(circle,#1a6dc0,transparent);transform:translate(20%,-30%)"></div>
+  <div class="relative z-10 max-w-7xl mx-auto px-6 py-10">
+    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[11.5px] font-bold tracking-wide uppercase mb-4" style="background:rgba(26,109,192,.12);border:1px solid rgba(26,109,192,.3);color:#7ab8e8">
+      <span class="w-1.5 h-1.5 rounded-full bg-brand-400 animate-pulse"></span>
+      Système d'Aide à la Décision Clinique · Imagerie IA Multimodale
+    </div>
+    <h1 class="text-[32px] font-black text-white tracking-tight leading-tight mb-3">
+      Diagnostic IA <span style="background:linear-gradient(90deg,#7ab8e8,#a5f3fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Multimodal</span><br>Cancer du Sein
+    </h1>
+    <p class="text-[13.5px] text-slate-400 max-w-3xl leading-relaxed mb-5">
+      Plateforme clinique combinant <strong class="text-slate-200">CNN ResNet-18 Dual-Encoder</strong>, cartes d'explicabilité
+      <strong class="text-slate-200">Grad-CAM XAI</strong>, moteur <strong class="text-slate-200">RAG vectoriel ACR BI-RADS v5</strong>
+      et boucle de sécurité anti-hallucination à <strong class="text-slate-200">10 garde-fous</strong>.
+    </p>
+    <div class="flex flex-wrap gap-2">
+      <span class="px-3 py-1.5 rounded-full text-[11px] font-semibold" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.85)">📷 Mammographie L-MLO/CC</span>
+      <span class="px-3 py-1.5 rounded-full text-[11px] font-semibold" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.85)">📡 Échographie Ciblée</span>
+      <span class="px-3 py-1.5 rounded-full text-[11px] font-semibold" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.85)">🎯 Grad-CAM XAI</span>
+      <span class="px-3 py-1.5 rounded-full text-[11px] font-semibold" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.85)">🛡️ 10 Garde-Fous Sécurité</span>
+      <span class="px-3 py-1.5 rounded-full text-[11px] font-semibold" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.85)">📄 Rapport PDF Box 7</span>
+    </div>
+  </div>
+</section>
+
+<!-- ████████████████ BENCHMARK PRESETS ████████████████ -->
+<section class="relative z-10 border-b border-white/5" style="background:rgba(6,24,40,.8)">
+  <div class="max-w-7xl mx-auto px-6 py-5">
+    <div class="flex items-center gap-3 mb-3">
+      <span class="text-[11px] font-bold tracking-widest uppercase text-slate-500">🧪 Cas cliniques benchmark — Hold-Out Test Set</span>
+      <div class="flex-1 h-px bg-white/5"></div>
+      <span class="text-[11px] text-slate-600">Cliquez pour pré-charger</span>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+
+      <!-- Case 1 URGENT -->
+      <div class="perspective cursor-pointer" onclick="loadCase('P1eb742860c','58','Masse spiculée irrégulière au quadrant supéro-externe gauche, mesurant 18 mm. Atténuation acoustique postérieure franche avec engainement tissulaire et microcalcifications polymorphes groupées. Biopsie guidée au trocart (CNB) requise en urgence.','high',0)">
+        <div class="card-3d relative rounded-2xl p-4 overflow-hidden" style="background:linear-gradient(135deg,rgba(127,29,29,.5),rgba(185,28,28,.2));border:1px solid rgba(239,68,68,.3)">
+          <div class="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl opacity-30" style="background:radial-gradient(#ef4444,transparent)"></div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="font-mono text-[12.5px] font-bold text-white">P1eb742860c</span>
+            <span class="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-red-900/60 text-red-300 border border-red-500/40 tracking-wide">🚨 URGENT</span>
+          </div>
+          <div class="text-[11.5px] text-red-200/80 leading-snug mb-3">
+            Âge <strong class="text-red-100">58 ans</strong> · Masse spiculée 18mm (QSE gauche). Microcalcifications polymorphes.
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="font-mono text-[12px] font-bold text-red-400">BI-RADS 4A/5</span>
+            <span class="text-[11px] text-red-300 flex items-center gap-1">Biopsie CNB →</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Case 2 SURVEILLANCE -->
+      <div class="perspective cursor-pointer" onclick="loadCase('Pf9bea655cf','46','Nodule circonscrit ovale, grand axe parallèle à la peau, mesurant 9 mm, sans atténuation postérieure. Aspect échographique compatible avec un fibroadénome bénin ou kyste compliqué stable. Absence d\'adénopathie axillaire suspecte.','moderate',1)">
+        <div class="card-3d relative rounded-2xl p-4 overflow-hidden" style="background:linear-gradient(135deg,rgba(120,53,15,.5),rgba(180,83,9,.2));border:1px solid rgba(245,158,11,.3)">
+          <div class="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl opacity-30" style="background:radial-gradient(#f59e0b,transparent)"></div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="font-mono text-[12.5px] font-bold text-white">Pf9bea655cf</span>
+            <span class="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-amber-900/60 text-amber-300 border border-amber-500/40 tracking-wide">🟡 SURVEILLANCE</span>
+          </div>
+          <div class="text-[11.5px] text-amber-200/80 leading-snug mb-3">
+            Âge <strong class="text-amber-100">46 ans</strong> · Nodule ovale 9mm. Fibroadénome probable ou kyste stable.
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="font-mono text-[12px] font-bold text-amber-400">BI-RADS 3</span>
+            <span class="text-[11px] text-amber-300 flex items-center gap-1">Suivi 6 mois →</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Case 3 ROUTINE -->
+      <div class="perspective cursor-pointer" onclick="loadCase('Paacb1ec57b','51','Examen de dépistage annuel bilatéral systématique. Absence de masse palpable, pas de distorsion architecturale ni de microcalcifications groupées suspectes. Tissu glandulaire homogène.','low',2)">
+        <div class="card-3d relative rounded-2xl p-4 overflow-hidden" style="background:linear-gradient(135deg,rgba(4,47,46,.5),rgba(6,78,59,.2));border:1px solid rgba(16,185,129,.3)">
+          <div class="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl opacity-30" style="background:radial-gradient(#10b981,transparent)"></div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="font-mono text-[12.5px] font-bold text-white">Paacb1ec57b</span>
+            <span class="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-emerald-900/60 text-emerald-300 border border-emerald-500/40 tracking-wide">✅ ROUTINE</span>
+          </div>
+          <div class="text-[11.5px] text-emerald-200/80 leading-snug mb-3">
+            Âge <strong class="text-emerald-100">51 ans</strong> · Dépistage bilatéral négatif. Aucune masse suspecte.
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="font-mono text-[12px] font-bold text-emerald-400">BI-RADS 1/2</span>
+            <span class="text-[11px] text-emerald-300 flex items-center gap-1">Routine Annuelle →</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ████████████████ MAIN WORKSPACE ████████████████ -->
+<div class="relative z-10 max-w-7xl mx-auto px-6 py-6 grid grid-cols-1 xl:grid-cols-[420px_1fr] gap-5 items-start">
+
+  <!-- ═══════════════════ LEFT SIDEBAR ═══════════════════ -->
+  <div class="space-y-4">
+
+    <!-- Tab Toggle -->
+    <div class="flex gap-1 p-1 rounded-xl" style="background:rgba(15,23,42,.8);border:1px solid rgba(71,85,105,.3)">
+      <button id="btn-tab-upload" onclick="switchTab('upload')" class="flex-1 py-2 px-3 rounded-lg text-[12px] font-bold transition-all duration-200 bg-brand-600 text-white shadow-lg shadow-brand-900/40">
+        📤 Nouveau Dossier
+      </button>
+      <button id="btn-tab-select" onclick="switchTab('select')" class="flex-1 py-2 px-3 rounded-lg text-[12px] font-bold transition-all duration-200 text-slate-400 hover:text-slate-200">
+        📋 Registre Kaggle (20)
+      </button>
+    </div>
+
+    <!-- ─── Upload Panel ─── -->
+    <div id="panel-upload">
+      <div class="rounded-2xl overflow-hidden" style="background:rgba(6,24,40,.85);border:1px solid rgba(58,143,214,.15);box-shadow:0 20px 60px rgba(0,0,0,.4)">
+        <!-- Card Header -->
+        <div class="px-5 py-4 flex items-center gap-3" style="background:linear-gradient(90deg,rgba(14,52,96,.8),rgba(6,24,40,.5));border-bottom:1px solid rgba(58,143,214,.15)">
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center text-lg" style="background:rgba(26,109,192,.2);border:1px solid rgba(26,109,192,.3)">📋</div>
+          <div>
+            <div class="text-[13.5px] font-extrabold text-white">Ingestion Dossier Patient</div>
+            <div class="text-[11px] text-slate-500">Analyse multimodale complète en temps réel</div>
+          </div>
+        </div>
+
+        <div class="p-5">
+          <form id="upload-form" onsubmit="handleUploadSubmit(event)">
+
+            <!-- ID + Age -->
+            <div class="grid grid-cols-2 gap-3 mb-3">
+              <div>
+                <label class="flex items-center justify-between text-[11.5px] font-bold text-slate-400 mb-1.5">
+                  ID Patient <span class="text-red-400 text-[10px]">Requis</span>
+                </label>
+                <input type="text" id="up-id" class="dark-input" required value="Paacb1ec57b" placeholder="ex: Paacb1ec57b" autocomplete="off">
+              </div>
+              <div>
+                <label class="flex items-center justify-between text-[11.5px] font-bold text-slate-400 mb-1.5">
+                  Âge <span class="text-slate-600 text-[10px]">Années</span>
+                </label>
+                <input type="number" id="up-age" class="dark-input" value="51" min="18" max="105">
+              </div>
+            </div>
+
+            <!-- Notes -->
+            <div class="mb-3">
+              <label class="block text-[11.5px] font-bold text-slate-400 mb-1.5">Observations Cliniques &amp; Anamnèse</label>
+              <textarea id="up-notes" class="dark-input" rows="3" placeholder="Données cliniques, antécédents familiaux, caractéristiques palpatoires..."></textarea>
+            </div>
+
+            <!-- Suspicion -->
+            <div class="mb-4">
+              <label class="block text-[11.5px] font-bold text-slate-400 mb-1.5">Hypothèse Clinique de Travail</label>
+              <select id="up-suspicion" class="dark-input">
+                <option value="high">🚨 Suspicion Forte → BI-RADS 4A/5 (Biopsie CNB)</option>
+                <option value="moderate">🟡 Probablement Bénin → BI-RADS 3 (Suivi 6 mois)</option>
+                <option value="low" selected>✅ Dépistage Négatif → BI-RADS 1/2 (Routine)</option>
+              </select>
+            </div>
+
+            <!-- Dropzones -->
+            <div class="grid grid-cols-2 gap-2.5 mb-3">
+              <div class="dropzone-area" onclick="document.getElementById('file-mammo').click()">
+                <input type="file" id="file-mammo" accept="image/*" onchange="previewFile(this,'prev-mammo','txt-mammo','cnt-mammo','lbl-mammo')">
+                <div class="text-3xl mb-1.5">📷</div>
+                <div class="text-[12px] font-bold text-slate-300">Mammographie</div>
+                <div class="text-[10.5px] text-slate-500" id="txt-mammo">L-MLO / CC</div>
+                <div id="cnt-mammo" class="hidden mt-2">
+                  <img id="prev-mammo" class="w-full max-h-24 object-contain rounded" alt="">
+                  <div class="text-[9.5px] font-semibold text-brand-400 mt-1 truncate" id="lbl-mammo"></div>
+                </div>
+              </div>
+              <div class="dropzone-area" onclick="document.getElementById('file-us').click()">
+                <input type="file" id="file-us" accept="image/*" onchange="previewFile(this,'prev-us','txt-us','cnt-us','lbl-us')">
+                <div class="text-3xl mb-1.5">📡</div>
+                <div class="text-[12px] font-bold text-slate-300">Échographie</div>
+                <div class="text-[10.5px] text-slate-500" id="txt-us">Coupe ciblée</div>
+                <div id="cnt-us" class="hidden mt-2">
+                  <img id="prev-us" class="w-full max-h-24 object-contain rounded" alt="">
+                  <div class="text-[9.5px] font-semibold text-brand-400 mt-1 truncate" id="lbl-us"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="text-[11px] text-slate-600 text-center mb-4 px-2 leading-relaxed">
+              ℹ️ Sans image uploadée, le pipeline utilise automatiquement les scans validés du dataset BCMID.
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" id="btn-submit-upload"
+              class="btn-shimmer w-full py-3.5 px-5 rounded-xl font-extrabold text-[14px] text-white flex items-center justify-center gap-2.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              style="background:linear-gradient(135deg,#0e3460,#1a6dc0);box-shadow:0 4px 20px rgba(26,109,192,.45)">
+              🚀 Lancer le Pipeline IA Multimodal
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- ═══════ ADVANCED 3D PIPELINE STEPPER ═══════ -->
+      <div id="progress-box" class="hidden rounded-2xl overflow-hidden mt-4"
+        style="background:rgba(2,17,30,.95);border:1px solid rgba(26,109,192,.2);box-shadow:0 0 60px rgba(26,109,192,.08),0 20px 60px rgba(0,0,0,.5)">
+
+        <!-- Header -->
+        <div class="px-5 py-4 flex items-center gap-3" style="background:linear-gradient(90deg,rgba(14,52,96,.7),rgba(2,17,30,.5));border-bottom:1px solid rgba(26,109,192,.15)">
+          <div class="relative w-8 h-8 flex items-center justify-center">
+            <div class="w-7 h-7 border-2 rounded-full animate-spin" style="border-color:rgba(26,109,192,.2);border-top-color:#1a6dc0"></div>
+            <div class="absolute inset-0 flex items-center justify-center text-[14px]">⚕️</div>
+          </div>
+          <div>
+            <div class="text-[13px] font-extrabold text-white tracking-wide">Pipeline Hospitalier en Cours</div>
+            <div class="text-[10.5px] text-brand-400 font-mono" id="pipeline-eta">Initialisation...</div>
+          </div>
+          <div class="ml-auto">
+            <div class="text-[11px] font-mono text-brand-300" id="pipeline-progress-pct">0%</div>
+          </div>
+        </div>
+
+        <!-- Global Progress Bar -->
+        <div class="px-5 pt-3 pb-1">
+          <div class="relative h-1.5 rounded-full overflow-hidden" style="background:rgba(26,109,192,.1)">
+            <div id="global-progress-bar" class="h-full rounded-full transition-all duration-700" style="background:linear-gradient(90deg,#0e3460,#1a6dc0,#7ab8e8);width:0%;box-shadow:0 0 8px rgba(26,109,192,.6)"></div>
+            <!-- Shimmer overlay -->
+            <div class="absolute inset-0 overflow-hidden rounded-full">
+              <div id="progress-shimmer" class="hidden absolute inset-y-0 w-1/3" style="background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent);animation:shimmer 1.2s linear infinite"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Steps List -->
+        <div class="px-5 py-4 space-y-2 perspective">
+
+          <!-- Step 1 -->
+          <div id="step-1" class="step-3d-card idle relative rounded-2xl p-4 flex items-center gap-4">
+            <div class="relative">
+              <div id="step-orb-1" class="step-orb idle font-mono">1</div>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[12.5px] font-bold text-slate-400" id="step-label-1">Ingestion &amp; Contrôle Qualité (SHA-256)</div>
+              <div class="text-[10.5px] text-slate-600 mt-0.5" id="step-desc-1">En attente...</div>
+            </div>
+            <div class="text-[20px] opacity-30" id="step-icon-1">🔒</div>
+          </div>
+
+          <!-- Connector 1→2 -->
+          <div id="conn-1" class="mx-auto w-0.5 h-3 rounded-full transition-all duration-500" style="background:rgba(71,85,105,.4);margin-left:21px"></div>
+
+          <!-- Step 2 -->
+          <div id="step-2" class="step-3d-card idle relative rounded-2xl p-4 flex items-center gap-4">
+            <div class="relative">
+              <div id="step-orb-2" class="step-orb idle font-mono">2</div>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[12.5px] font-bold text-slate-400" id="step-label-2">Vision CNN Dual-Encoder (ResNet-18)</div>
+              <div class="text-[10.5px] text-slate-600 mt-0.5" id="step-desc-2">En attente...</div>
+            </div>
+            <div class="text-[20px] opacity-30" id="step-icon-2">🧠</div>
+          </div>
+
+          <!-- Connector 2→3 -->
+          <div id="conn-2" class="mx-auto w-0.5 h-3 rounded-full transition-all duration-500" style="background:rgba(71,85,105,.4);margin-left:21px"></div>
+
+          <!-- Step 3 -->
+          <div id="step-3" class="step-3d-card idle relative rounded-2xl p-4 flex items-center gap-4">
+            <div class="relative">
+              <div id="step-orb-3" class="step-orb idle font-mono">3</div>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[12.5px] font-bold text-slate-400" id="step-label-3">Cartographie XAI Grad-CAM</div>
+              <div class="text-[10.5px] text-slate-600 mt-0.5" id="step-desc-3">En attente...</div>
+            </div>
+            <div class="text-[20px] opacity-30" id="step-icon-3">🎯</div>
+          </div>
+
+          <!-- Connector 3→4 -->
+          <div id="conn-3" class="mx-auto w-0.5 h-3 rounded-full transition-all duration-500" style="background:rgba(71,85,105,.4);margin-left:21px"></div>
+
+          <!-- Step 4 -->
+          <div id="step-4" class="step-3d-card idle relative rounded-2xl p-4 flex items-center gap-4">
+            <div class="relative">
+              <div id="step-orb-4" class="step-orb idle font-mono">4</div>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[12.5px] font-bold text-slate-400" id="step-label-4">Recherche RAG ACR BI-RADS (FAISS)</div>
+              <div class="text-[10.5px] text-slate-600 mt-0.5" id="step-desc-4">En attente...</div>
+            </div>
+            <div class="text-[20px] opacity-30" id="step-icon-4">📚</div>
+          </div>
+
+          <!-- Connector 4→5 -->
+          <div id="conn-4" class="mx-auto w-0.5 h-3 rounded-full transition-all duration-500" style="background:rgba(71,85,105,.4);margin-left:21px"></div>
+
+          <!-- Step 5 -->
+          <div id="step-5" class="step-3d-card idle relative rounded-2xl p-4 flex items-center gap-4">
+            <div class="relative">
+              <div id="step-orb-5" class="step-orb idle font-mono">5</div>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[12.5px] font-bold text-slate-400" id="step-label-5">Audit Sécurité &amp; Triage n8n (Box 7)</div>
+              <div class="text-[10.5px] text-slate-600 mt-0.5" id="step-desc-5">En attente...</div>
+            </div>
+            <div class="text-[20px] opacity-30" id="step-icon-5">🛡️</div>
+          </div>
+
+        </div><!-- /steps -->
+      </div><!-- /pipeline-box -->
+    </div><!-- /panel-upload -->
+
+    <!-- ─── Kaggle Registry Panel ─── -->
+    <div id="panel-select" class="hidden">
+      <div class="rounded-2xl overflow-hidden" style="background:rgba(6,24,40,.85);border:1px solid rgba(58,143,214,.15);box-shadow:0 20px 60px rgba(0,0,0,.4)">
+        <div class="px-5 py-4 flex items-center gap-3" style="background:linear-gradient(90deg,rgba(14,52,96,.8),rgba(6,24,40,.5));border-bottom:1px solid rgba(58,143,214,.15)">
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center text-lg" style="background:rgba(26,109,192,.2);border:1px solid rgba(26,109,192,.3)">📋</div>
+          <div>
+            <div class="text-[13.5px] font-extrabold text-white">Registre des 20 Dossiers</div>
+            <div class="text-[11px] text-slate-500">Dataset Kaggle BCMID · Résultats GPU validés</div>
+          </div>
+        </div>
+        <div class="p-5">
+          <p class="text-[12.5px] text-slate-400 leading-relaxed mb-4">
+            Sélectionnez un cas parmi les 20 dossiers de référence calculés lors de l'exécution GPU pour inspecter le diagnostic structuré complet.
+          </p>
+          <label class="block text-[11.5px] font-bold text-slate-400 mb-1.5">Dossier Clinique Patient</label>
+          <select id="select-existing" class="dark-input" onchange="handleSelectExisting(this.value)">
+            <option value="">— Sélectionnez une patiente —</option>
+            <optgroup label="🚨 CAS URGENTS">
+              <option value="P0159">P0159 — BI-RADS 4A (Biopsie Recommandée)</option>
+              <option value="P0309">P0309 — BI-RADS 5 (Forte Suspicion)</option>
+            </optgroup>
+            <optgroup label="🟡 SOUS SURVEILLANCE">
+              <option value="P0193">P0193 — BI-RADS 3</option>
+              <option value="P0207">P0207 — BI-RADS 3</option>
+              <option value="P0280">P0280 — BI-RADS 3</option>
+              <option value="P0284">P0284 — BI-RADS 3</option>
+              <option value="P0276">P0276 — BI-RADS 3</option>
+              <option value="P0017">P0017 — BI-RADS 3</option>
+              <option value="P0264">P0264 — BI-RADS 3</option>
+              <option value="P0022">P0022 — BI-RADS 3</option>
+              <option value="P0260">P0260 — BI-RADS 3</option>
+            </optgroup>
+            <optgroup label="✅ ROUTINE">
+              <option value="P0206">P0206 — BI-RADS 1 (Négatif)</option>
+              <option value="P0221">P0221 — BI-RADS 1 (Négatif)</option>
+              <option value="P0081">P0081 — BI-RADS 2 (Bénin)</option>
+              <option value="P0176">P0176 — BI-RADS 2 (Bénin)</option>
+            </optgroup>
+          </select>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /sidebar -->
+
+  <!-- ═══════════════════ RIGHT RESULTS COLUMN ═══════════════════ -->
+  <div class="space-y-4">
+
+    <!-- Empty State -->
+    <div id="empty-state" class="rounded-2xl flex flex-col items-center justify-center py-20 text-center" style="background:rgba(6,24,40,.6);border:1px dashed rgba(71,85,105,.3)">
+      <div class="text-6xl mb-4 animate-float">🩻</div>
+      <div class="text-[16px] font-extrabold text-slate-400 mb-2">Console Prête</div>
+      <div class="text-[13px] text-slate-600 max-w-xs leading-relaxed">
+        Renseignez un dossier patient et lancez le pipeline IA, ou sélectionnez un cas de benchmark pour un diagnostic instantané.
+      </div>
+    </div>
+
+    <!-- Results Hub (hidden initially) -->
+    <div id="result-box" class="hidden space-y-4">
+
+      <!-- ── Alert Banner ── -->
+      <div id="banner-bar" class="rounded-2xl overflow-hidden relative" style="box-shadow:0 16px 50px rgba(0,0,0,.5)">
+        <div class="p-5 flex items-center justify-between gap-4 flex-wrap">
+          <div class="flex items-center gap-4">
+            <div id="res-badge-icon" class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl" style="background:rgba(255,255,255,.15)">🚨</div>
+            <div>
+              <div id="res-badge-title" class="text-[18px] font-black text-white tracking-tight">ALERTE CLINIQUE URGENTE</div>
+              <div class="text-[12px] text-white/70 mt-0.5">Rapport généré · Signature radiologue requise</div>
+            </div>
+          </div>
+          <div id="res-badge-prio" class="px-4 py-2 rounded-xl font-black text-[12.5px] tracking-wide text-white" style="background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.28)">PRIORITÉ : URGENT</div>
+        </div>
+      </div>
+
+      <!-- ── KPI Cards 3D ── -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+
+        <div class="kpi-3d">
+          <div class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2">BI-RADS Score</div>
+          <div id="kpi-birads" class="text-[22px] font-black text-brand-400 mb-1">—</div>
+          <div id="kpi-birads-sub" class="text-[11px] text-slate-500">Évaluation Multimodale</div>
+        </div>
+
+        <div class="kpi-3d">
+          <div class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2">Confiance</div>
+          <div id="kpi-conf" class="text-[22px] font-black text-emerald-400 mb-1">—</div>
+          <div class="h-1.5 rounded-full overflow-hidden mb-1" style="background:rgba(16,185,129,.15)">
+            <div id="conf-bar-fill" class="h-full rounded-full transition-all duration-1000" style="width:0%;background:linear-gradient(90deg,#059669,#34d399);box-shadow:0 0 8px rgba(16,185,129,.5)"></div>
+          </div>
+          <div class="text-[11px] text-slate-500">Vision + RAG</div>
+        </div>
+
+        <div class="kpi-3d">
+          <div class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2">Triage n8n</div>
+          <div id="kpi-priority" class="text-[18px] font-black mb-1">—</div>
+          <div id="kpi-action-short" class="text-[11px] text-slate-500">Aiguillage Clinique</div>
+        </div>
+
+        <div class="kpi-3d">
+          <div class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2">Audit Sécurité IA</div>
+          <div class="text-[22px] font-black text-emerald-400 mb-1">100%</div>
+          <div class="text-[11px] text-slate-500">10 Garde-Fous ACR ✓</div>
+        </div>
+
+      </div>
+
+      <!-- ── XAI Imaging Studio ── -->
+      <div class="rounded-2xl overflow-hidden" style="background:rgba(2,17,30,.9);border:1px solid rgba(58,143,214,.2);box-shadow:0 16px 50px rgba(0,0,0,.4)">
+        <div class="px-5 py-3.5 flex items-center justify-between" style="background:rgba(14,52,96,.4);border-bottom:1px solid rgba(58,143,214,.15)">
+          <div class="flex items-center gap-2 text-[13.5px] font-extrabold text-white">
+            🔬 Studio XAI Multimodal &amp; Grad-CAM
+          </div>
+          <div class="flex gap-1.5">
+            <button onclick="setStudioLayout('both')" class="view-toggle-btn px-3 py-1 rounded-lg text-[11px] font-bold transition-all duration-200 active" style="background:rgba(26,109,192,.4);border:1px solid rgba(26,109,192,.4);color:#7ab8e8">Vue Complète</button>
+            <button onclick="setStudioLayout('heatmaps')" class="view-toggle-btn px-3 py-1 rounded-lg text-[11px] font-bold transition-all duration-200" style="background:rgba(71,85,105,.2);border:1px solid rgba(71,85,105,.3);color:#64748b">Grad-CAM Seuls</button>
+          </div>
+        </div>
+
+        <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4" id="studio-grid">
+
+          <!-- Mammography Block -->
+          <div class="rounded-xl overflow-hidden" style="background:#000;border:1px solid rgba(26,109,192,.2)">
+            <div class="flex items-center justify-between px-3 py-2" style="background:rgba(14,52,96,.5)">
+              <span class="text-[11.5px] font-bold text-slate-200">📷 Mammographie (L-MLO/CC)</span>
+              <span class="font-mono text-[10px] text-brand-400" style="background:rgba(26,109,192,.15);border:1px solid rgba(26,109,192,.25);padding:2px 8px;border-radius:4px">CLAHE 512×512</span>
+            </div>
+            <div class="grid grid-cols-2 gap-0.5 p-0.5">
+              <div class="scanner-frame relative aspect-square" id="card-mammo-input">
+                <img id="img-mammo-input" src="" class="w-full h-full object-contain" alt="">
+                <span class="absolute top-1.5 left-1.5 text-[9px] font-black tracking-widest px-1.5 py-0.5 rounded" style="background:rgba(30,41,59,.85);color:#64748b;border:1px solid rgba(71,85,105,.3)">INPUT</span>
+                <div class="absolute bottom-0 left-0 right-0 py-1 px-2 text-[10px] text-slate-400 font-semibold" style="background:linear-gradient(transparent,rgba(0,0,0,.7))">Scan d'Entrée</div>
+              </div>
+              <div class="scanner-frame relative aspect-square">
+                <img id="img-mammo-res" src="" class="w-full h-full object-contain" alt="">
+                <span class="absolute top-1.5 left-1.5 text-[9px] font-black tracking-widest px-1.5 py-0.5 rounded" style="background:rgba(185,28,28,.7);color:#fca5a5;border:1px solid rgba(239,68,68,.3)">GRAD-CAM</span>
+                <div class="absolute bottom-0 left-0 right-0 py-1 px-2 text-[10px] text-slate-400 font-semibold" style="background:linear-gradient(transparent,rgba(0,0,0,.7))">Carte d'Attention</div>
+              </div>
+            </div>
+            <!-- Colorbar -->
+            <div class="flex items-center gap-3 px-3 py-2 text-[10px] text-slate-500 font-semibold" style="background:rgba(14,52,96,.3)">
+              <span>🔵 Normal</span>
+              <div class="flex-1 h-1.5 rounded-full" style="background:linear-gradient(to right,#0000ff,#00ffff,#00ff00,#ffff00,#ff0000);box-shadow:0 0 4px rgba(26,109,192,.3)"></div>
+              <span>🔴 Suspect</span>
+            </div>
+          </div>
+
+          <!-- Ultrasound Block -->
+          <div class="rounded-xl overflow-hidden" style="background:#000;border:1px solid rgba(26,109,192,.2)">
+            <div class="flex items-center justify-between px-3 py-2" style="background:rgba(14,52,96,.5)">
+              <span class="text-[11.5px] font-bold text-slate-200">📡 Échographie Mammaire Ciblée</span>
+              <span class="font-mono text-[10px] text-brand-400" style="background:rgba(26,109,192,.15);border:1px solid rgba(26,109,192,.25);padding:2px 8px;border-radius:4px">Médian 512×512</span>
+            </div>
+            <div class="grid grid-cols-2 gap-0.5 p-0.5">
+              <div class="scanner-frame relative aspect-square" id="card-us-input">
+                <img id="img-us-input" src="" class="w-full h-full object-contain" alt="">
+                <span class="absolute top-1.5 left-1.5 text-[9px] font-black tracking-widest px-1.5 py-0.5 rounded" style="background:rgba(30,41,59,.85);color:#64748b;border:1px solid rgba(71,85,105,.3)">INPUT</span>
+                <div class="absolute bottom-0 left-0 right-0 py-1 px-2 text-[10px] text-slate-400 font-semibold" style="background:linear-gradient(transparent,rgba(0,0,0,.7))">Scan d'Entrée</div>
+              </div>
+              <div class="scanner-frame relative aspect-square">
+                <img id="img-us-res" src="" class="w-full h-full object-contain" alt="">
+                <span class="absolute top-1.5 left-1.5 text-[9px] font-black tracking-widest px-1.5 py-0.5 rounded" style="background:rgba(185,28,28,.7);color:#fca5a5;border:1px solid rgba(239,68,68,.3)">GRAD-CAM</span>
+                <div class="absolute bottom-0 left-0 right-0 py-1 px-2 text-[10px] text-slate-400 font-semibold" style="background:linear-gradient(transparent,rgba(0,0,0,.7))">Carte d'Attention</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 px-3 py-2 text-[10px] text-slate-500 font-semibold" style="background:rgba(14,52,96,.3)">
+              <span>🔵 Normal</span>
+              <div class="flex-1 h-1.5 rounded-full" style="background:linear-gradient(to right,#0000ff,#00ffff,#00ff00,#ffff00,#ff0000);box-shadow:0 0 4px rgba(26,109,192,.3)"></div>
+              <span>🔴 Suspect</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── Clinical Details Table ── -->
+      <div class="rounded-2xl overflow-hidden" style="background:rgba(6,24,40,.85);border:1px solid rgba(58,143,214,.15)">
+        <div class="px-5 py-3.5 text-[12.5px] font-extrabold text-slate-300" style="border-bottom:1px solid rgba(58,143,214,.1);background:rgba(14,52,96,.3)">
+          📊 Données Cliniques Structurées
+        </div>
+        <div class="divide-y divide-white/5">
+          <div class="flex items-center justify-between px-5 py-3">
+            <span class="text-[12.5px] text-slate-500 font-semibold">Identifiant Patient</span>
+            <span id="td-pid" class="font-mono text-[12px] font-bold text-slate-200">—</span>
+          </div>
+          <div class="flex items-center justify-between px-5 py-3">
+            <span class="text-[12.5px] text-slate-500 font-semibold">Source des Images</span>
+            <span id="td-img-source" class="text-[12px] font-bold text-slate-400 text-right max-w-xs">—</span>
+          </div>
+          <div class="flex items-center justify-between px-5 py-3">
+            <span class="text-[12.5px] text-slate-500 font-semibold">BI-RADS Prédite</span>
+            <span id="td-birads" class="text-[16px] font-black text-brand-400">—</span>
+          </div>
+          <div class="flex items-center justify-between px-5 py-3">
+            <span class="text-[12.5px] text-slate-500 font-semibold">Confiance Multimodale</span>
+            <span id="td-conf" class="text-[13px] font-bold text-slate-200">—</span>
+          </div>
+          <div class="flex items-center justify-between px-5 py-3">
+            <span class="text-[12.5px] text-slate-500 font-semibold">Priorité Clinique (n8n)</span>
+            <span id="td-prio" class="text-[13px] font-bold">—</span>
+          </div>
+          <div class="flex items-center justify-between px-5 py-3">
+            <span class="text-[12.5px] text-slate-500 font-semibold">Action Médicale</span>
+            <span id="td-action" class="text-[12.5px] font-bold text-slate-200 text-right">—</span>
+          </div>
+          <div class="flex items-center justify-between px-5 py-3">
+            <span class="text-[12.5px] text-slate-500 font-semibold">Orchestration n8n</span>
+            <span id="td-n8n" class="text-[12px] font-bold text-emerald-400">⚡ Prêt</span>
+          </div>
+          <div class="flex items-center justify-between px-5 py-3">
+            <span class="text-[12.5px] text-slate-500 font-semibold">Audit Sécurité Anti-Hallucination</span>
+            <span id="td-safety" class="text-[12px] font-bold text-emerald-400">✅ 100% conforme</span>
+          </div>
+          <div class="flex items-center justify-between px-5 py-3">
+            <span class="text-[12.5px] text-slate-500 font-semibold">Validation Humaine</span>
+            <span class="text-[12px] font-bold text-red-400">⚠️ Signature Radiologue Requise</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Interpretation Box ── -->
+      <div class="rounded-2xl p-5" style="background:rgba(14,52,96,.3);border:1px solid rgba(26,109,192,.2);border-left:4px solid rgba(26,109,192,.6)">
+        <div class="text-[11px] font-extrabold uppercase tracking-widest text-brand-400 mb-3 flex items-center gap-2">
+          🧠 Synthèse Clinique &amp; Interprétation IA (Agent RAG)
+        </div>
+        <div id="td-interp" class="text-[13px] text-slate-300 leading-relaxed">
+          Analyse en attente de traitement…
+        </div>
+      </div>
+
+      <!-- ── Action Buttons ── -->
+      <div class="flex flex-wrap gap-3">
+        <a id="btn-pdf-download" href="#" download class="btn-shimmer flex-[2] min-w-[200px] flex items-center justify-center gap-2.5 py-3.5 px-5 rounded-xl font-bold text-[13.5px] text-white no-underline transition-all duration-200 hover:-translate-y-0.5"
+          style="background:linear-gradient(135deg,#0e3460,#1a6dc0);box-shadow:0 4px 20px rgba(26,109,192,.4)">
+          📥 Télécharger Rapport PDF (Box 7)
+        </a>
+        <a id="btn-html-view" href="#" target="_blank" class="btn-shimmer flex-1 min-w-[130px] flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl font-bold text-[13px] no-underline transition-all duration-200 hover:-translate-y-0.5"
+          style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:#94a3b8">
+          👁️ Dossier HTML ↗
+        </a>
+        <button onclick="window.print()" class="btn-shimmer flex-1 min-w-[110px] flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl font-bold text-[13px] transition-all duration-200 hover:-translate-y-0.5"
+          style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:#94a3b8">
+          🖨️ Imprimer
+        </button>
+      </div>
+
+      <!-- ── Email Hub ── -->
+      <div class="rounded-2xl p-5" style="background:rgba(6,24,40,.85);border:1.5px dashed rgba(58,143,214,.3)">
+        <div class="flex items-start gap-3 mb-4">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0" style="background:rgba(26,109,192,.15);border:1px solid rgba(26,109,192,.25)">📧</div>
+          <div>
+            <div class="text-[14px] font-extrabold text-white mb-0.5">Expédition Sécurisée du Dossier</div>
+            <div class="text-[12px] text-slate-500 leading-snug">Envoie <strong class="text-slate-400">Medical_Report_{ID}_BIRADS_{Cat}.pdf</strong> via Gmail SMTP au médecin référent.</div>
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <input type="email" id="email-recipient" class="dark-input flex-1" placeholder="doctor@hospital.tn" value="doctor.radiology@hospital.tn">
+          <button onclick="handleSendEmail()" id="btn-send-email"
+            class="btn-shimmer flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-[13px] text-white transition-all duration-200 whitespace-nowrap hover:-translate-y-0.5 disabled:opacity-50"
+            style="background:linear-gradient(135deg,#0e3460,#1a6dc0);box-shadow:0 4px 14px rgba(26,109,192,.35)">
+            📤 Expédier
+          </button>
+        </div>
+        <div id="email-status-box" class="hidden mt-3 p-3.5 rounded-xl text-[12.5px] leading-relaxed"></div>
+      </div>
+
+    </div><!-- /result-box -->
+  </div><!-- /results col -->
+</div><!-- /workspace -->
+
+<!-- ████████████████ FOOTER ████████████████ -->
+<div class="relative z-10 max-w-7xl mx-auto px-6 pb-6 flex flex-wrap items-center justify-between gap-3">
+  <div class="flex items-center gap-3 text-[11px] text-slate-600">
+    <span>BCMID Medical AI v3.0 PACS</span>
+    <span class="text-slate-700">|</span>
+    <span>FastAPI · ResNet-18 · RAG Llama-3 · n8n</span>
+    <span class="text-slate-700">|</span>
+    <span>ESPRIT 2025–2026</span>
+  </div>
+  <div class="flex items-center gap-2 px-3.5 py-2 rounded-lg text-[11px] font-semibold text-amber-600" style="background:rgba(217,119,6,.08);border:1px solid rgba(217,119,6,.2)">
+    ⚠️ Outil d'aide à la décision — Ne remplace pas le jugement clinique d'un radiologue certifié ACR.
+  </div>
+</div>
+
+<!-- ████████████████ JAVASCRIPT ████████████████ -->
 <script>
 let currentPatientId = 'Paacb1ec57b';
 
-/* ── Tab switching ── */
+/* ═══ STEP CONFIG ═══ */
+const STEPS = [
+  { id:1, icon:'🔒', activeDesc:'Validation SHA-256 · Contrôle intégrité DICOM...', doneDesc:'Fichiers validés · Intégrité confirmée ✓' },
+  { id:2, icon:'🧠', activeDesc:'Inférence CNN ResNet-18 · Extraction features...', doneDesc:'Prédiction multimodale générée ✓' },
+  { id:3, icon:'🎯', activeDesc:'Calcul cartes Grad-CAM · Superposition heatmaps...', doneDesc:'Cartes XAI générées · 4 scans disponibles ✓' },
+  { id:4, icon:'📚', activeDesc:'Recherche vectorielle FAISS · RAG ACR BI-RADS...', doneDesc:'3 chunks contextuels récupérés ✓' },
+  { id:5, icon:'🛡️', activeDesc:'Validation 10 garde-fous · Triage n8n en cours...', doneDesc:'Audit 100% conforme · Rapport Box 7 généré ✓' },
+];
+
+const PROGRESS_LABELS = [
+  'Initialisation du pipeline...',
+  'Ingestion en cours...',
+  'Analyse vision CNN...',
+  'Génération XAI Grad-CAM...',
+  'Recherche RAG FAISS...',
+  'Validation finale & Triage...',
+  'Rapport généré avec succès !',
+];
+
+/* ═══ TAB SWITCHING ═══ */
 function switchTab(tab) {
-    const isUpload = tab === 'upload';
-    document.getElementById('panel-upload').style.display = isUpload ? 'block' : 'none';
-    document.getElementById('panel-select').style.display = isUpload ? 'none' : 'block';
-    document.getElementById('btn-tab-upload').classList.toggle('active', isUpload);
-    document.getElementById('btn-tab-select').classList.toggle('active', !isUpload);
+  const isUpload = tab === 'upload';
+  document.getElementById('panel-upload').classList.toggle('hidden', !isUpload);
+  document.getElementById('panel-select').classList.toggle('hidden', isUpload);
+  document.getElementById('btn-tab-upload').className = 'flex-1 py-2 px-3 rounded-lg text-[12px] font-bold transition-all duration-200 ' +
+    (isUpload ? 'bg-brand-600 text-white shadow-lg shadow-brand-900/40' : 'text-slate-400 hover:text-slate-200');
+  document.getElementById('btn-tab-select').className = 'flex-1 py-2 px-3 rounded-lg text-[12px] font-bold transition-all duration-200 ' +
+    (!isUpload ? 'bg-brand-600 text-white shadow-lg shadow-brand-900/40' : 'text-slate-400 hover:text-slate-200');
 }
 
-/* ── Benchmark Preset Loader ── */
+/* ═══ BENCHMARK PRESET LOADER ═══ */
 function loadCase(pid, age, notes, suspicion, cardIdx) {
-    switchTab('upload');
-    document.getElementById('up-id').value = pid;
-    document.getElementById('up-age').value = age;
-    document.getElementById('up-notes').value = notes;
-    document.getElementById('up-suspicion').value = suspicion;
-    animatePresetCard(cardIdx);
+  switchTab('upload');
+  document.getElementById('up-id').value = pid;
+  document.getElementById('up-age').value = age;
+  document.getElementById('up-notes').value = notes;
+  document.getElementById('up-suspicion').value = suspicion;
+  // Animate selected preset card
+  const cards = document.querySelectorAll('.preset-card, [onclick*="loadCase"]');
 }
 
-function animatePresetCard(idx) {
-    const cards = document.querySelectorAll('.preset-card');
-    cards.forEach((c, i) => {
-        c.style.transition = 'all .25s';
-        if (i === idx) {
-            c.style.transform = 'scale(1.03)';
-            c.style.boxShadow = '0 0 0 2.5px var(--blue-500), var(--shadow-lg)';
-            setTimeout(() => {
-                c.style.transform = '';
-                c.style.boxShadow = '';
-            }, 700);
-        }
-    });
-}
-
-/* ── Dropzone File Preview ── */
+/* ═══ DROPZONE PREVIEW ═══ */
 function previewFile(input, imgId, txtId, cntId, lblId) {
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = e => {
-            document.getElementById(imgId).src = e.target.result;
-            document.getElementById(cntId).style.display = 'block';
-            document.getElementById(txtId).style.display = 'none';
-            document.getElementById(lblId).textContent = '📁 ' + input.files[0].name;
-        };
-        reader.readAsDataURL(input.files[0]);
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.getElementById(imgId).src = e.target.result;
+      document.getElementById(cntId).classList.remove('hidden');
+      document.getElementById(txtId).style.display = 'none';
+      document.getElementById(lblId).textContent = '📁 ' + input.files[0].name;
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+/* ═══ 3D ADVANCED STEP SETTER ═══ */
+function setStep(n, status) {
+  const card  = document.getElementById(`step-${n}`);
+  const orb   = document.getElementById(`step-orb-${n}`);
+  const label = document.getElementById(`step-label-${n}`);
+  const desc  = document.getElementById(`step-desc-${n}`);
+  const icon  = document.getElementById(`step-icon-${n}`);
+  const conn  = document.getElementById(`conn-${n}`);
+  const step  = STEPS.find(s => s.id === n);
+  if (!card || !orb) return;
+
+  // Remove all status classes
+  ['idle','active','done'].forEach(c => {
+    card.classList.remove(c);
+    orb.classList.remove(c);
+  });
+  card.classList.add(status);
+  orb.classList.add(status);
+
+  if (status === 'active') {
+    // Orb content: animated dots
+    orb.innerHTML = '<div class="flex gap-0.5"><span style="animation:bounce 0.6s ease-in-out 0s infinite alternate;display:inline-block;width:4px;height:4px;background:#fff;border-radius:50%"></span><span style="animation:bounce 0.6s ease-in-out 0.15s infinite alternate;display:inline-block;width:4px;height:4px;background:#fff;border-radius:50%"></span><span style="animation:bounce 0.6s ease-in-out 0.3s infinite alternate;display:inline-block;width:4px;height:4px;background:#fff;border-radius:50%"></span></div>';
+    label.style.color = '#7ab8e8';
+    desc.textContent  = step ? step.activeDesc : 'Traitement en cours...';
+    desc.style.color  = 'rgba(122,184,232,.7)';
+    icon.style.opacity = '1';
+    icon.textContent   = step ? step.icon : '⚡';
+    // Add ring pulses
+    addRings(card);
+    // Shimmer loader
+    document.getElementById('progress-shimmer')?.classList.remove('hidden');
+  } else if (status === 'done') {
+    orb.textContent = '✓';
+    orb.style.fontFamily = 'sans-serif';
+    orb.style.fontSize = '18px';
+    label.style.color = '#6ee7b7';
+    desc.textContent  = step ? step.doneDesc : 'Terminé ✓';
+    desc.style.color  = 'rgba(52,211,153,.7)';
+    icon.style.opacity = '1';
+    icon.textContent   = step ? step.icon : '✅';
+    // Update connector
+    if (conn) {
+      conn.style.background = 'linear-gradient(to bottom, rgba(16,185,129,.9), rgba(16,185,129,.2))';
+      conn.style.boxShadow  = '0 0 6px rgba(16,185,129,.4)';
     }
+    removeRings(card);
+  } else {
+    orb.textContent = n;
+    orb.style.fontFamily = '';
+    orb.style.fontSize = '';
+    label.style.color = '#475569';
+    desc.textContent  = 'En attente...';
+    desc.style.color  = '';
+    icon.style.opacity = '0.3';
+    icon.textContent   = step ? step.icon : '';
+    removeRings(card);
+  }
+
+  // Update connector after
+  const nextConn = document.getElementById(`conn-${n}`);
+  if (nextConn && status === 'active') {
+    nextConn.style.background = 'linear-gradient(to bottom, rgba(26,109,192,.9), rgba(26,109,192,.2))';
+    nextConn.style.boxShadow  = '0 0 8px rgba(26,109,192,.5)';
+  }
 }
 
-/* ── Studio Layout Toggle ── */
+function addRings(card) {
+  removeRings(card);
+  const r1 = document.createElement('div'); r1.className='ring-pulse'; r1.setAttribute('data-ring','1');
+  const r2 = document.createElement('div'); r2.className='ring-pulse-2'; r2.setAttribute('data-ring','2');
+  card.appendChild(r1);
+  card.appendChild(r2);
+}
+
+function removeRings(card) {
+  card.querySelectorAll('[data-ring]').forEach(r => r.remove());
+}
+
+/* ═══ GLOBAL PROGRESS BAR ═══ */
+function updateGlobalProgress(pct, label) {
+  const bar = document.getElementById('global-progress-bar');
+  const pctEl = document.getElementById('pipeline-progress-pct');
+  const etaEl = document.getElementById('pipeline-eta');
+  if (bar) bar.style.width = pct + '%';
+  if (pctEl) pctEl.textContent = pct + '%';
+  if (etaEl) etaEl.textContent = label;
+}
+
+/* ═══ XAI STUDIO LAYOUT ═══ */
 function setStudioLayout(mode) {
-    const cardMammo = document.getElementById('card-mammo-input');
-    const cardUs = document.getElementById('card-us-input');
-    const btns = document.querySelectorAll('.view-toggle-btn');
-    const isHeatmap = mode === 'heatmaps';
-    if (cardMammo) cardMammo.style.display = isHeatmap ? 'none' : '';
-    if (cardUs)    cardUs.style.display    = isHeatmap ? 'none' : '';
-    btns[0].classList.toggle('active', !isHeatmap);
-    btns[1].classList.toggle('active', isHeatmap);
+  const mammoIn = document.getElementById('card-mammo-input');
+  const usIn    = document.getElementById('card-us-input');
+  const btns    = document.querySelectorAll('.view-toggle-btn');
+  const isHeat  = mode === 'heatmaps';
+  if (mammoIn) mammoIn.style.display = isHeat ? 'none' : '';
+  if (usIn)    usIn.style.display    = isHeat ? 'none' : '';
+  btns.forEach((b,i) => {
+    if (i===0 && !isHeat || i===1 && isHeat) {
+      b.style.background = 'rgba(26,109,192,.4)';
+      b.style.borderColor = 'rgba(26,109,192,.4)';
+      b.style.color = '#7ab8e8';
+    } else {
+      b.style.background = 'rgba(71,85,105,.2)';
+      b.style.borderColor = 'rgba(71,85,105,.3)';
+      b.style.color = '#64748b';
+    }
+  });
 }
 
-/* ── Pipeline Stepper ── */
+/* ═══ SLEEP UTIL ═══ */
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-function setStep(n, status) {
-    const el = document.getElementById(`step-${n}`);
-    if (!el) return;
-    el.className = 'step-row ' + status;
-    const num = el.querySelector('.step-num');
-    num.textContent = status === 'done' ? '✓' : status === 'active' ? '…' : n;
-}
-
-/* ── Upload & Analyze ── */
+/* ═══ SUBMIT HANDLER ═══ */
 async function handleUploadSubmit(e) {
-    e.preventDefault();
-    const btn  = document.getElementById('btn-submit-upload');
-    const pBox = document.getElementById('progress-box');
-    const res  = document.getElementById('result-box');
+  e.preventDefault();
+  const btn   = document.getElementById('btn-submit-upload');
+  const pBox  = document.getElementById('progress-box');
+  const res   = document.getElementById('result-box');
+  const empty = document.getElementById('empty-state');
 
-    btn.disabled = true;
-    pBox.style.display = 'block';
-    res.style.display  = 'none';
+  btn.disabled = true;
+  btn.innerHTML = '<div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div><span>Traitement en cours...</span>';
+  pBox.classList.remove('hidden');
+  res.classList.add('hidden');
 
-    // Reset stepper
-    for (let i = 1; i <= 5; i++) setStep(i, '');
+  // Reset all steps
+  for (let i=1;i<=5;i++) setStep(i,'idle');
+  updateGlobalProgress(0, PROGRESS_LABELS[0]);
+  await sleep(300);
 
-    setStep(1, 'active'); await sleep(380);
-    setStep(1, 'done'); setStep(2, 'active'); await sleep(440);
-    setStep(2, 'done'); setStep(3, 'active'); await sleep(380);
-    setStep(3, 'done'); setStep(4, 'active'); await sleep(440);
-    setStep(4, 'done'); setStep(5, 'active');
+  // Step 1
+  setStep(1,'active'); updateGlobalProgress(8, PROGRESS_LABELS[1]); await sleep(400);
+  setStep(1,'done');   updateGlobalProgress(22, PROGRESS_LABELS[1]); await sleep(200);
 
-    const fd = new FormData();
-    fd.append('pseudo_id', document.getElementById('up-id').value);
-    fd.append('age', document.getElementById('up-age').value);
-    fd.append('clinical_notes', document.getElementById('up-notes').value);
-    fd.append('suspicion_level', document.getElementById('up-suspicion').value);
+  // Step 2
+  setStep(2,'active'); updateGlobalProgress(30, PROGRESS_LABELS[2]); await sleep(450);
 
-    const mammoFile = document.getElementById('file-mammo').files[0];
-    if (mammoFile) fd.append('mammo_file', mammoFile);
-    const usFile = document.getElementById('file-us').files[0];
-    if (usFile) fd.append('us_file', usFile);
+  // Build FormData
+  const fd = new FormData();
+  fd.append('pseudo_id', document.getElementById('up-id').value);
+  fd.append('age', document.getElementById('up-age').value);
+  fd.append('clinical_notes', document.getElementById('up-notes').value);
+  fd.append('suspicion_level', document.getElementById('up-suspicion').value);
+  const mammoF = document.getElementById('file-mammo').files[0];
+  if (mammoF) fd.append('mammo_file', mammoF);
+  const usF = document.getElementById('file-us').files[0];
+  if (usF) fd.append('us_file', usF);
 
-    try {
-        const resp = await fetch('http://localhost:8000/patient/upload_and_analyze', { method: 'POST', body: fd });
-        if (!resp.ok) throw new Error('Erreur API HTTP ' + resp.status);
-        const data = await resp.json();
-        setStep(5, 'done');
-        await sleep(260);
-        displayResult(data);
-    } catch (err) {
-        alert('❌ Erreur lors du traitement : ' + err.message);
-    } finally {
-        btn.disabled = false;
+  try {
+    setStep(2,'done'); updateGlobalProgress(48, PROGRESS_LABELS[2]); await sleep(200);
+    setStep(3,'active'); updateGlobalProgress(56, PROGRESS_LABELS[3]); await sleep(380);
+    setStep(3,'done'); updateGlobalProgress(68, PROGRESS_LABELS[3]); await sleep(200);
+    setStep(4,'active'); updateGlobalProgress(74, PROGRESS_LABELS[4]); await sleep(420);
+
+    const resp = await fetch('http://localhost:8000/patient/upload_and_analyze', { method:'POST', body:fd });
+    if (!resp.ok) throw new Error('Erreur API HTTP ' + resp.status);
+    const data = await resp.json();
+
+    setStep(4,'done'); updateGlobalProgress(86, PROGRESS_LABELS[4]); await sleep(200);
+    setStep(5,'active'); updateGlobalProgress(92, PROGRESS_LABELS[5]); await sleep(380);
+    setStep(5,'done'); updateGlobalProgress(100, PROGRESS_LABELS[6]); await sleep(300);
+    document.getElementById('progress-shimmer')?.classList.add('hidden');
+
+    displayResult(data);
+    if (empty) empty.classList.add('hidden');
+    res.classList.remove('hidden');
+    res.scrollIntoView({ behavior:'smooth', block:'start' });
+
+  } catch (err) {
+    // Mark current as failed
+    for (let i=1;i<=5;i++) {
+      const el = document.getElementById(`step-${i}`);
+      if (el && el.classList.contains('active')) {
+        setStep(i,'idle');
+        const desc = document.getElementById(`step-desc-${i}`);
+        if (desc) { desc.textContent = '❌ Erreur: ' + err.message; desc.style.color='rgba(239,68,68,.8)'; }
+      }
     }
+    updateGlobalProgress(0, '❌ Erreur pipeline: ' + err.message);
+    alert('❌ Erreur : ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '🚀 Lancer le Pipeline IA Multimodal';
+  }
 }
 
-/* ── Select Existing (Kaggle Registry) ── */
+/* ═══ SELECT EXISTING ═══ */
 async function handleSelectExisting(pid) {
-    if (!pid) return;
-    try {
-        const resp = await fetch(`http://localhost:8000/kaggle/reports/${pid}/triage`);
-        if (!resp.ok) throw new Error('Erreur API HTTP ' + resp.status);
-        const d = await resp.json();
-        displayResult({
-            pseudo_id: d.pseudo_id,
-            predicted_birads: d.predicted_birads,
-            confidence: d.confidence,
-            clinical_priority: d.clinical_priority,
-            action_required: d.action_required,
-            safety_status: d.safety_status,
-            interpretation: d.interpretation,
-            mammo_image_url:   `http://localhost:8000/uploads/${d.pseudo_id}/${d.pseudo_id}_mammo.png`,
-            us_image_url:      `http://localhost:8000/uploads/${d.pseudo_id}/${d.pseudo_id}_us.png`,
-            mammo_gradcam_url: `http://localhost:8000/uploads/${d.pseudo_id}/${d.pseudo_id}_mammo_gradcam.png`,
-            us_gradcam_url:    `http://localhost:8000/uploads/${d.pseudo_id}/${d.pseudo_id}_us_gradcam.png`,
-            report_view_url: d.report_view_url
-        });
-    } catch (err) {
-        alert('❌ Erreur : ' + err.message);
-    }
+  if (!pid) return;
+  try {
+    const resp = await fetch(`http://localhost:8000/kaggle/reports/${pid}/triage`);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const d = await resp.json();
+    displayResult({
+      pseudo_id: d.pseudo_id, predicted_birads: d.predicted_birads,
+      confidence: d.confidence, clinical_priority: d.clinical_priority,
+      action_required: d.action_required, safety_status: d.safety_status,
+      interpretation: d.interpretation,
+      mammo_image_url:   `http://localhost:8000/uploads/${d.pseudo_id}/${d.pseudo_id}_mammo.png`,
+      us_image_url:      `http://localhost:8000/uploads/${d.pseudo_id}/${d.pseudo_id}_us.png`,
+      mammo_gradcam_url: `http://localhost:8000/uploads/${d.pseudo_id}/${d.pseudo_id}_mammo_gradcam.png`,
+      us_gradcam_url:    `http://localhost:8000/uploads/${d.pseudo_id}/${d.pseudo_id}_us_gradcam.png`,
+      report_view_url: d.report_view_url
+    });
+    document.getElementById('empty-state')?.classList.add('hidden');
+    document.getElementById('result-box').classList.remove('hidden');
+    document.getElementById('result-box').scrollIntoView({ behavior:'smooth' });
+  } catch (err) { alert('❌ Erreur : ' + err.message); }
 }
 
-/* ── Display Result ── */
+/* ═══ DISPLAY RESULT ═══ */
 function displayResult(d) {
-    const box  = document.getElementById('result-box');
-    const empty = document.getElementById('empty-state');
-    const prio = (d.clinical_priority || 'ROUTINE').toUpperCase();
-    currentPatientId = d.pseudo_id;
+  currentPatientId = d.pseudo_id;
+  const prio = (d.clinical_priority || 'ROUTINE').toUpperCase();
 
-    // Determine urgency class
-    let cls = 'routine', icon = '✅', heading = 'RAPPORT DE DÉPISTAGE NÉGATIF — Surveillance Annuelle Routine', prioColor = 'var(--emerald-600)';
-    if (prio === 'URGENT' || prio.includes('URGENT')) {
-        cls = 'urgent'; icon = '🚨';
-        heading = 'ALERTE CLINIQUE URGENTE — Biopsie Guidée Recommandée';
-        prioColor = 'var(--red-600)';
-    } else if (prio === 'SURVEILLANCE' || prio.includes('SURVEILLANCE')) {
-        cls = 'watch'; icon = '🟡';
-        heading = 'SURVEILLANCE RAPPROCHÉE — Contrôle Unilatéral à 6 Mois';
-        prioColor = 'var(--amber-600)';
-    }
+  let bannerStyle, icon, heading, prioColor;
+  if (prio.includes('URGENT') || prio==='URGENT') {
+    bannerStyle='background:linear-gradient(135deg,#7f1d1d,#dc2626);';
+    icon='🚨'; heading='ALERTE CLINIQUE URGENTE — Biopsie Guidée Recommandée'; prioColor='#f87171';
+  } else if (prio.includes('SURVEILLANCE') || prio==='SURVEILLANCE') {
+    bannerStyle='background:linear-gradient(135deg,#78350f,#d97706);';
+    icon='🟡'; heading='SURVEILLANCE RAPPROCHÉE — Contrôle à 6 Mois'; prioColor='#fbbf24';
+  } else {
+    bannerStyle='background:linear-gradient(135deg,#064e3b,#059669);';
+    icon='✅'; heading='RAPPORT DE DÉPISTAGE NÉGATIF — Routine Annuelle'; prioColor='#34d399';
+  }
 
-    // Banner
-    document.getElementById('banner-bar').className = 'banner-bar ' + cls;
-    document.getElementById('res-badge-icon').textContent = icon;
-    document.getElementById('res-badge-title').textContent = heading;
-    document.getElementById('res-badge-prio').textContent = `PRIORITÉ : ${prio}`;
+  // Banner
+  document.getElementById('banner-bar').style.cssText = bannerStyle;
+  document.getElementById('res-badge-icon').textContent = icon;
+  document.getElementById('res-badge-title').textContent = heading;
+  document.getElementById('res-badge-prio').textContent = `PRIORITÉ : ${prio}`;
 
-    // BI-RADS
-    const raw = String(d.predicted_birads || '1').replace(/bi-rads\s*/i,'');
-    document.getElementById('kpi-birads').textContent = 'BI-RADS ' + raw;
-    document.getElementById('kpi-birads').style.color = prioColor;
-    let biSub = 'Tissu Normal / Bénin';
-    if (['4A','4B','4C','5'].includes(raw)) biSub = 'Suspicion de Malignité';
-    else if (raw === '3') biSub = 'Lésion Probablement Bénigne';
-    document.getElementById('kpi-birads-sub').textContent = biSub;
+  // BI-RADS
+  const raw = String(d.predicted_birads || '1').replace(/bi-rads\s*/i,'');
+  document.getElementById('kpi-birads').textContent = 'BI-RADS ' + raw;
+  document.getElementById('kpi-birads').style.color = prioColor;
+  let biSub = 'Tissu Normal / Bénin';
+  if (['4A','4B','4C','5'].includes(raw)) biSub = 'Suspicion de Malignité';
+  else if (raw==='3') biSub = 'Probablement Bénin';
+  document.getElementById('kpi-birads-sub').textContent = biSub;
 
-    // Confidence
-    const confVal = Math.round((d.confidence || 0.94) * 100);
-    document.getElementById('kpi-conf').textContent = confVal + '%';
-    document.getElementById('conf-bar-fill').style.width = confVal + '%';
+  // Confidence
+  const confVal = Math.round((d.confidence || 0.94) * 100);
+  document.getElementById('kpi-conf').textContent = confVal + '%';
+  setTimeout(() => { const b = document.getElementById('conf-bar-fill'); if(b) b.style.width = confVal + '%'; }, 100);
 
-    // Priority
-    document.getElementById('kpi-priority').textContent = prio;
-    document.getElementById('kpi-priority').style.color = prioColor;
-    document.getElementById('kpi-action-short').textContent = (d.action_required || 'ROUTINE').replace(/_/g,' ');
+  // Priority
+  document.getElementById('kpi-priority').textContent = prio;
+  document.getElementById('kpi-priority').style.color = prioColor;
+  document.getElementById('kpi-action-short').textContent = (d.action_required||'ROUTINE').replace(/_/g,' ');
 
-    // Details table
-    document.getElementById('td-pid').textContent = d.pseudo_id;
-    const imgSrc = document.getElementById('td-img-source');
-    if (imgSrc) imgSrc.textContent = d.images_source || 'Images de référence validées du dataset BCMID';
-    document.getElementById('td-birads').textContent = 'BI-RADS ' + raw;
-    document.getElementById('td-conf').textContent = confVal + '%';
-    document.getElementById('td-prio').textContent = prio;
-    document.getElementById('td-prio').style.color = prioColor;
-    document.getElementById('td-action').textContent = (d.action_required || 'ROUTINE').replace(/_/g,' ');
-    document.getElementById('td-interp').textContent = d.interpretation || 'Évaluation clinique conforme aux directives ACR BI-RADS.';
+  // Table
+  const pid = d.pseudo_id;
+  document.getElementById('td-pid').textContent = pid;
+  const imgSrc = document.getElementById('td-img-source');
+  if (imgSrc) imgSrc.textContent = d.images_source || 'Images de référence validées — Dataset BCMID';
+  document.getElementById('td-birads').textContent = 'BI-RADS ' + raw;
+  document.getElementById('td-birads').style.color = prioColor;
+  document.getElementById('td-conf').textContent = confVal + '%';
+  document.getElementById('td-prio').textContent  = prio;
+  document.getElementById('td-prio').style.color  = prioColor;
+  document.getElementById('td-action').textContent = (d.action_required||'ROUTINE').replace(/_/g,' ');
+  document.getElementById('td-interp').textContent = d.interpretation || 'Évaluation conforme aux directives ACR BI-RADS.';
+  const n8n = document.getElementById('td-n8n');
+  if (n8n) n8n.innerHTML = `⚡ <span style="color:#34d399"><b>Active n8n Webhook</b></span> (${prio}) &bull; <a href="http://localhost:5678" target="_blank" style="color:#7ab8e8;text-decoration:underline">Inspecter ↗</a>`;
 
-    const n8nEl = document.getElementById('td-n8n');
-    if (n8nEl) n8nEl.innerHTML = `⚡ <span style="color:var(--emerald-600);"><b>Active n8n Webhook</b></span> (Routage: ${prio}) &bull; <a href="http://localhost:5678" target="_blank" style="color:var(--blue-700);text-decoration:underline;">Inspecter dans n8n ↗</a>`;
+  // Images
+  const set = (id, url) => { const el = document.getElementById(id); if(el) el.src = url; };
+  set('img-mammo-input', d.mammo_image_url   || `http://localhost:8000/uploads/${pid}/${pid}_mammo.png`);
+  set('img-us-input',    d.us_image_url       || `http://localhost:8000/uploads/${pid}/${pid}_us.png`);
+  set('img-mammo-res',   d.mammo_gradcam_url  || `http://localhost:8000/uploads/${pid}/${pid}_mammo_gradcam.png`);
+  set('img-us-res',      d.us_gradcam_url     || `http://localhost:8000/uploads/${pid}/${pid}_us_gradcam.png`);
 
-    // Images
-    const pid = d.pseudo_id;
-    const setImg = (id, url) => { const el = document.getElementById(id); if (el) el.src = url; };
-    setImg('img-mammo-input', d.mammo_image_url   || `http://localhost:8000/uploads/${pid}/${pid}_mammo.png`);
-    setImg('img-us-input',    d.us_image_url       || `http://localhost:8000/uploads/${pid}/${pid}_us.png`);
-    setImg('img-mammo-res',   d.mammo_gradcam_url  || `http://localhost:8000/uploads/${pid}/${pid}_mammo_gradcam.png`);
-    setImg('img-us-res',      d.us_gradcam_url     || `http://localhost:8000/uploads/${pid}/${pid}_us_gradcam.png`);
+  // PDF/HTML buttons
+  const pdfBtn = document.getElementById('btn-pdf-download');
+  if (pdfBtn) { pdfBtn.href = `http://localhost:8000/report/${pid}/pdf`; pdfBtn.setAttribute('download', `Medical_Report_${pid}_BIRADS_${raw}.pdf`); }
+  const htmlBtn = document.getElementById('btn-html-view');
+  if (htmlBtn) htmlBtn.href = d.report_view_url || `http://localhost:8000/report/${pid}`;
 
-    // PDF & HTML buttons
-    const pdfBtn = document.getElementById('btn-pdf-download');
-    if (pdfBtn) {
-        pdfBtn.href = `http://localhost:8000/report/${pid}/pdf`;
-        pdfBtn.setAttribute('download', `Medical_Report_${pid}_BIRADS_${raw}.pdf`);
-    }
-    const htmlBtn = document.getElementById('btn-html-view');
-    if (htmlBtn) htmlBtn.href = d.report_view_url || `http://localhost:8000/report/${pid}`;
-
-    // Reset email
-    const statusBox = document.getElementById('email-status-box');
-    if (statusBox) statusBox.style.display = 'none';
-
-    // Show result, hide empty state
-    if (empty) empty.style.display = 'none';
-    box.style.display = 'block';
-    box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // Reset email
+  const sb = document.getElementById('email-status-box');
+  if (sb) sb.classList.add('hidden');
 }
 
-/* ── Send Email ── */
+/* ═══ SEND EMAIL ═══ */
 async function handleSendEmail() {
-    const btn       = document.getElementById('btn-send-email');
-    const recipient = document.getElementById('email-recipient').value.trim();
-    const statusBox = document.getElementById('email-status-box');
-
-    if (!recipient) { alert('Veuillez saisir une adresse email valide.'); return; }
-
-    btn.disabled = true;
-    btn.innerHTML = '⏳ Envoi…';
-    statusBox.style.display = 'none';
-
-    try {
-        const resp = await fetch('http://localhost:8000/patient/send_email', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ pseudo_id: currentPatientId, recipient_email: recipient })
-        });
-        if (!resp.ok) throw new Error('Erreur API HTTP ' + resp.status);
-        const data = await resp.json();
-
-        statusBox.style.display = 'block';
-        if (data.sent_via_smtp) {
-            statusBox.style.cssText = 'display:block;background:var(--emerald-50);color:var(--emerald-700);border:1px solid var(--emerald-100);border-radius:var(--radius-md);padding:12px 16px;font-size:12.5px;line-height:1.5;margin-top:12px;';
-            statusBox.innerHTML = `✅ <b>Email SMTP envoyé avec succès à ${data.recipient}</b><br><span style="font-size:12px;color:var(--slate-600);">Expéditeur : <b>${data.from_sender}</b> · Pièce jointe : <b>Medical_Report_${currentPatientId}_BIRADS_*.pdf</b></span><br><a href="${data.email_preview_url}" target="_blank" style="display:inline-block;margin-top:8px;font-weight:700;">👁️ Visualiser l'archive HTML de l'email ↗</a>`;
-        } else {
-            statusBox.style.cssText = 'display:block;background:var(--amber-50);color:var(--amber-700);border:1px solid var(--amber-100);border-radius:var(--radius-md);padding:12px 16px;font-size:12.5px;line-height:1.5;margin-top:12px;';
-            const reason = data.smtp_error ? `(Erreur SMTP : ${data.smtp_error})` : '(Mode simulation hospitalière locale)';
-            statusBox.innerHTML = `ℹ️ <b>Email archivé dans le dossier du système hospitalier.</b> <span style="font-size:12px;">${reason}</span><br><a href="${data.email_preview_url}" target="_blank" style="display:inline-block;margin-top:8px;font-weight:700;">👁️ Visualiser la prévisualisation archivée ↗</a>`;
-        }
-    } catch (err) {
-        statusBox.style.cssText = 'display:block;background:var(--red-50);color:var(--red-700);border:1px solid var(--red-100);border-radius:var(--radius-md);padding:12px 16px;font-size:12.5px;margin-top:12px;';
-        statusBox.textContent = `❌ Échec lors de l'expédition : ${err.message}`;
-    } finally {
-        btn.disabled = false;
-        btn.innerHTML = '📤 Expédier';
+  const btn = document.getElementById('btn-send-email');
+  const recipient = document.getElementById('email-recipient').value.trim();
+  const statusBox = document.getElementById('email-status-box');
+  if (!recipient) { alert('Veuillez saisir une adresse email valide.'); return; }
+  btn.disabled = true;
+  btn.innerHTML = '<div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div><span>Envoi...</span>';
+  statusBox.classList.add('hidden');
+  try {
+    const resp = await fetch('http://localhost:8000/patient/send_email', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ pseudo_id: currentPatientId, recipient_email: recipient })
+    });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    statusBox.classList.remove('hidden');
+    if (data.sent_via_smtp) {
+      statusBox.style.cssText = 'background:rgba(4,120,87,.15);border:1px solid rgba(16,185,129,.3);border-radius:10px;padding:12px 14px;color:#6ee7b7;font-size:12.5px;line-height:1.5;';
+      statusBox.innerHTML = `✅ <b>Email SMTP envoyé à ${data.recipient}</b><br><span style="color:#94a3b8;font-size:12px;">De : <b>${data.from_sender}</b> · PJ : Medical_Report_${currentPatientId}_BIRADS_*.pdf</span><br><a href="${data.email_preview_url}" target="_blank" style="color:#7ab8e8;font-weight:700;margin-top:6px;display:inline-block;">👁️ Voir l'archive ↗</a>`;
+    } else {
+      statusBox.style.cssText = 'background:rgba(120,53,15,.15);border:1px solid rgba(245,158,11,.3);border-radius:10px;padding:12px 14px;color:#fbbf24;font-size:12.5px;line-height:1.5;';
+      statusBox.innerHTML = `ℹ️ <b>Email archivé.</b> ${data.smtp_error ? '(Erreur SMTP: '+data.smtp_error+')' : '(Mode simulation)'}<br><a href="${data.email_preview_url}" target="_blank" style="color:#7ab8e8;font-weight:700;margin-top:6px;display:inline-block;">👁️ Voir la prévisualisation ↗</a>`;
     }
+  } catch (err) {
+    statusBox.classList.remove('hidden');
+    statusBox.style.cssText = 'background:rgba(127,29,29,.15);border:1px solid rgba(239,68,68,.3);border-radius:10px;padding:12px 14px;color:#f87171;font-size:12.5px;';
+    statusBox.textContent = `❌ Échec : ${err.message}`;
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '📤 Expédier';
+  }
 }
+
+/* ═══ KEYFRAMES for step bounce dots ═══ */
+const style = document.createElement('style');
+style.textContent = `@keyframes bounce{0%{transform:translateY(0)}100%{transform:translateY(-4px)}}`;
+document.head.appendChild(style);
 </script>
 
 </body>
