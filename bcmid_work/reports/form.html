@@ -625,13 +625,23 @@ async function handleSendEmail() {
         const data = await resp.json();
 
         statusBox.style.display = 'block';
-        statusBox.style.background = '#dcfce7';
-        statusBox.style.color = '#15803d';
-        statusBox.style.border = '1px solid #86efac';
-        statusBox.innerHTML = `✅ <b>Medical Report Email Dispatched Successfully!</b><br>` +
-            `<span style="font-size:12px; color:#475569;">To: <b>${data.recipient}</b> &bull; Priority: <b>${data.clinical_priority}</b> &bull; Subject: <i>${data.subject}</i></span><br>` +
-            `<a href="${data.email_preview_url}" target="_blank" style="color:#134074; font-weight:700; text-decoration:underline; display:inline-block; margin-top:8px;">` +
-            `👁️ Click here to open and view the sent HTML Email preview ↗</a>`;
+        if (data.sent_via_smtp) {
+            statusBox.style.background = '#dcfce7';
+            statusBox.style.color = '#15803d';
+            statusBox.style.border = '1px solid #86efac';
+            statusBox.innerHTML = `✅ <b>Real Email Sent via Gmail SMTP to ${data.recipient}!</b><br>` +
+                `<span style="font-size:12px; color:#475569;">From: <b>${data.from_sender}</b> &bull; Priority: <b>${data.clinical_priority}</b> &bull; Subject: <i>${data.subject}</i></span><br>` +
+                `<a href="${data.email_preview_url}" target="_blank" style="color:#134074; font-weight:700; text-decoration:underline; display:inline-block; margin-top:8px;">` +
+                `👁️ Click here to open and view the sent HTML Email archive ↗</a>`;
+        } else {
+            statusBox.style.background = '#fef3c7';
+            statusBox.style.color = '#92400e';
+            statusBox.style.border = '1px solid #fcd34d';
+            const reason = data.smtp_error ? `SMTP Error: ${data.smtp_error}` : `(Running in local hospital simulation mode)`;
+            statusBox.innerHTML = `ℹ️ <b>Email saved to hospital archive.</b> <span style="font-size:12px;">${reason}</span><br>` +
+                `<a href="${data.email_preview_url}" target="_blank" style="color:#134074; font-weight:700; text-decoration:underline; display:inline-block; margin-top:8px;">` +
+                `👁️ Click here to open and view the sent HTML Email preview ↗</a>`;
+        }
     } catch (err) {
         statusBox.style.display = 'block';
         statusBox.style.background = '#fee2e2';

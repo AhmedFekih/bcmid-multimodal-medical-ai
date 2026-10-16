@@ -897,6 +897,17 @@ def send_medical_report_email(
     from email.mime.application import MIMEApplication
 
     clean_id = "".join(c if c.isalnum() or c in "_-" else "_" for c in pseudo_id.strip())
+
+    try:
+        from dotenv import load_dotenv
+        load_dotenv(BASE_DIR / ".env", override=True)
+        if (BASE_DIR / ".env.txt").exists():
+            load_dotenv(BASE_DIR / ".env.txt", override=True)
+    except Exception:
+        pass
+
+    from_addr = os.environ.get("SMTP_FROM") or os.environ.get("SMTP_USER") or "bcmid.medical.ai@hospital.org"
+
     triage = triage_patient_for_n8n(clean_id)
     pb = triage.get("predicted_birads", "4A")
     priority = triage.get("clinical_priority", "URGENT")
@@ -966,7 +977,7 @@ def send_medical_report_email(
     # Message MIME
     msg = MIMEMultipart("mixed")
     msg["Subject"] = subject
-    msg["From"] = os.environ.get("SMTP_FROM", "bcmid.medical.ai@hospital.org")
+    msg["From"] = from_addr
     msg["To"] = recipient_email
 
     body_part = MIMEMultipart("alternative")
@@ -991,12 +1002,6 @@ def send_medical_report_email(
     eml_path.write_bytes(msg.as_bytes())
 
     # Expédition SMTP réelle si configurée
-    try:
-        from dotenv import load_dotenv
-        load_dotenv(BASE_DIR / ".env", override=True)
-    except Exception:
-        pass
-
     smtp_host = os.environ.get("SMTP_HOST")
     smtp_port = int(os.environ.get("SMTP_PORT", 587))
     smtp_user = os.environ.get("SMTP_USER")
@@ -1006,7 +1011,7 @@ def send_medical_report_email(
 
     if smtp_host and smtp_user and smtp_pass:
         try:
-            with smtplib.SMTP(smtp_host, smtp_port, timeout=8) as server:
+            with smtplib.SMTP(smtp_host, smtp_port, timeout=12) as server:
                 server.starttls()
                 server.login(smtp_user, smtp_pass)
                 server.send_message(msg)
@@ -1018,6 +1023,7 @@ def send_medical_report_email(
         "status": "success",
         "pseudo_id": clean_id,
         "recipient": recipient_email,
+        "from_sender": from_addr,
         "subject": subject,
         "clinical_priority": priority,
         "sent_via_smtp": sent_via_smtp,
