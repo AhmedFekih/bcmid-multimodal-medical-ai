@@ -302,8 +302,11 @@ def download_report_pdf(patient_id: str):
 
     html_content = html_file.read_text(encoding="utf-8")
 
-    # xhtml2pdf needs absolute paths for local images — strip <img> src pointing to /uploads/
-    # We keep them as-is; images embedded as external URLs won't render in PDF but layout will be clean
+    # Rewrite relative /uploads/ and /report/ image URLs to absolute localhost URLs
+    # so xhtml2pdf can fetch the Grad-CAM images via HTTP
+    html_content = html_content.replace('src="/uploads/', 'src="http://localhost:8000/uploads/')
+    html_content = html_content.replace("src='/uploads/", "src='http://localhost:8000/uploads/")
+
     pdf_buffer = io.BytesIO()
     pisa_status = pisa.CreatePDF(src=html_content, dest=pdf_buffer, encoding="utf-8")
     if pisa_status.err:
@@ -1023,8 +1026,11 @@ def send_medical_report_email(
         try:
             import io as _io
             from xhtml2pdf import pisa as _pisa
+            _html = report_file.read_text(encoding="utf-8")
+            _html = _html.replace('src="/uploads/', 'src="http://localhost:8000/uploads/')
+            _html = _html.replace("src='/uploads/", "src='http://localhost:8000/uploads/")
             _pdf_buf = _io.BytesIO()
-            _pisa.CreatePDF(src=report_file.read_text(encoding="utf-8"), dest=_pdf_buf, encoding="utf-8")
+            _pisa.CreatePDF(src=_html, dest=_pdf_buf, encoding="utf-8")
             _pdf_bytes = _pdf_buf.getvalue()
             att = MIMEApplication(_pdf_bytes, _subtype="pdf")
             att.add_header("Content-Disposition", "attachment", filename=f"Box7_Medical_Report_{clean_id}.pdf")
