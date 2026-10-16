@@ -14,6 +14,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Any, Optional
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv(Path(__file__).parent / ".env")
+except Exception:
+    pass
+
 # Ensure local imports work
 sys.path.insert(0, str(Path(__file__).parent / "ikbelwork"))
 
@@ -985,6 +991,12 @@ def send_medical_report_email(
     eml_path.write_bytes(msg.as_bytes())
 
     # Expédition SMTP réelle si configurée
+    try:
+        from dotenv import load_dotenv
+        load_dotenv(BASE_DIR / ".env", override=True)
+    except Exception:
+        pass
+
     smtp_host = os.environ.get("SMTP_HOST")
     smtp_port = int(os.environ.get("SMTP_PORT", 587))
     smtp_user = os.environ.get("SMTP_USER")
