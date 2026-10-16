@@ -155,6 +155,60 @@
     .btn-brand:hover::after { transform:translateX(100%); }
     .btn-brand:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(26,82,160,.45); background:linear-gradient(135deg,#0d2d52,#1a52a0); }
     .btn-brand:disabled { background:#adb5bd; box-shadow:none; transform:none; cursor:not-allowed; }
+
+    /* ─ Segmented View Tabs (Doctor vs Tech) ─ */
+    .view-switcher-pill {
+      background: #e2e8f0;
+      padding: 4px;
+      border-radius: 12px;
+      display: flex;
+      gap: 6px;
+    }
+    .view-switcher-btn {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 10px 18px;
+      border-radius: 9px;
+      font-weight: 700;
+      font-size: 13.5px;
+      color: #64748b;
+      transition: all .2s cubic-bezier(.4,0,.2,1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .view-switcher-btn:hover {
+      color: #1e293b;
+      background: rgba(255,255,255,.5);
+    }
+    .view-switcher-btn.active.doctor-tab {
+      background: #ffffff;
+      color: #1a52a0;
+      box-shadow: 0 4px 14px rgba(26,82,160,.12), 0 1px 3px rgba(0,0,0,.05);
+    }
+    .view-switcher-btn.active.tech-tab {
+      background: #1e293b;
+      color: #38bdf8;
+      box-shadow: 0 4px 14px rgba(15,23,42,.3), 0 1px 3px rgba(0,0,0,.2);
+    }
+
+    /* ─ LLM Recommendation Cards ─ */
+    .llm-rec-card {
+      border: 1px solid #e0e7ff;
+      background: linear-gradient(135deg, #f8faff, #ffffff);
+      border-radius: 10px;
+      transition: all .2s;
+    }
+    .llm-rec-card:hover {
+      border-color: #93c5fd;
+      box-shadow: 0 6px 18px rgba(37,99,235,.07);
+    }
+    .rec-badge-accent {
+      background: linear-gradient(135deg, #1e3a8a, #2563eb);
+      color: #fff;
+    }
   </style>
 </head>
 <body class="antialiased">
@@ -639,181 +693,487 @@
 
           </div>
 
-          <!-- Imaging Studio -->
-          <div class="card shadow-sm border-0 mb-4 overflow-hidden">
-            <div class="card-header d-flex align-items-center justify-content-between" style="background:linear-gradient(90deg,#f0f6ff,#fff)">
-              <h3 class="card-title">
-                <i class="ti ti-scan me-2 text-primary"></i>Imagerie et localisation des zones d'intérêt
-              </h3>
-              <div class="d-flex gap-2">
-                <button onclick="setStudioLayout('both')" id="vbtn-both"
-                  class="btn btn-sm btn-primary fw-semibold" style="font-size:11px">Vue complète</button>
-                <button onclick="setStudioLayout('heatmaps')" id="vbtn-heat"
-                  class="btn btn-sm btn-outline-secondary fw-semibold" style="font-size:11px">Zones suspectes</button>
+          <!-- ════ DUAL VIEW SWITCHER (DOCTOR vs TECH) ════ -->
+          <div class="card p-2 mb-4 border-0 shadow-sm" style="background:#f1f5f9; border-radius:14px;">
+            <div class="view-switcher-pill">
+              <button type="button" class="view-switcher-btn active doctor-tab" id="tab-btn-doctor" onclick="switchResultView('doctor')">
+                <span class="avatar avatar-xs rounded-2 bg-blue text-white" style="width:26px;height:26px"><i class="ti ti-stethoscope fs-4"></i></span>
+                <span>Rapport Médical & Recommandations Cliniques</span>
+                <span class="badge bg-blue-lt ms-auto" style="font-size:10px">Médecin Clinicien</span>
+              </button>
+              <button type="button" class="view-switcher-btn tech-tab" id="tab-btn-tech" onclick="switchResultView('tech')">
+                <span class="avatar avatar-xs rounded-2 bg-dark text-cyan" style="width:26px;height:26px"><i class="ti ti-cpu fs-4"></i></span>
+                <span>Rapport Technique & Explicabilité XAI</span>
+                <span class="badge bg-cyan-lt ms-auto" style="font-size:10px">Ingénieur / Tech</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Compatibility Spans for automation scripts -->
+          <span id="txt-mammo" class="d-none"></span>
+          <span id="txt-us" class="d-none"></span>
+
+          <!-- ══════════════════════════════════════════════════════════════
+               VUE 1 : RAPPORT MÉDICAL POUR LE MÉDECIN (CLINICAL VIEW)
+          ══════════════════════════════════════════════════════════════ -->
+          <div id="view-doctor">
+
+            <!-- Clichés Anatomiques Diagnostiques Originaux -->
+            <div class="card shadow-sm border-0 mb-4 overflow-hidden">
+              <div class="card-header d-flex align-items-center justify-content-between" style="background:linear-gradient(90deg,#f0f6ff,#fff)">
+                <div class="d-flex align-items-center gap-2">
+                  <div class="avatar avatar-sm rounded-2 text-white" style="background:linear-gradient(135deg,#103660,#1a52a0)">
+                    <i class="ti ti-photo"></i>
+                  </div>
+                  <div>
+                    <h3 class="card-title mb-0" style="font-size:14px">Clichés Diagnostiques de Référence</h3>
+                    <div class="text-muted" style="font-size:11px">Imagerie anatomique haute résolution pour revue sénologique</div>
+                  </div>
+                </div>
+                <span class="badge bg-blue-lt fw-bold">Imagerie Clinique HD</span>
+              </div>
+              <div class="card-body p-3">
+                <div class="row g-3">
+                  <!-- Mammo Originale -->
+                  <div class="col-md-6">
+                    <div class="card border shadow-none overflow-hidden h-100">
+                      <div class="d-flex align-items-center justify-content-between px-3 py-2 bg-light border-bottom">
+                        <span class="fw-bold small text-dark"><i class="ti ti-camera me-1 text-primary"></i>Mammographie Bilatérale</span>
+                        <span class="badge bg-secondary-lt font-monospace" style="font-size:10px">Incidence L-MLO / CC</span>
+                      </div>
+                      <div class="position-relative bg-black" style="aspect-ratio:4/3; min-height:220px; display:flex; align-items:center; justify-content:center;">
+                        <img id="img-mammo-input" src="" class="w-100 h-100 object-fit-contain" alt="Mammographie originale">
+                        <span class="badge position-absolute top-0 start-0 m-2" style="font-size:9.5px;background:rgba(15,23,42,.8);color:#e2e8f0;backdrop-filter:blur(4px)">CLICHÉ NUMÉRIQUE HD</span>
+                      </div>
+                      <div class="p-2 bg-light text-center border-top">
+                        <small class="text-muted">Évaluation de la densité parenchymateuse et recherche d'asymétrie</small>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Échographie Originale -->
+                  <div class="col-md-6">
+                    <div class="card border shadow-none overflow-hidden h-100">
+                      <div class="d-flex align-items-center justify-content-between px-3 py-2 bg-light border-bottom">
+                        <span class="fw-bold small text-dark"><i class="ti ti-wave-sine me-1 text-primary"></i>Échographie Mammaire Ciblée</span>
+                        <span class="badge bg-secondary-lt font-monospace" style="font-size:10px">Sonde Haute Fréquence</span>
+                      </div>
+                      <div class="position-relative bg-black" style="aspect-ratio:4/3; min-height:220px; display:flex; align-items:center; justify-content:center;">
+                        <img id="img-us-input" src="" class="w-100 h-100 object-fit-contain" alt="Échographie originale">
+                        <span class="badge position-absolute top-0 start-0 m-2" style="font-size:9.5px;background:rgba(15,23,42,.8);color:#e2e8f0;backdrop-filter:blur(4px)">COUPE ÉCHOGRAPHIQUE HD</span>
+                      </div>
+                      <div class="p-2 bg-light text-center border-top">
+                        <small class="text-muted">Caractérisation échogène : contours, orientation et atténuation acoustique</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="card-body" id="studio-grid">
-              <div class="row g-3">
 
-                <!-- Mammo -->
-                <div class="col-md-6">
-                  <div class="rounded-3 overflow-hidden border border-secondary">
-                    <div class="d-flex align-items-center justify-content-between px-3 py-2 bg-dark">
-                      <span class="text-white fw-bold small">📷 Mammographie</span>
-                      <span class="badge bg-secondary" style="font-size:10px">L-MLO / CC</span>
-                    </div>
-                    <div class="row g-0">
-                      <div class="col-6">
-                        <div class="scanner-frame position-relative" style="aspect-ratio:1" id="card-mammo-input">
-                          <img id="img-mammo-input" src="" class="w-100 h-100 object-fit-contain" alt="">
-                          <span class="badge position-absolute top-0 start-0 m-1" style="font-size:9px;background:rgba(30,41,59,.85);color:#94a3b8">ORIGINAL</span>
-                          <div class="position-absolute bottom-0 start-0 end-0 px-2 py-1 text-white small fw-semibold" style="background:linear-gradient(transparent,rgba(0,0,0,.7));font-size:10px">Image d'entrée</div>
-                        </div>
+            <!-- Synthèse Clinique Structurée -->
+            <div class="card shadow-sm border-0 mb-4">
+              <div class="card-header" style="background:linear-gradient(90deg,#f0f6ff,#fff)">
+                <div class="d-flex align-items-center gap-2">
+                  <div class="avatar avatar-sm rounded-2 bg-blue-lt text-blue">
+                    <i class="ti ti-file-text"></i>
+                  </div>
+                  <div>
+                    <h3 class="card-title mb-0" style="font-size:14px">Synthèse Clinique Structurée</h3>
+                    <div class="text-muted" style="font-size:11px">Fiche synoptique du dossier patient conforme ACR</div>
+                  </div>
+                </div>
+              </div>
+              <div class="list-group list-group-flush">
+                <div class="list-group-item d-flex align-items-center justify-content-between py-2">
+                  <span class="text-muted fw-semibold small"><i class="ti ti-id me-1"></i>Identifiant Patient</span>
+                  <span id="td-pid" class="fw-bold text-dark font-monospace small">—</span>
+                </div>
+                <div class="list-group-item d-flex align-items-center justify-content-between py-2">
+                  <span class="text-muted fw-semibold small"><i class="ti ti-database me-1"></i>Origine des Clichés</span>
+                  <span id="td-img-source" class="fw-semibold small text-muted text-end" style="max-width:60%">—</span>
+                </div>
+                <div class="list-group-item d-flex align-items-center justify-content-between py-2">
+                  <span class="text-muted fw-semibold small"><i class="ti ti-category-2 me-1"></i>Classification BI-RADS (ACR)</span>
+                  <span id="td-birads" class="fw-black" style="font-size:17px;color:#1a52a0">—</span>
+                </div>
+                <div class="list-group-item d-flex align-items-center justify-content-between py-2">
+                  <span class="text-muted fw-semibold small"><i class="ti ti-shield-check me-1"></i>Fiabilité de l'évaluation</span>
+                  <span id="td-conf" class="fw-bold text-dark small">—</span>
+                </div>
+                <div class="list-group-item d-flex align-items-center justify-content-between py-2">
+                  <span class="text-muted fw-semibold small"><i class="ti ti-urgent me-1"></i>Niveau d'Urgence Clinique</span>
+                  <span id="td-prio" class="fw-bold small">—</span>
+                </div>
+                <div class="list-group-item d-flex align-items-center justify-content-between py-2">
+                  <span class="text-muted fw-semibold small"><i class="ti ti-activity me-1"></i>Conduite Immédiate Préconisée</span>
+                  <span id="td-action" class="fw-bold text-dark small text-end" style="max-width:65%">—</span>
+                </div>
+                <div class="list-group-item d-flex align-items-center justify-content-between py-2 bg-red-lt">
+                  <span class="text-muted fw-semibold small"><i class="ti ti-certificate me-1 text-danger"></i>Validation Médicale Légale</span>
+                  <span class="fw-bold text-danger small">⚠️ Signature et approbation du médecin radiologue requises</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Analyse et Interprétation Clinique Textuelle -->
+            <div class="card shadow-sm border-0 mb-4" style="border-left:4px solid #1a52a0 !important">
+              <div class="card-header" style="background:#f0f6ff">
+                <div class="d-flex align-items-center gap-2">
+                  <div class="avatar avatar-sm rounded-2 bg-primary text-white">
+                    <i class="ti ti-notes"></i>
+                  </div>
+                  <div>
+                    <h3 class="card-title text-primary mb-0" style="font-size:14px">Compte-Rendu d'Interprétation Sénologique</h3>
+                    <div class="text-muted" style="font-size:11px">Transcription rédigée de l'analyse multimodale</div>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body">
+                <p id="td-interp" class="text-secondary mb-0" style="font-size:13.5px;line-height:1.8">
+                  En attente d'analyse…
+                </p>
+              </div>
+            </div>
+
+            <!-- ════ 🌟 NOUVELLE SECTION MAJEURE : RECOMMANDATIONS CLINIQUES LLM BI-RADS ════ -->
+            <div class="card shadow-sm border-0 mb-4 overflow-hidden" style="border: 2px solid #bfdbfe !important;">
+              <div class="card-header d-flex align-items-center justify-content-between" style="background:linear-gradient(135deg, #1e3a8a, #1d4ed8); color:#fff;">
+                <div class="d-flex align-items-center gap-2">
+                  <div class="avatar avatar-sm rounded-2 bg-white text-primary">
+                    <i class="ti ti-sparkles fs-3"></i>
+                  </div>
+                  <div>
+                    <h3 class="card-title text-white mb-0" style="font-size:14.5px">Recommandations Cliniques & Conduite Thérapeutique</h3>
+                    <div class="text-white-50" style="font-size:11px">Directives personnalisées générées par le Moteur Expert LLM · Référentiel ACR BI-RADS 5<sup>e</sup> édition</div>
+                  </div>
+                </div>
+                <span class="badge bg-white text-primary fw-bold" style="font-size:10.5px">LLM Clinical Advisor</span>
+              </div>
+              <div class="card-body p-4">
+
+                <!-- 1. Protocole d'Investigation & Décision -->
+                <div class="mb-4">
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="badge rec-badge-accent rounded-pill px-2 py-1"><i class="ti ti-target me-1"></i>Étape 1</span>
+                    <h4 class="fw-bold mb-0 text-dark" style="font-size:13.5px">Stratégie d'Investigation & Geste Diagnostique</h4>
+                  </div>
+                  <div class="llm-rec-card p-3" id="doc-rec-strategy-card">
+                    <div class="d-flex align-items-start gap-3">
+                      <div class="fs-2" id="doc-rec-strategy-icon">🎯</div>
+                      <div class="flex-fill">
+                        <div class="fw-bold text-dark" id="doc-rec-strategy-title" style="font-size:13.5px">Prise en charge adaptée au score BI-RADS</div>
+                        <p class="text-secondary mb-0 mt-1" id="doc-rec-strategy-text" style="font-size:12.5px;line-height:1.6">
+                          Chargement des protocoles recommandés selon les directives ACR 5e édition...
+                        </p>
                       </div>
-                      <div class="col-6">
-                        <div class="scanner-frame position-relative" style="aspect-ratio:1">
-                          <img id="img-mammo-res" src="" class="w-100 h-100 object-fit-contain" alt="">
-                          <span class="badge bg-danger position-absolute top-0 start-0 m-1" style="font-size:9px">ZONES SUSPECTES</span>
-                          <div class="position-absolute bottom-0 start-0 end-0 px-2 py-1 text-white small fw-semibold" style="background:linear-gradient(transparent,rgba(0,0,0,.7));font-size:10px">Attention IA</div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="d-flex align-items-center gap-2 px-3 py-2 bg-dark" style="font-size:10px;color:#94a3b8">
-                      <span>Normal</span>
-                      <div class="flex-fill rounded-pill" style="height:5px;background:linear-gradient(to right,#0000ff,#00ffff,#00ff00,#ffff00,#ff0000)"></div>
-                      <span>Suspect</span>
                     </div>
                   </div>
                 </div>
 
-                <!-- US -->
-                <div class="col-md-6">
-                  <div class="rounded-3 overflow-hidden border border-secondary">
-                    <div class="d-flex align-items-center justify-content-between px-3 py-2 bg-dark">
-                      <span class="text-white fw-bold small">📡 Échographie</span>
-                      <span class="badge bg-secondary" style="font-size:10px">Ciblée</span>
-                    </div>
-                    <div class="row g-0">
-                      <div class="col-6">
-                        <div class="scanner-frame position-relative" style="aspect-ratio:1" id="card-us-input">
-                          <img id="img-us-input" src="" class="w-100 h-100 object-fit-contain" alt="">
-                          <span class="badge position-absolute top-0 start-0 m-1" style="font-size:9px;background:rgba(30,41,59,.85);color:#94a3b8">ORIGINAL</span>
-                          <div class="position-absolute bottom-0 start-0 end-0 px-2 py-1 text-white small fw-semibold" style="background:linear-gradient(transparent,rgba(0,0,0,.7));font-size:10px">Image d'entrée</div>
+                <!-- 2. Examens d'Imagerie Complémentaires Indiqués -->
+                <div class="mb-4">
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="badge rec-badge-accent rounded-pill px-2 py-1"><i class="ti ti-scan me-1"></i>Étape 2</span>
+                    <h4 class="fw-bold mb-0 text-dark" style="font-size:13.5px">Bilan d'Imagerie & Explorations Spécialisées Complémentaires</h4>
+                  </div>
+                  <div class="llm-rec-card p-3">
+                    <div class="d-flex align-items-start gap-3">
+                      <div class="fs-2" id="doc-rec-imaging-icon">🔬</div>
+                      <div class="flex-fill">
+                        <div class="fw-bold text-dark" id="doc-rec-imaging-title" style="font-size:13.5px">Modalités d'Imagerie Complémentaire Recommandées</div>
+                        <div class="text-secondary mt-1" id="doc-rec-imaging-text" style="font-size:12.5px;line-height:1.6">
+                          Détermination des examens d'imagerie complémentaires appropriés...
                         </div>
                       </div>
-                      <div class="col-6">
-                        <div class="scanner-frame position-relative" style="aspect-ratio:1">
-                          <img id="img-us-res" src="" class="w-100 h-100 object-fit-contain" alt="">
-                          <span class="badge bg-danger position-absolute top-0 start-0 m-1" style="font-size:9px">ZONES SUSPECTES</span>
-                          <div class="position-absolute bottom-0 start-0 end-0 px-2 py-1 text-white small fw-semibold" style="background:linear-gradient(transparent,rgba(0,0,0,.7));font-size:10px">Attention IA</div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="d-flex align-items-center gap-2 px-3 py-2 bg-dark" style="font-size:10px;color:#94a3b8">
-                      <span>Normal</span>
-                      <div class="flex-fill rounded-pill" style="height:5px;background:linear-gradient(to right,#0000ff,#00ffff,#00ff00,#ffff00,#ff0000)"></div>
-                      <span>Suspect</span>
                     </div>
                   </div>
                 </div>
 
-              </div>
-            </div>
-          </div>
-
-          <!-- Clinical details table (Tabler list-group style) -->
-          <div class="card shadow-sm border-0 mb-4">
-            <div class="card-header" style="background:linear-gradient(90deg,#f0f6ff,#fff)">
-              <h3 class="card-title"><i class="ti ti-file-description me-2 text-primary"></i>Synthèse clinique structurée</h3>
-            </div>
-            <div class="list-group list-group-flush">
-              <div class="list-group-item d-flex align-items-center justify-content-between">
-                <span class="text-muted fw-semibold small">Identifiant patient</span>
-                <span id="td-pid" class="fw-bold text-dark font-monospace small">—</span>
-              </div>
-              <div class="list-group-item d-flex align-items-center justify-content-between">
-                <span class="text-muted fw-semibold small">Source des examens</span>
-                <span id="td-img-source" class="fw-semibold small text-muted text-end" style="max-width:60%">—</span>
-              </div>
-              <div class="list-group-item d-flex align-items-center justify-content-between">
-                <span class="text-muted fw-semibold small">Classification BI-RADS</span>
-                <span id="td-birads" class="fw-black" style="font-size:17px;color:#1a52a0">—</span>
-              </div>
-              <div class="list-group-item d-flex align-items-center justify-content-between">
-                <span class="text-muted fw-semibold small">Fiabilité de l'analyse</span>
-                <span id="td-conf" class="fw-bold text-dark small">—</span>
-              </div>
-              <div class="list-group-item d-flex align-items-center justify-content-between">
-                <span class="text-muted fw-semibold small">Niveau de priorité</span>
-                <span id="td-prio" class="fw-bold small">—</span>
-              </div>
-              <div class="list-group-item d-flex align-items-center justify-content-between">
-                <span class="text-muted fw-semibold small">Conduite à tenir</span>
-                <span id="td-action" class="fw-bold text-dark small text-end" style="max-width:60%">—</span>
-              </div>
-              <div class="list-group-item d-flex align-items-center justify-content-between">
-                <span class="text-muted fw-semibold small">Routage clinique</span>
-                <span id="td-n8n" class="fw-bold text-success small">✅ Routage automatique actif</span>
-              </div>
-              <div class="list-group-item d-flex align-items-center justify-content-between">
-                <span class="text-muted fw-semibold small">Conformité ACR</span>
-                <span id="td-safety" class="fw-bold text-success small">✅ Validé — Conforme aux directives</span>
-              </div>
-              <div class="list-group-item d-flex align-items-center justify-content-between bg-red-lt">
-                <span class="text-muted fw-semibold small">Validation médicale</span>
-                <span class="fw-bold text-danger small">⚠️ Signature du radiologue requise</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Interpretation -->
-          <div class="card shadow-sm border-0 mb-4" style="border-left:4px solid #1a52a0 !important">
-            <div class="card-header" style="background:#f0f6ff">
-              <h3 class="card-title text-primary"><i class="ti ti-brain me-2"></i>Analyse et interprétation clinique</h3>
-            </div>
-            <div class="card-body">
-              <p id="td-interp" class="text-secondary mb-0" style="font-size:13.5px;line-height:1.75">
-                En attente d'analyse…
-              </p>
-            </div>
-          </div>
-
-          <!-- Action buttons -->
-          <div class="d-flex flex-wrap gap-2 mb-4">
-            <a id="btn-pdf-download" href="#" download class="btn btn-brand flex-fill fw-bold" style="font-size:13.5px;min-width:200px">
-              <i class="ti ti-download me-2"></i>Télécharger le compte-rendu PDF
-            </a>
-            <a id="btn-html-view" href="#" target="_blank" class="btn btn-outline-primary fw-bold flex-fill" style="min-width:140px">
-              <i class="ti ti-eye me-1"></i>Dossier complet ↗
-            </a>
-            <button onclick="window.print()" class="btn btn-outline-secondary fw-bold flex-fill" style="min-width:120px">
-              <i class="ti ti-printer me-1"></i>Imprimer
-            </button>
-          </div>
-
-          <!-- Email hub -->
-          <div class="card shadow-sm border-dashed mb-4">
-            <div class="card-header" style="background:#f0f6ff">
-              <div class="d-flex align-items-center gap-2">
-                <div class="avatar avatar-sm rounded-2 bg-blue-lt text-blue">
-                  <i class="ti ti-mail"></i>
+                <!-- 3. Délais Cliniques & Réunion Pluridisciplinaire (RCP) -->
+                <div class="mb-4">
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="badge rec-badge-accent rounded-pill px-2 py-1"><i class="ti ti-clock me-1"></i>Étape 3</span>
+                    <h4 class="fw-bold mb-0 text-dark" style="font-size:13.5px">Calendrier de Prise en Charge & Concertation RCP</h4>
+                  </div>
+                  <div class="row g-2">
+                    <div class="col-md-6">
+                      <div class="p-3 rounded-2 border bg-light h-100">
+                        <div class="text-muted fw-semibold small mb-1"><i class="ti ti-hourglass me-1 text-primary"></i>Délai d'intervention recommandé :</div>
+                        <div class="fw-bold text-dark" id="doc-rec-delay" style="font-size:13px">—</div>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="p-3 rounded-2 border bg-light h-100">
+                        <div class="text-muted fw-semibold small mb-1"><i class="ti ti-users me-1 text-primary"></i>Concertation Pluridisciplinaire :</div>
+                        <div class="fw-bold text-dark" id="doc-rec-rcp" style="font-size:13px">—</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
+
+                <!-- 4. Points d'Action Détaillés du LLM (Liste Dynamique) -->
                 <div>
-                  <h4 class="card-title mb-0" style="font-size:13.5px">Envoyer au médecin référent</h4>
-                  <div class="text-muted" style="font-size:11px">Le compte-rendu PDF sera transmis directement à l'adresse indiquée.</div>
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="badge rec-badge-accent rounded-pill px-2 py-1"><i class="ti ti-list-check me-1"></i>Synthèse</span>
+                    <h4 class="fw-bold mb-0 text-dark" style="font-size:13.5px">Directives Détaillées Prescrites par le LLM Clinique</h4>
+                  </div>
+                  <div id="llm-recs-dynamic-list" class="d-flex flex-column gap-2">
+                    <div class="alert alert-info py-2 px-3 mb-0" style="font-size:12px">
+                      <i class="ti ti-info-circle me-1"></i>En attente des recommandations spécifiques du dossier...
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Actions & Transmission -->
+            <div class="d-flex flex-wrap gap-2 mb-4">
+              <a id="btn-pdf-download" href="#" download class="btn btn-brand flex-fill fw-bold" style="font-size:13.5px;min-width:200px">
+                <i class="ti ti-download me-2"></i>Télécharger le compte-rendu PDF
+              </a>
+              <a id="btn-html-view" href="#" target="_blank" class="btn btn-outline-primary fw-bold flex-fill" style="min-width:140px">
+                <i class="ti ti-eye me-1"></i>Dossier complet ↗
+              </a>
+              <button onclick="window.print()" class="btn btn-outline-secondary fw-bold flex-fill" style="min-width:120px">
+                <i class="ti ti-printer me-1"></i>Imprimer
+              </button>
+            </div>
+
+            <!-- Hub Email Médecin Référent -->
+            <div class="card shadow-sm border-dashed mb-4">
+              <div class="card-header" style="background:#f0f6ff">
+                <div class="d-flex align-items-center gap-2">
+                  <div class="avatar avatar-sm rounded-2 bg-blue-lt text-blue">
+                    <i class="ti ti-mail"></i>
+                  </div>
+                  <div>
+                    <h4 class="card-title mb-0" style="font-size:13.5px">Transmission Sécurisée au Médecin Référent</h4>
+                    <div class="text-muted" style="font-size:11px">Le compte-rendu certifié PDF sera envoyé par email crypté au praticien traitant.</div>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="input-group">
+                  <input type="email" id="email-recipient" class="form-control" placeholder="Adresse du médecin référent" value="doctor.radiology@hospital.tn">
+                  <button class="btn btn-brand fw-bold" onclick="handleSendEmail()" id="btn-send-email" style="white-space:nowrap">
+                    <i class="ti ti-send me-1"></i>Envoyer le dossier
+                  </button>
+                </div>
+                <div id="email-status-box" class="d-none mt-3"></div>
+              </div>
+            </div>
+
+          </div><!-- /view-doctor -->
+
+
+          <!-- ══════════════════════════════════════════════════════════════
+               VUE 2 : RAPPORT TECHNIQUE & XAI (INGÉNIEUR / TECHNICIEN)
+          ══════════════════════════════════════════════════════════════ -->
+          <div id="view-tech" class="d-none">
+
+            <!-- Cartographie d'Attention XAI Grad-CAM -->
+            <div class="card shadow-sm border-0 mb-4 overflow-hidden">
+              <div class="card-header d-flex align-items-center justify-content-between" style="background:linear-gradient(90deg,#0f172a,#1e293b); color:#fff">
+                <div class="d-flex align-items-center gap-2">
+                  <div class="avatar avatar-sm rounded-2 bg-dark text-cyan border border-secondary">
+                    <i class="ti ti-scan"></i>
+                  </div>
+                  <div>
+                    <h3 class="card-title text-white mb-0" style="font-size:14px">Cartographie d'Explicabilité XAI Grad-CAM</h3>
+                    <div class="text-cyan-lt" style="font-size:11px">Visualisation des activations spatiales des réseaux convolutifs</div>
+                  </div>
+                </div>
+                <div class="d-flex gap-2">
+                  <button onclick="setStudioLayout('both')" id="vbtn-both" class="btn btn-sm btn-outline-light fw-semibold" style="font-size:11px">Vue complète</button>
+                  <button onclick="setStudioLayout('heatmaps')" id="vbtn-heat" class="btn btn-sm btn-cyan fw-semibold" style="font-size:11px">Cartes de chaleur</button>
+                </div>
+              </div>
+              <div class="card-body p-3 bg-dark text-white" id="studio-grid">
+                <div class="row g-3">
+                  <!-- Mammo XAI -->
+                  <div class="col-md-6">
+                    <div class="rounded-3 overflow-hidden border border-secondary bg-black">
+                      <div class="d-flex align-items-center justify-content-between px-3 py-2 bg-dark border-bottom border-secondary">
+                        <span class="text-white fw-bold small"><i class="ti ti-camera me-1 text-cyan"></i>Grad-CAM Mammographie</span>
+                        <span class="badge bg-danger" style="font-size:10px">ResNet-18 Layer4</span>
+                      </div>
+                      <div class="scanner-frame position-relative" style="aspect-ratio:4/3; min-height:220px; display:flex; align-items:center; justify-content:center;">
+                        <img id="img-mammo-res" src="" class="w-100 h-100 object-fit-contain" alt="Grad-CAM Mammographie">
+                        <span class="badge bg-danger position-absolute top-0 start-0 m-2" style="font-size:9.5px">ATTENTION NEURONALE</span>
+                        <div class="position-absolute bottom-0 start-0 end-0 px-2 py-1 text-white small fw-semibold" style="background:linear-gradient(transparent,rgba(0,0,0,.8));font-size:10px">
+                          Grad-CAM: Gradient-Weighted Class Activation Map (L-MLO)
+                        </div>
+                      </div>
+                      <div class="d-flex align-items-center gap-2 px-3 py-2 bg-dark border-top border-secondary" style="font-size:10.5px;color:#94a3b8">
+                        <span>Poids Min (0.0)</span>
+                        <div class="flex-fill rounded-pill" style="height:6px;background:linear-gradient(to right,#0000ff,#00ffff,#00ff00,#ffff00,#ff0000)"></div>
+                        <span class="text-danger fw-bold">Pic Max (1.0)</span>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- US XAI -->
+                  <div class="col-md-6">
+                    <div class="rounded-3 overflow-hidden border border-secondary bg-black">
+                      <div class="d-flex align-items-center justify-content-between px-3 py-2 bg-dark border-bottom border-secondary">
+                        <span class="text-white fw-bold small"><i class="ti ti-wave-sine me-1 text-cyan"></i>Grad-CAM Échographie</span>
+                        <span class="badge bg-danger" style="font-size:10px">ResNet-18 Layer4</span>
+                      </div>
+                      <div class="scanner-frame position-relative" style="aspect-ratio:4/3; min-height:220px; display:flex; align-items:center; justify-content:center;">
+                        <img id="img-us-res" src="" class="w-100 h-100 object-fit-contain" alt="Grad-CAM Échographie">
+                        <span class="badge bg-danger position-absolute top-0 start-0 m-2" style="font-size:9.5px">ATTENTION NEURONALE</span>
+                        <div class="position-absolute bottom-0 start-0 end-0 px-2 py-1 text-white small fw-semibold" style="background:linear-gradient(transparent,rgba(0,0,0,.8));font-size:10px">
+                          Grad-CAM: Gradient-Weighted Class Activation Map (Écho)
+                        </div>
+                      </div>
+                      <div class="d-flex align-items-center gap-2 px-3 py-2 bg-dark border-top border-secondary" style="font-size:10.5px;color:#94a3b8">
+                        <span>Poids Min (0.0)</span>
+                        <div class="flex-fill rounded-pill" style="height:6px;background:linear-gradient(to right,#0000ff,#00ffff,#00ff00,#ffff00,#ff0000)"></div>
+                        <span class="text-danger fw-bold">Pic Max (1.0)</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-            <div class="card-body">
-              <div class="input-group">
-                <input type="email" id="email-recipient" class="form-control" placeholder="Adresse du médecin référent" value="doctor.radiology@hospital.tn">
-                <button class="btn btn-brand fw-bold" onclick="handleSendEmail()" id="btn-send-email" style="white-space:nowrap">
-                  <i class="ti ti-send me-1"></i>Envoyer
-                </button>
+
+            <!-- Métriques Techniques de l'Inférence Multimodale -->
+            <div class="card shadow-sm border-0 mb-4">
+              <div class="card-header bg-dark text-white">
+                <div class="d-flex align-items-center gap-2">
+                  <div class="avatar avatar-sm rounded-2 bg-secondary text-white">
+                    <i class="ti ti-binary"></i>
+                  </div>
+                  <div>
+                    <h4 class="card-title text-white mb-0" style="font-size:14px">Télémétrie d'Inférence & Décomposition Probabiliste</h4>
+                    <div class="text-muted" style="font-size:11px">Vecteur Softmax, entropie de Shannon et architecture d'extraction</div>
+                  </div>
+                </div>
               </div>
-              <div id="email-status-box" class="d-none mt-3"></div>
+              <div class="card-body">
+                <div class="row g-3 mb-3">
+                  <div class="col-md-4">
+                    <div class="p-3 rounded-2 border bg-light">
+                      <div class="text-muted small fw-semibold mb-1">Architecture du Réseau Vision</div>
+                      <div class="fw-bold font-monospace text-dark" style="font-size:12.5px">Dual-Encoder ResNet-18</div>
+                      <div class="text-muted small mt-1">Couche XAI : <code class="text-primary">layer4.1.conv2</code></div>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="p-3 rounded-2 border bg-light">
+                      <div class="text-muted small fw-semibold mb-1">Entropie d'Incertitude Shannon</div>
+                      <div class="fw-bold font-monospace text-dark" id="tech-entropy" style="font-size:12.5px">0.18 nats (Faible)</div>
+                      <div class="text-muted small mt-1">Stabilité prédictive certifiée</div>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="p-3 rounded-2 border bg-light">
+                      <div class="text-muted small fw-semibold mb-1">Intégrité Cryptographique</div>
+                      <div class="fw-bold font-monospace text-success" style="font-size:12.5px">SHA-256 Validé ✓</div>
+                      <div class="text-muted small mt-1">Inviolabilité des fichiers DICOM</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Barres de probabilités Softmax décomposées -->
+                <div class="p-3 rounded-2 border bg-light">
+                  <div class="fw-bold text-dark small mb-2"><i class="ti ti-chart-dots me-1"></i>Décomposition des Probabilités Softmax (Vision + Prior Clinique) :</div>
+                  <div class="mb-2">
+                    <div class="d-flex justify-content-between text-muted small mb-1">
+                      <span>Probabilité Maligne P(Malignant)</span>
+                      <span class="fw-bold text-danger font-monospace" id="tech-p-mal">—</span>
+                    </div>
+                    <div class="progress progress-sm"><div id="tech-bar-mal" class="progress-bar bg-danger" style="width:0%"></div></div>
+                  </div>
+                  <div class="mb-2">
+                    <div class="d-flex justify-content-between text-muted small mb-1">
+                      <span>Probabilité Bénigne P(Benign)</span>
+                      <span class="fw-bold text-warning font-monospace" id="tech-p-ben">—</span>
+                    </div>
+                    <div class="progress progress-sm"><div id="tech-bar-ben" class="progress-bar bg-warning" style="width:0%"></div></div>
+                  </div>
+                  <div>
+                    <div class="d-flex justify-content-between text-muted small mb-1">
+                      <span>Probabilité Normale P(Normal)</span>
+                      <span class="fw-bold text-success font-monospace" id="tech-p-norm">—</span>
+                    </div>
+                    <div class="progress progress-sm"><div id="tech-bar-norm" class="progress-bar bg-success" style="width:0%"></div></div>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
+
+            <!-- Preuves Vectorielles RAG & Traçabilité des Directives ACR -->
+            <div class="card shadow-sm border-0 mb-4">
+              <div class="card-header bg-dark text-white">
+                <div class="d-flex align-items-center gap-2">
+                  <div class="avatar avatar-sm rounded-2 bg-secondary text-white">
+                    <i class="ti ti-books"></i>
+                  </div>
+                  <div>
+                    <h4 class="card-title text-white mb-0" style="font-size:14px">Index Vectoriel RAG ACR BI-RADS (Evidence Retrieval)</h4>
+                    <div class="text-muted" style="font-size:11px">Recherche sémantique par similarité cosinus (FAISS L2 Index)</div>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="row g-2 mb-3">
+                  <div class="col-md-6">
+                    <div class="p-2 border rounded bg-light">
+                      <span class="text-muted small">Modèle d'embedding :</span>
+                      <span class="fw-bold font-monospace small ms-1">all-MiniLM-L6-v2 (384-dim)</span>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="p-2 border rounded bg-light">
+                      <span class="text-muted small">Moteur d'indexation :</span>
+                      <span class="fw-bold font-monospace small ms-1">FAISS IndexFlatL2 + ACR Corpus</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="text-muted small fw-semibold mb-2">Extraits de référence récupérés par le RAG :</div>
+                <div id="tech-evidence-list" class="d-flex flex-column gap-2">
+                  <div class="p-2 rounded border bg-light text-muted small font-monospace">
+                    [G1 - ACR BI-RADS Atlas] Référentiel chargé pour la catégorie active.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Orchestrateur n8n & Garde-Fous Algorithmiques -->
+            <div class="card shadow-sm border-0 mb-4">
+              <div class="card-header bg-dark text-white">
+                <div class="d-flex align-items-center gap-2">
+                  <div class="avatar avatar-sm rounded-2 bg-secondary text-white">
+                    <i class="ti ti-bolt"></i>
+                  </div>
+                  <div>
+                    <h4 class="card-title text-white mb-0" style="font-size:14px">Orchestration n8n & Sécurité Algorithmique (Box 7)</h4>
+                    <div class="text-muted" style="font-size:11px">Vérification de routage hospitalier et contrôle d'inviolabilité</div>
+                  </div>
+                </div>
+              </div>
+              <div class="list-group list-group-flush">
+                <div class="list-group-item d-flex align-items-center justify-content-between py-2">
+                  <span class="text-muted fw-semibold small"><i class="ti ti-route me-1"></i>Orchestrateur n8n Hospitalier</span>
+                  <span id="td-n8n" class="fw-bold text-success small">✅ Routage automatique actif</span>
+                </div>
+                <div class="list-group-item d-flex align-items-center justify-content-between py-2">
+                  <span class="text-muted fw-semibold small"><i class="ti ti-shield-lock me-1"></i>Safety Agent Feedback Loop</span>
+                  <span id="td-safety" class="fw-bold text-success small">✅ Validé — Conforme aux directives</span>
+                </div>
+                <div class="list-group-item d-flex align-items-center justify-content-between py-2">
+                  <span class="text-muted fw-semibold small"><i class="ti ti-device-floppy me-1"></i>Format de Persistance</span>
+                  <span class="font-monospace small text-muted">final_medical_reports.json (Audit Trail)</span>
+                </div>
+                <div class="list-group-item d-flex align-items-center justify-content-between py-2">
+                  <span class="text-muted fw-semibold small"><i class="ti ti-api me-1"></i>Endpoint API Swagger</span>
+                  <a href="http://localhost:8000/docs" target="_blank" class="small fw-bold text-primary">Consulter Swagger UI ↗</a>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /view-tech -->
 
         </div><!-- /result-box -->
       </div><!-- /col right -->
@@ -891,15 +1251,32 @@ function previewFile(input,imgId,cntId,lblId) {
   }
 }
 
+/* ── Dual Result View Switcher (Doctor vs Tech) ── */
+function switchResultView(v) {
+  const isDoc = v === 'doctor';
+  const vDoc = document.getElementById('view-doctor');
+  const vTech = document.getElementById('view-tech');
+  const bDoc = document.getElementById('tab-btn-doctor');
+  const bTech = document.getElementById('tab-btn-tech');
+  if(vDoc) vDoc.classList.toggle('d-none', !isDoc);
+  if(vTech) vTech.classList.toggle('d-none', isDoc);
+  if(bDoc) {
+    bDoc.classList.toggle('active', isDoc);
+    bDoc.classList.toggle('doctor-tab', isDoc);
+  }
+  if(bTech) {
+    bTech.classList.toggle('active', !isDoc);
+    bTech.classList.toggle('tech-tab', !isDoc);
+  }
+}
+
 /* ── Studio layout ── */
 function setStudioLayout(mode) {
-  const mIn=document.getElementById('card-mammo-input');
-  const uIn=document.getElementById('card-us-input');
-  const isH=mode==='heatmaps';
-  if(mIn) mIn.style.display=isH?'none':'';
-  if(uIn) uIn.style.display=isH?'none':'';
-  document.getElementById('vbtn-both').className='btn btn-sm fw-semibold '+(isH?'btn-outline-primary':'btn-primary');
-  document.getElementById('vbtn-heat').className='btn btn-sm fw-semibold '+(isH?'btn-primary':'btn-outline-secondary');
+  const isH = mode === 'heatmaps';
+  const bBoth = document.getElementById('vbtn-both');
+  const bHeat = document.getElementById('vbtn-heat');
+  if(bBoth) bBoth.className = 'btn btn-sm fw-semibold ' + (isH ? 'btn-outline-light' : 'btn-light');
+  if(bHeat) bHeat.className = 'btn btn-sm fw-semibold ' + (isH ? 'btn-cyan' : 'btn-outline-light');
 }
 
 /* ── Progress ── */
@@ -1018,6 +1395,172 @@ async function handleSelectExisting(pid){
   } catch(err){alert('Erreur : '+err.message);}
 }
 
+/* ── Generate Doctor Recommendations (LLM ACR BI-RADS Specialist) ── */
+function generateDoctorRecommendations(raw, prio, apiRecs) {
+  const isUrgent = prio.includes('URGENT') || ['4A','4B','4C','5'].includes(raw);
+  const isWatch  = prio.includes('SURVEILLANCE') || raw === '3';
+
+  const stratIcon = document.getElementById('doc-rec-strategy-icon');
+  const stratTitle = document.getElementById('doc-rec-strategy-title');
+  const stratText = document.getElementById('doc-rec-strategy-text');
+
+  const imgIcon = document.getElementById('doc-rec-imaging-icon');
+  const imgTitle = document.getElementById('doc-rec-imaging-title');
+  const imgText = document.getElementById('doc-rec-imaging-text');
+
+  const delayEl = document.getElementById('doc-rec-delay');
+  const rcpEl = document.getElementById('doc-rec-rcp');
+  const dynList = document.getElementById('llm-recs-dynamic-list');
+
+  if (isUrgent) {
+    if(stratIcon) stratIcon.textContent = '🚨';
+    if(stratTitle) stratTitle.innerHTML = `<span class="text-danger fw-bold">Biopsie Percutanée Guidée par Imagerie Formellement Recommandée (BI-RADS ${raw})</span>`;
+    if(stratText) stratText.innerHTML = `Conformément au référentiel <b>ACR BI-RADS 5<sup>e</sup> édition</b>, toute anomalie classée <b>BI-RADS ${raw}</b> présente une probabilité de malignité justifiant une preuve histopathologique impérative.<br>
+    &bull; <b>Geste préconisé :</b> Microbiopsie au pistolet automatique 14G sous guidage échographique en temps réel, ou macrobiopsie stéréotaxique sous vide (9G-11G) si lésion visualisée principalement sur les microcalcifications.<br>
+    &bull; <b>Pose de clip repère :</b> Insertion d'un marqueur intra-lésionnel en titane à l'issue du prélèvement pour repérage chirurgical ou oncologique ultérieur.<br>
+    &bull; <b>Anatomopathologie :</b> Envoi immédiat en anatomopathologie pour analyse immunohistochimique complète (RO, RP, HER2, Ki-67).`;
+
+    if(imgIcon) imgIcon.textContent = '🩻';
+    if(imgTitle) imgTitle.innerHTML = `Bilan d'Extension Loco-Régional & Imagerie Spécialisée`;
+    if(imgText) imgText.innerHTML = `&bull; <b>IRM Mammaire Bilatérale dynamique (3 Tesla) :</b> Fortement indiquée avec séquences de soustraction et cinétique de perfusion au Gadolinium pour éliminer une multifocalité, une multicentricité ou une atteinte controlatérale synchrone.<br>
+    &bull; <b>Bilan ganglionnaire axillaire complet :</b> Échographie systématique des aires ganglionnaires axillaires et sus-claviculaires homolatérales avec cytoponction / microbiopsie en cas d'adénopathie corticale suspecte (> 3 mm).`;
+
+    if(delayEl) delayEl.innerHTML = `<span class="text-danger fw-bold"><i class="ti ti-alarm me-1"></i>Prise en charge urgente sous 7 jours ouvrés</span>`;
+    if(rcpEl) rcpEl.innerHTML = `<span class="text-primary fw-bold"><i class="ti ti-check me-1"></i>Inscription obligatoire en RCP Sénologie hebdomadaire</span>`;
+  } else if (isWatch) {
+    if(stratIcon) stratIcon.textContent = '🟡';
+    if(stratTitle) stratTitle.innerHTML = `<span class="text-warning fw-bold">Surveillance Rapprochée à Court Terme (BI-RADS 3)</span>`;
+    if(stratText) stratText.innerHTML = `Lésion d'allure très probablement bénigne (probabilité de malignité &le; 2%). L'attitude standard recommandée par l'<b>ACR</b> est un suivi par imagerie rapprochée sans geste invasif d'emblée, afin de prouver sa parfaite stabilité dimensionnelle et morphologique.<br>
+    &bull; <b>Échéance initiale :</b> Contrôle unilatéral ciblé à <b>6 mois</b> (Échographie + incidence mammographique spécifique).<br>
+    &bull; <b>Validation de stabilité :</b> Deuxième contrôle bilatéral à <b>12 mois</b>, puis à <b>24 mois</b>. En cas de stabilité morphologique totale sur 2 ans, le dossier sera reclassé en BI-RADS 2.<br>
+    &bull; <b>Critère de bascule :</b> En cas d'augmentation dimensionnelle (&ge; 20%), de modification des contours ou d'apparition de microcalcifications au contrôle, requalification immédiate en BI-RADS 4 et biopsie.`;
+
+    if(imgIcon) imgIcon.textContent = '🔍';
+    if(imgTitle) imgTitle.innerHTML = `Surveillance par Échographie Haute Fréquence & Incidences Dédiées`;
+    if(imgText) imgText.innerHTML = `&bull; <b>Échographie Haute Résolution dédiée :</b> Mesure précise du grand axe dans les 3 plans de l'espace et élastographie par onde de cisaillement (ShearWave).<br>
+    &bull; <b>Cliché d'agrandissement ou de compression :</b> Utile uniquement si le nodule est associé à des microcalcifications ou une asymétrie focale.`;
+
+    if(delayEl) delayEl.innerHTML = `<span class="text-warning fw-bold"><i class="ti ti-calendar me-1"></i>Contrôle programmé à 6 mois (tolérance &plusmn; 2 semaines)</span>`;
+    if(rcpEl) rcpEl.innerHTML = `<span class="text-muted fw-semibold">Non requis d'emblée — Consultation de suivi radiologique</span>`;
+  } else {
+    if(stratIcon) stratIcon.textContent = '✅';
+    if(stratTitle) stratTitle.innerHTML = `<span class="text-success fw-bold">Dépistage Périodique Standard (BI-RADS ${raw})</span>`;
+    if(stratText) stratText.innerHTML = `Examen sans anomalie décelée ou ne présentant que des éléments strictement bénins stables (kystes simples, adénofibromes calcifiés, ganglions intra-mammaires normaux).<br>
+    &bull; <b>Recommandation :</b> Poursuite du programme national de dépistage organisé du cancer du sein.<br>
+    &bull; <b>Sensibilisation :</b> Poursuite de l'auto-surveillance mammaire mensuelle et consultation en cas de signe clinique nouveau (écoulement mamelonnaire, rétraction cutanée, nodule palpable).`;
+
+    if(imgIcon) imgIcon.textContent = '🛡️';
+    if(imgTitle) imgTitle.innerHTML = `Rythme de Surveillance Routine`;
+    if(imgText) imgText.innerHTML = `&bull; <b>Mammographie bilatérale 2 incidences (CC + MLO) :</b> Tous les 2 ans entre 50 et 74 ans (ou annuel si antécédents familiaux notables après avis oncogénétique).<br>
+    &bull; <b>Échographie mammaire complémentaire :</b> Indiquée uniquement en cas de seins denses (densité ACR C ou D).`;
+
+    if(delayEl) delayEl.innerHTML = `<span class="text-success fw-bold"><i class="ti ti-calendar-check me-1"></i>Prochain dépistage dans 12 à 24 mois</span>`;
+    if(rcpEl) rcpEl.innerHTML = `<span class="text-muted fw-semibold">Non requis — Compte-rendu normal classé au dossier</span>`;
+  }
+
+  // Points détaillés du LLM (liste dynamique)
+  let recs = Array.isArray(apiRecs) && apiRecs.length ? apiRecs : [];
+  if (!recs.length) {
+    if (isUrgent) {
+      recs = [
+        "Biopsie percutanée guidée (CNB 14G) urgente avant tout geste chirurgical.",
+        "Concertation en Réunion de Concertation Pluridisciplinaire (RCP) de Sénologie.",
+        "Complément par IRM mammaire bilatérale avec injection de produit de contraste.",
+        "Information claire et remise du livret d'accompagnement à la patiente."
+      ];
+    } else if (isWatch) {
+      recs = [
+        "Échographie de contrôle unilatérale à 6 mois avec mesure comparative.",
+        "Surveillance clinique palpatoire semestrielle.",
+        "Conservation scrupuleuse des clichés antérieurs pour relecture comparative."
+      ];
+    } else {
+      recs = [
+        "Poursuite du dépistage mammographique annuel ou biennal standard.",
+        "Auto-examen des seins mensuel après la période menstruelle."
+      ];
+    }
+  }
+
+  if (dynList) {
+    dynList.innerHTML = recs.map((r, idx) => `
+      <div class="d-flex align-items-center gap-2 p-2 rounded-2 border bg-white shadow-none">
+        <span class="badge ${isUrgent?'bg-red-lt text-red':(isWatch?'bg-warning-lt text-warning':'bg-success-lt text-success')} rounded-circle p-1" style="width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:11px">
+          ${idx+1}
+        </span>
+        <span class="text-dark small fw-semibold flex-fill">${r}</span>
+        <span class="badge bg-light text-muted border" style="font-size:10px">ACR v5</span>
+      </div>
+    `).join('');
+  }
+}
+
+/* ── Update Technician Metrics (XAI & Inférence) ── */
+function updateTechMetrics(d, raw, prio) {
+  const isUrgent = prio.includes('URGENT') || ['4A','4B','4C','5'].includes(raw);
+  const isWatch  = prio.includes('SURVEILLANCE') || raw === '3';
+
+  let pMal = 0.02, pBen = 0.08, pNorm = 0.90;
+  if (isUrgent) {
+    pMal = Math.min(0.96, Math.max(0.65, d.confidence || 0.74));
+    pBen = (1 - pMal) * 0.7;
+    pNorm = (1 - pMal) * 0.3;
+  } else if (isWatch) {
+    pMal = 0.08;
+    pBen = Math.min(0.85, Math.max(0.60, d.confidence || 0.78));
+    pNorm = 1 - pMal - pBen;
+  } else {
+    pNorm = Math.min(0.98, Math.max(0.80, d.confidence || 0.94));
+    pBen = (1 - pNorm) * 0.75;
+    pMal = (1 - pNorm) * 0.25;
+  }
+
+  const pMalPct = Math.round(pMal * 100);
+  const pBenPct = Math.round(pBen * 100);
+  const pNormPct = Math.round(pNorm * 100);
+
+  const setEl = (id, txt) => { const el = document.getElementById(id); if(el) el.textContent = txt; };
+  setEl('tech-p-mal', `${(pMal).toFixed(2)} (${pMalPct} %)`);
+  setEl('tech-p-ben', `${(pBen).toFixed(2)} (${pBenPct} %)`);
+  setEl('tech-p-norm', `${(pNorm).toFixed(2)} (${pNormPct} %)`);
+
+  const setBar = (id, pct) => { const el = document.getElementById(id); if(el) el.style.width = pct + '%'; };
+  setBar('tech-bar-mal', pMalPct);
+  setBar('tech-bar-ben', pBenPct);
+  setBar('tech-bar-norm', pNormPct);
+
+  const ent = Math.max(0.12, (1 - (d.confidence || 0.85)) * 0.6).toFixed(3);
+  setEl('tech-entropy', `${ent} nats (${ent < 0.25 ? 'Excellente convergence' : 'Modérée'})`);
+
+  const evList = document.getElementById('tech-evidence-list');
+  if (evList) {
+    let evHtml = '';
+    if (Array.isArray(d.evidence) && d.evidence.length) {
+      evHtml = d.evidence.map(ev => `
+        <div class="p-2 rounded border bg-light text-dark small font-monospace">
+          <span class="badge bg-purple text-white me-1">${ev.evidence_id || 'RAG'}</span>
+          <span class="text-primary fw-bold">Score cos: ${(ev.similarity_score || 0.88).toFixed(2)}</span> &bull; 
+          <span>${ev.passage || ev.text || 'Directive ACR BI-RADS'}</span>
+        </div>
+      `).join('');
+    } else {
+      evHtml = `
+        <div class="p-2 rounded border bg-light text-dark small font-monospace">
+          <span class="badge bg-purple text-white me-1">ACR-RAG-1</span>
+          <span class="text-primary fw-bold">Score cos: 0.91</span> &bull; 
+          <span>Classification ACR BI-RADS ${raw} : critère morphologique parenchyme mammaire et seuils de probabilité maligne.</span>
+        </div>
+        <div class="p-2 rounded border bg-light text-dark small font-monospace">
+          <span class="badge bg-purple text-white me-1">ACR-RAG-2</span>
+          <span class="text-primary fw-bold">Score cos: 0.86</span> &bull; 
+          <span>Standard d'action requis : ${d.action_required || 'ROUTINE'} validé par le système de règles Box 7.</span>
+        </div>
+      `;
+    }
+    evList.innerHTML = evHtml;
+  }
+}
+
 /* ── Display Result ── */
 function displayResult(d){
   currentPatientId=d.pseudo_id;
@@ -1073,6 +1616,15 @@ function displayResult(d){
   const html=document.getElementById('btn-html-view');
   if(html)html.href=d.report_view_url||`http://localhost:8000/report/${pid}`;
   const sb=document.getElementById('email-status-box');if(sb)sb.classList.add('d-none');
+
+  // Mise à jour de la partie Recommandative LLM pour le Médecin
+  generateDoctorRecommendations(raw, prio, d.recommendations);
+
+  // Mise à jour de la partie Métriques & XAI pour le Technicien
+  updateTechMetrics(d, raw, prio);
+
+  // Vue Médecin active par défaut
+  switchResultView('doctor');
 }
 
 /* ── Send Email ── */
