@@ -2,9 +2,11 @@
   {
     "patient_summary": {
       "pseudo_id": "Paacb1ec57b",
+      "age": 51,
       "condition": "les_deux",
       "acquisition_device": "Standard (Uploaded via Web)"
     },
+    "age": 51,
     "predicted_birads": "1",
     "prediction_available": true,
     "confidence": 0.94,
