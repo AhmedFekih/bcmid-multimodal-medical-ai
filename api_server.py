@@ -285,6 +285,20 @@ def view_report_direct(patient_id: str):
     return view_report(patient_id)
 
 
+@app.get("/report/architecture/pdf", summary="Download Comprehensive BCMID Architecture PDF Report")
+@app.get("/architecture/pdf", include_in_schema=False)
+def download_architecture_pdf():
+    """Returns the comprehensive multi-page BCMID Architecture & Engineering PDF report."""
+    pdf_path = REPORTS_DIR / "BCMID_Final_Architecture_Report.pdf"
+    if not pdf_path.exists():
+        raise HTTPException(status_code=404, detail="Architecture report not found.")
+    return FileResponse(
+        str(pdf_path),
+        media_type="application/pdf",
+        headers={"Content-Disposition": 'inline; filename="BCMID_Final_Architecture_Report.pdf"'}
+    )
+
+
 @app.get("/report/{patient_id}/pdf", summary="Download Box 7 Medical Report as PDF")
 def download_report_pdf(patient_id: str):
     """
