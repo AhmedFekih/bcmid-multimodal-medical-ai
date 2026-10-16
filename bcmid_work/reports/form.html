@@ -3,1815 +3,2231 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BCMID AI Diagnostic Suite — Console Médicale & Aide à la Décision</title>
+    <title>BCMID AI · Console Médicale Multimodale — Détection Cancer du Sein</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <style>
+        /* ═══════════════════════════════════════
+           DESIGN TOKENS & CSS VARIABLES
+        ═══════════════════════════════════════ */
         :root {
-            --primary-900: #07182c;
-            --primary-800: #0b2545;
-            --primary-700: #134074;
-            --primary-600: #1d5b96;
-            --primary-500: #0284c7;
-            --primary-100: #e0f2fe;
-            --primary-50:  #f0f9ff;
-            
-            --success-600: #059669;
-            --success-500: #10b981;
-            --success-100: #d1fae5;
-            --success-50:  #ecfdf5;
-            
-            --warning-600: #d97706;
-            --warning-500: #f59e0b;
-            --warning-100: #fef3c7;
-            --warning-50:  #fffbeb;
-            
-            --danger-600:  #dc2626;
-            --danger-500:  #ef4444;
-            --danger-100:  #fee2e2;
-            --danger-50:   #fef2f2;
-            
-            --slate-900:   #0f172a;
-            --slate-800:   #1e293b;
-            --slate-700:   #334155;
-            --slate-600:   #475569;
-            --slate-500:   #64748b;
-            --slate-400:   #94a3b8;
-            --slate-300:   #cbd5e1;
-            --slate-200:   #e2e8f0;
-            --slate-100:   #f1f5f9;
-            --slate-50:    #f8fafc;
-            
-            --shadow-sm:  0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md:  0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-            --shadow-lg:  0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
-            --shadow-xl:  0 20px 25px -5px rgba(11, 37, 69, 0.12), 0 8px 10px -6px rgba(11, 37, 69, 0.06);
-            --radius-md:  10px;
-            --radius-lg:  14px;
-            --radius-xl:  18px;
+            /* Brand Blues */
+            --blue-950: #03111f;
+            --blue-900: #061c33;
+            --blue-800: #0a2d52;
+            --blue-700: #103f72;
+            --blue-600: #1653a0;
+            --blue-500: #1d6fbf;
+            --blue-400: #3b8fd4;
+            --blue-300: #7ab8e8;
+            --blue-100: #dbeafe;
+            --blue-50:  #eff6ff;
+
+            /* Clinical Status */
+            --red-700:  #b91c1c;
+            --red-600:  #dc2626;
+            --red-500:  #ef4444;
+            --red-100:  #fee2e2;
+            --red-50:   #fef2f2;
+
+            --amber-700: #b45309;
+            --amber-600: #d97706;
+            --amber-500: #f59e0b;
+            --amber-100: #fef3c7;
+            --amber-50:  #fffbeb;
+
+            --emerald-700: #047857;
+            --emerald-600: #059669;
+            --emerald-500: #10b981;
+            --emerald-100: #d1fae5;
+            --emerald-50:  #ecfdf5;
+
+            /* Neutrals */
+            --slate-950: #020617;
+            --slate-900: #0f172a;
+            --slate-800: #1e293b;
+            --slate-700: #334155;
+            --slate-600: #475569;
+            --slate-500: #64748b;
+            --slate-400: #94a3b8;
+            --slate-300: #cbd5e1;
+            --slate-200: #e2e8f0;
+            --slate-100: #f1f5f9;
+            --slate-50:  #f8fafc;
+
+            /* Accent / Highlight */
+            --violet-600: #7c3aed;
+            --violet-100: #ede9fe;
+
+            /* Shadows */
+            --shadow-xs: 0 1px 2px rgba(0,0,0,.04);
+            --shadow-sm: 0 2px 4px rgba(0,0,0,.06);
+            --shadow-md: 0 4px 12px rgba(0,0,0,.08);
+            --shadow-lg: 0 8px 24px rgba(10,37,69,.1);
+            --shadow-xl: 0 16px 40px rgba(10,37,69,.12);
+            --shadow-glow-blue: 0 0 0 3px rgba(29,111,191,.18);
+            --shadow-glow-red:  0 0 0 3px rgba(220,38,38,.18);
+            --shadow-glow-amber:0 0 0 3px rgba(217,119,6,.18);
+            --shadow-glow-emerald: 0 0 0 3px rgba(5,150,105,.18);
+
+            /* Borders */
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            --radius-xl: 18px;
+            --radius-2xl: 24px;
+            --radius-full: 9999px;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
+        /* ═══════════════════════════════════════
+           RESET & BASE
+        ═══════════════════════════════════════ */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { scroll-behavior: smooth; }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: #f1f5f9;
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(2, 132, 199, 0.05) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(19, 64, 116, 0.06) 0px, transparent 50%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #f0f4f8;
+            background-image:
+                radial-gradient(ellipse at 0% 0%, rgba(29,111,191,.08) 0, transparent 55%),
+                radial-gradient(ellipse at 100% 100%, rgba(10,45,82,.07) 0, transparent 55%),
+                url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%230284c7' fill-opacity='0.025'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
             color: var(--slate-800);
             min-height: 100vh;
-            padding: 20px 16px 40px;
-            line-height: 1.5;
+            padding: 0 0 60px 0;
+            line-height: 1.55;
         }
 
-        /* Top Navigation Bar */
-        .top-navbar {
-            max-width: 1180px;
-            margin: 0 auto 16px;
-            background: #ffffff;
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--slate-200);
-            box-shadow: var(--shadow-sm);
-            padding: 12px 20px;
+        /* ═══════════════════════════════════════
+           TOP NAVIGATION
+        ═══════════════════════════════════════ */
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255,255,255,.88);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-bottom: 1px solid rgba(203,213,225,.7);
+            box-shadow: 0 1px 8px rgba(10,37,69,.07);
+            padding: 0 28px;
+        }
+
+        .topbar-inner {
+            max-width: 1260px;
+            margin: 0 auto;
+            height: 60px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 12px;
+            gap: 16px;
         }
 
-        .nav-brand {
+        .brand {
             display: flex;
             align-items: center;
             gap: 12px;
             text-decoration: none;
             color: inherit;
+            flex-shrink: 0;
         }
 
-        .brand-icon {
-            width: 38px;
-            height: 38px;
-            border-radius: 10px;
-            background: linear-gradient(135deg, var(--primary-700), var(--primary-500));
+        .brand-logo {
+            width: 36px;
+            height: 36px;
+            border-radius: 9px;
+            background: linear-gradient(135deg, var(--blue-800), var(--blue-500));
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3);
+            color: #fff;
+            font-size: 18px;
+            box-shadow: 0 3px 10px rgba(16,63,114,.35);
+            flex-shrink: 0;
         }
 
-        .brand-title {
-            font-size: 16px;
+        .brand-text-name {
+            font-size: 15px;
             font-weight: 800;
-            color: var(--primary-800);
-            letter-spacing: -0.3px;
+            color: var(--blue-900);
+            letter-spacing: -.3px;
+            line-height: 1.1;
+        }
+
+        .brand-text-sub {
+            font-size: 10.5px;
+            color: var(--slate-500);
+            font-weight: 500;
+            line-height: 1.2;
+        }
+
+        .topbar-center {
             display: flex;
             align-items: center;
             gap: 6px;
-        }
-
-        .brand-subtitle {
-            font-size: 11px;
-            color: var(--slate-500);
-            font-weight: 500;
-        }
-
-        .nav-status-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
             flex-wrap: wrap;
         }
 
-        .status-pill {
+        .sys-badge {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
             padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 11.5px;
+            border-radius: var(--radius-full);
+            font-size: 11px;
             font-weight: 600;
-            background: var(--slate-100);
-            color: var(--slate-700);
-            border: 1px solid var(--slate-200);
+            white-space: nowrap;
         }
 
-        .status-pill.online {
-            background: var(--success-50);
-            color: var(--success-600);
-            border-color: rgba(16, 185, 129, 0.3);
+        .sys-badge.online {
+            background: var(--emerald-50);
+            color: var(--emerald-700);
+            border: 1px solid rgba(5,150,105,.25);
         }
 
-        .status-dot {
-            width: 7px;
-            height: 7px;
+        .sys-badge.model {
+            background: var(--blue-50);
+            color: var(--blue-700);
+            border: 1px solid rgba(29,111,191,.2);
+        }
+
+        .sys-badge.rag {
+            background: var(--violet-100);
+            color: var(--violet-600);
+            border: 1px solid rgba(124,58,237,.2);
+        }
+
+        .sys-badge.webhook {
+            background: var(--amber-50);
+            color: var(--amber-700);
+            border: 1px solid rgba(217,119,6,.2);
+        }
+
+        .pulse-dot {
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
-            background: var(--success-500);
-            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
-            animation: pulseDot 2s infinite;
+            background: var(--emerald-500);
+            animation: dotPulse 1.8s ease-in-out infinite;
         }
 
-        @keyframes pulseDot {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.6; transform: scale(1.15); }
+        @keyframes dotPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.4); opacity: .7; }
         }
 
-        .nav-links {
+        .topbar-right {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            flex-shrink: 0;
         }
 
-        .nav-link-btn {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--primary-700);
-            background: var(--primary-50);
-            border: 1px solid rgba(2, 132, 199, 0.2);
-            padding: 6px 12px;
-            border-radius: 8px;
-            text-decoration: none;
-            transition: all 0.2s;
+        .nav-btn {
             display: inline-flex;
             align-items: center;
-            gap: 4px;
-        }
-
-        .nav-link-btn:hover {
-            background: var(--primary-700);
-            color: white;
-            border-color: var(--primary-700);
-            transform: translateY(-1px);
-        }
-
-        /* Main Workspace Container */
-        .workspace {
-            max-width: 1180px;
-            margin: 0 auto;
-            background: #ffffff;
-            border-radius: var(--radius-xl);
-            box-shadow: var(--shadow-xl);
+            gap: 5px;
+            padding: 6px 13px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--slate-700);
+            background: var(--slate-50);
             border: 1px solid var(--slate-200);
-            overflow: hidden;
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            transition: all .2s;
+            white-space: nowrap;
         }
 
-        /* Hero Banner */
-        .hero-banner {
-            background: linear-gradient(135deg, #07182c 0%, #0b2545 40%, #134074 100%);
-            color: white;
-            padding: 30px 36px 26px;
+        .nav-btn:hover {
+            background: var(--blue-700);
+            color: #fff;
+            border-color: var(--blue-700);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* ═══════════════════════════════════════
+           PAGE HERO
+        ═══════════════════════════════════════ */
+        .hero {
+            background: linear-gradient(135deg, var(--blue-950) 0%, var(--blue-800) 50%, #0f2f5a 100%);
+            padding: 40px 28px 36px;
             position: relative;
             overflow: hidden;
         }
 
-        .hero-banner::after {
-            content: "";
+        .hero::before {
+            content: '';
             position: absolute;
-            top: -50px;
-            right: -50px;
-            width: 320px;
-            height: 320px;
-            background: radial-gradient(circle, rgba(2, 132, 199, 0.2) 0%, transparent 70%);
+            top: -120px; right: -120px;
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(29,111,191,.2) 0%, transparent 65%);
             pointer-events: none;
         }
 
-        .hero-title {
-            font-size: 24px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            margin-bottom: 6px;
-            display: flex;
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -80px; left: -80px;
+            width: 380px; height: 380px;
+            background: radial-gradient(circle, rgba(5,150,105,.1) 0%, transparent 65%);
+            pointer-events: none;
+        }
+
+        .hero-inner {
+            max-width: 1260px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-eyebrow {
+            display: inline-flex;
             align-items: center;
-            gap: 10px;
+            gap: 7px;
+            font-size: 11.5px;
+            font-weight: 700;
+            letter-spacing: .8px;
+            text-transform: uppercase;
+            color: var(--blue-300);
+            background: rgba(59,143,212,.12);
+            border: 1px solid rgba(59,143,212,.25);
+            padding: 4px 12px;
+            border-radius: var(--radius-full);
+            margin-bottom: 14px;
+        }
+
+        .hero-title {
+            font-size: 30px;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: -.6px;
+            line-height: 1.1;
+            margin-bottom: 10px;
+        }
+
+        .hero-title .highlight {
+            background: linear-gradient(90deg, var(--blue-300), #a5f3fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .hero-desc {
-            font-size: 13.5px;
-            color: #cbd5e1;
-            max-width: 820px;
-            line-height: 1.6;
+            font-size: 14px;
+            color: rgba(203,213,225,.85);
+            max-width: 780px;
+            line-height: 1.65;
+            margin-bottom: 20px;
         }
 
-        .hero-tags {
+        .hero-chips {
             display: flex;
             gap: 8px;
             flex-wrap: wrap;
-            margin-top: 14px;
         }
 
-        .hero-tag {
+        .hero-chip {
             font-size: 11px;
             font-weight: 600;
-            padding: 4px 10px;
-            border-radius: 6px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            color: #f8fafc;
-            backdrop-filter: blur(4px);
+            padding: 5px 12px;
+            border-radius: var(--radius-full);
+            background: rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.14);
+            color: rgba(255,255,255,.88);
+            backdrop-filter: blur(6px);
+            letter-spacing: .2px;
         }
 
-        /* Quick Benchmark Cases Bar */
-        .benchmark-bar {
-            background: var(--slate-50);
+        /* ═══════════════════════════════════════
+           MAIN CONTAINER
+        ═══════════════════════════════════════ */
+        .container {
+            max-width: 1260px;
+            margin: 0 auto;
+            padding: 0 28px;
+        }
+
+        /* ═══════════════════════════════════════
+           BENCHMARK PRESETS SECTION
+        ═══════════════════════════════════════ */
+        .presets-section {
+            background: #fff;
             border-bottom: 1px solid var(--slate-200);
-            padding: 18px 36px;
+            padding: 20px 28px;
         }
 
-        .benchmark-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
+        .presets-inner {
+            max-width: 1260px;
+            margin: 0 auto;
         }
 
-        .benchmark-header h3 {
-            font-size: 12.5px;
+        .section-label {
+            font-size: 11px;
             font-weight: 700;
+            letter-spacing: .7px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--slate-600);
+            color: var(--slate-500);
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
 
-        .benchmark-cards {
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--slate-200);
+        }
+
+        .presets-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 12px;
         }
 
-        @media (max-width: 900px) {
-            .benchmark-cards { grid-template-columns: 1fr; }
-        }
-
-        .bench-card {
-            background: #ffffff;
-            border: 1.5px solid var(--slate-200);
-            border-radius: var(--radius-md);
-            padding: 14px 16px;
-            cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            text-align: left;
+        .preset-card {
             position: relative;
+            border-radius: var(--radius-lg);
+            border: 1.5px solid var(--slate-200);
+            padding: 16px 18px;
+            cursor: pointer;
+            background: #fff;
+            transition: all .22s cubic-bezier(.4,0,.2,1);
             overflow: hidden;
+        }
+
+        .preset-card::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 4px;
+            border-radius: 4px 0 0 4px;
+        }
+
+        .preset-card.urgent::before  { background: var(--red-500); }
+        .preset-card.watch::before   { background: var(--amber-500); }
+        .preset-card.routine::before { background: var(--emerald-500); }
+
+        .preset-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .preset-card.urgent:hover  { border-color: var(--red-500);     box-shadow: var(--shadow-lg), var(--shadow-glow-red); }
+        .preset-card.watch:hover   { border-color: var(--amber-500);   box-shadow: var(--shadow-lg), var(--shadow-glow-amber); }
+        .preset-card.routine:hover { border-color: var(--emerald-500); box-shadow: var(--shadow-lg), var(--shadow-glow-emerald); }
+
+        .preset-top {
             display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .bench-card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .bench-card.urgent {
-            border-left: 4px solid var(--danger-500);
-        }
-        .bench-card.urgent:hover {
-            border-color: var(--danger-500);
-            background: var(--danger-50);
-        }
-
-        .bench-card.surveillance {
-            border-left: 4px solid var(--warning-500);
-        }
-        .bench-card.surveillance:hover {
-            border-color: var(--warning-500);
-            background: var(--warning-50);
-        }
-
-        .bench-card.routine {
-            border-left: 4px solid var(--success-500);
-        }
-        .bench-card.routine:hover {
-            border-color: var(--success-500);
-            background: var(--success-50);
-        }
-
-        .bench-top {
-            display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 6px;
+            justify-content: space-between;
+            margin-bottom: 8px;
         }
 
-        .bench-badge {
-            font-size: 11px;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 4px;
-        }
-
-        .bench-badge.urgent { background: var(--danger-100); color: var(--danger-600); }
-        .bench-badge.surveillance { background: var(--warning-100); color: var(--warning-600); }
-        .bench-badge.routine { background: var(--success-100); color: var(--success-600); }
-
-        .bench-patient-id {
-            font-size: 13.5px;
+        .preset-pid {
+            font-size: 13px;
             font-weight: 800;
             color: var(--slate-900);
+            font-family: 'JetBrains Mono', monospace;
         }
 
-        .bench-info {
-            font-size: 11.5px;
+        .preset-badge {
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .4px;
+            padding: 2px 9px;
+            border-radius: var(--radius-full);
+        }
+
+        .preset-badge.urgent  { background: var(--red-100);     color: var(--red-700); }
+        .preset-badge.watch   { background: var(--amber-100);   color: var(--amber-700); }
+        .preset-badge.routine { background: var(--emerald-100); color: var(--emerald-700); }
+
+        .preset-info {
+            font-size: 12px;
             color: var(--slate-600);
-            margin-bottom: 8px;
-            line-height: 1.4;
+            line-height: 1.5;
+            margin-bottom: 10px;
         }
 
-        .bench-action-tag {
-            font-size: 10.5px;
+        .preset-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .preset-birads {
+            font-size: 11.5px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .preset-birads.urgent  { color: var(--red-600); }
+        .preset-birads.watch   { color: var(--amber-600); }
+        .preset-birads.routine { color: var(--emerald-600); }
+
+        .preset-cta {
+            font-size: 11px;
             font-weight: 600;
-            color: var(--primary-700);
-            display: inline-flex;
+            color: var(--blue-600);
+            display: flex;
             align-items: center;
             gap: 4px;
         }
 
-        /* Navigation Tabs */
-        .workflow-tabs {
-            display: flex;
-            background: #ffffff;
-            border-bottom: 2px solid var(--slate-200);
-            padding: 0 36px;
+        /* ═══════════════════════════════════════
+           MAIN WORKSPACE
+        ═══════════════════════════════════════ */
+        .workspace-wrap {
+            max-width: 1260px;
+            margin: 24px auto 0;
+            padding: 0 28px;
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 20px;
+            align-items: start;
         }
 
-        .tab-button {
-            padding: 16px 22px;
-            border: none;
-            background: transparent;
-            font-size: 14.5px;
-            font-weight: 700;
-            color: var(--slate-500);
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-            margin-bottom: -2px;
-            transition: all 0.2s;
+        /* ═══════════════════════════════════════
+           SIDEBAR: INGESTION FORM
+        ═══════════════════════════════════════ */
+        .sidebar-card {
+            background: #fff;
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--slate-200);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            position: sticky;
+            top: 76px;
+        }
+
+        .card-header {
+            padding: 18px 22px 14px;
+            border-bottom: 1px solid var(--slate-100);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
-        .tab-button.active {
-            color: var(--primary-700);
-            border-bottom-color: var(--primary-700);
-            background: transparent;
+        .card-header-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
         }
 
-        .tab-button:hover:not(.active) {
-            color: var(--slate-800);
-            background: var(--slate-50);
+        .card-header-icon.blue    { background: var(--blue-50); }
+        .card-header-icon.emerald { background: var(--emerald-50); }
+        .card-header-icon.amber   { background: var(--amber-50); }
+
+        .card-header-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--slate-900);
+            line-height: 1.1;
         }
 
-        /* Workspace Content Area */
-        .workspace-content {
-            padding: 32px 36px;
+        .card-header-sub {
+            font-size: 11px;
+            color: var(--slate-500);
+            font-weight: 500;
         }
 
-        .tab-panel { display: none; }
-        .tab-panel.active { display: block; }
+        .card-body {
+            padding: 20px 22px;
+        }
 
-        /* Form Styles */
-        .form-grid-2 {
+        /* ═══════════════════════════════════════
+           FORM ELEMENTS
+        ═══════════════════════════════════════ */
+        .field-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
+            gap: 14px;
+            margin-bottom: 14px;
         }
 
-        @media (max-width: 768px) {
-            .form-grid-2 { grid-template-columns: 1fr; }
-        }
+        .field-group { margin-bottom: 14px; }
 
-        .input-group {
-            margin-bottom: 18px;
-        }
-
-        .input-label {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 13px;
+        .field-label {
+            font-size: 12px;
             font-weight: 700;
             color: var(--slate-700);
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .field-required {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--red-500);
+            background: var(--red-50);
+            padding: 1px 6px;
+            border-radius: 4px;
+        }
+
+        .field-optional {
+            font-size: 10px;
+            font-weight: 500;
+            color: var(--slate-400);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 13px;
+            font-size: 13.5px;
+            font-family: inherit;
+            border: 1.5px solid var(--slate-200);
+            border-radius: var(--radius-md);
+            background: var(--slate-50);
+            color: var(--slate-900);
+            transition: all .18s;
+            line-height: 1.4;
+        }
+
+        .form-input:focus {
+            outline: none;
+            background: #fff;
+            border-color: var(--blue-400);
+            box-shadow: var(--shadow-glow-blue);
+        }
+
+        .form-input::placeholder { color: var(--slate-400); font-size: 12.5px; }
+
+        textarea.form-input {
+            resize: vertical;
+            min-height: 72px;
+        }
+
+        select.form-input { cursor: pointer; }
+
+        /* ═══════════════════════════════════════
+           DROPZONES
+        ═══════════════════════════════════════ */
+        .dropzones-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .dropzone {
+            position: relative;
+            border: 2px dashed var(--slate-300);
+            border-radius: var(--radius-lg);
+            padding: 16px 12px;
+            text-align: center;
+            cursor: pointer;
+            background: var(--slate-50);
+            transition: all .2s;
+            overflow: hidden;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dropzone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+
+        .dropzone:hover {
+            border-color: var(--blue-400);
+            background: var(--blue-50);
+        }
+
+        .dropzone-ico {
+            font-size: 26px;
             margin-bottom: 6px;
         }
 
-        .input-label .sub {
-            font-weight: 500;
+        .dropzone-label {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--slate-700);
+            margin-bottom: 2px;
+        }
+
+        .dropzone-hint {
+            font-size: 10.5px;
             color: var(--slate-400);
-            font-size: 11px;
         }
 
-        .form-control {
+        .dropzone-preview-wrap {
+            display: none;
+            position: relative;
             width: 100%;
-            padding: 11px 14px;
-            border: 1.5px solid var(--slate-300);
+        }
+
+        .dropzone-preview-wrap img {
+            width: 100%;
+            max-height: 110px;
+            object-fit: contain;
+            border-radius: 6px;
+            background: #000;
+        }
+
+        .dropzone-file-chip {
+            margin-top: 5px;
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--blue-700);
+            word-break: break-all;
+            text-align: left;
+        }
+
+        .info-note {
+            font-size: 11px;
+            color: var(--slate-500);
+            text-align: center;
+            padding: 8px 12px;
+            background: var(--slate-50);
             border-radius: var(--radius-md);
-            font-size: 14px;
-            background: #ffffff;
-            color: var(--slate-900);
-            transition: all 0.2s;
-            font-family: inherit;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary-500);
-            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
-            background: #ffffff;
-        }
-
-        textarea.form-control {
-            resize: vertical;
-            min-height: 80px;
+            border: 1px solid var(--slate-200);
+            margin-bottom: 16px;
             line-height: 1.5;
         }
 
-        /* Medical Dropzones */
-        .dropzone-card {
-            border: 2px dashed var(--slate-300);
+        /* ═══════════════════════════════════════
+           SUBMIT BUTTON
+        ═══════════════════════════════════════ */
+        .btn-primary {
+            width: 100%;
+            padding: 14px 20px;
+            background: linear-gradient(135deg, var(--blue-700) 0%, var(--blue-500) 100%);
+            color: #fff;
+            border: none;
             border-radius: var(--radius-lg);
-            background: var(--slate-50);
-            padding: 22px 18px;
-            text-align: center;
+            font-size: 14.5px;
+            font-weight: 800;
+            font-family: inherit;
             cursor: pointer;
-            transition: all 0.25s;
+            transition: all .22s;
+            box-shadow: 0 4px 16px rgba(16,63,114,.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            letter-spacing: -.1px;
             position: relative;
             overflow: hidden;
         }
 
-        .dropzone-card:hover {
-            border-color: var(--primary-500);
-            background: var(--primary-50);
-        }
-
-        .dropzone-card input[type="file"] {
+        .btn-primary::before {
+            content: '';
             position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: -100%; left: -100%;
+            width: 300%; height: 300%;
+            background: radial-gradient(circle, rgba(255,255,255,.15) 0%, transparent 60%);
+            transition: all .4s;
             opacity: 0;
-            cursor: pointer;
         }
 
-        .dropzone-icon {
-            font-size: 30px;
-            margin-bottom: 8px;
-            color: var(--primary-600);
-        }
-
-        .dropzone-card h4 {
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--slate-800);
-            margin-bottom: 4px;
-        }
-
-        .dropzone-card p {
-            font-size: 11.5px;
-            color: var(--slate-500);
-        }
-
-        .dropzone-preview-container {
-            display: none;
-            margin-top: 12px;
-            position: relative;
-        }
-
-        .dropzone-preview-img {
-            max-width: 100%;
-            max-height: 140px;
-            border-radius: 8px;
-            border: 1px solid var(--slate-300);
-            object-fit: contain;
-            background: #000;
-        }
-
-        .dropzone-filename {
-            font-size: 11px;
-            color: var(--primary-700);
-            font-weight: 600;
-            margin-top: 4px;
-            word-break: break-all;
-        }
-
-        /* Action Buttons */
-        .btn-run {
-            width: 100%;
-            padding: 16px 24px;
-            background: linear-gradient(135deg, var(--primary-700) 0%, var(--primary-600) 100%);
-            color: white;
-            border: none;
-            border-radius: var(--radius-lg);
-            font-size: 15.5px;
-            font-weight: 800;
-            cursor: pointer;
-            transition: all 0.25s;
-            box-shadow: 0 4px 14px rgba(19, 64, 116, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            letter-spacing: 0.2px;
-        }
-
-        .btn-run:hover {
+        .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(19, 64, 116, 0.4);
-            background: linear-gradient(135deg, var(--primary-800) 0%, var(--primary-700) 100%);
+            box-shadow: 0 8px 24px rgba(16,63,114,.45);
         }
 
-        .btn-run:disabled {
-            background: var(--slate-400);
+        .btn-primary:hover::before { opacity: 1; top: -50%; left: -50%; }
+
+        .btn-primary:disabled {
+            background: var(--slate-300);
             box-shadow: none;
             cursor: not-allowed;
             transform: none;
         }
 
-        /* Real-Time Stepper */
-        .stepper-container {
-            display: none;
-            margin-top: 28px;
-            padding: 24px 28px;
-            background: var(--slate-50);
-            border: 1px solid var(--slate-200);
-            border-radius: var(--radius-lg);
-        }
-
-        .stepper-title {
-            font-size: 14px;
-            font-weight: 800;
-            color: var(--primary-800);
-            margin-bottom: 16px;
+        /* ═══════════════════════════════════════
+           KAGGLE REGISTRY TAB TOGGLE
+        ═══════════════════════════════════════ */
+        .tab-toggle {
             display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .stepper-steps {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 12px;
-        }
-
-        .step-node {
-            background: #ffffff;
-            border: 1px solid var(--slate-200);
-            border-radius: 8px;
-            padding: 10px 12px;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--slate-500);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.25s;
-        }
-
-        .step-node.active {
-            border-color: var(--primary-500);
-            background: var(--primary-50);
-            color: var(--primary-700);
-            box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15);
-        }
-
-        .step-node.done {
-            border-color: rgba(16, 185, 129, 0.3);
-            background: var(--success-50);
-            color: var(--success-600);
-        }
-
-        .step-icon {
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            background: var(--slate-200);
-            color: var(--slate-600);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            flex-shrink: 0;
-            font-weight: 700;
-        }
-
-        .step-node.active .step-icon {
-            background: var(--primary-600);
-            color: white;
-        }
-
-        .step-node.done .step-icon {
-            background: var(--success-500);
-            color: white;
-        }
-
-        /* RESULTS HUB */
-        #result-box {
-            display: none;
-            margin-top: 36px;
-            border-radius: var(--radius-xl);
-            border: 2px solid var(--slate-200);
-            overflow: hidden;
-            box-shadow: var(--shadow-lg);
-            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(16px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        #result-box.urgent { border-color: var(--danger-500); }
-        #result-box.surveillance { border-color: var(--warning-500); }
-        #result-box.routine { border-color: var(--success-500); }
-
-        .result-banner {
-            padding: 18px 28px;
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        #result-box.urgent .result-banner { background: linear-gradient(135deg, #b91c1c, #dc2626); }
-        #result-box.surveillance .result-banner { background: linear-gradient(135deg, #b45309, #d97706); }
-        #result-box.routine .result-banner { background: linear-gradient(135deg, #047857, #059669); }
-
-        .result-banner-title {
-            font-size: 17px;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .result-priority-pill {
-            font-size: 12px;
-            font-weight: 800;
-            background: rgba(255, 255, 255, 0.22);
-            padding: 4px 12px;
-            border-radius: 20px;
-            letter-spacing: 0.5px;
-        }
-
-        .result-body {
-            padding: 28px;
-            background: #ffffff;
-        }
-
-        /* KPI Metric Cards */
-        .kpi-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 14px;
-            margin-bottom: 24px;
-        }
-
-        @media (max-width: 900px) {
-            .kpi-grid { grid-template-columns: 1fr 1fr; }
-        }
-
-        .kpi-card {
-            background: var(--slate-50);
-            border: 1px solid var(--slate-200);
+            gap: 0;
+            background: var(--slate-100);
             border-radius: var(--radius-md);
-            padding: 16px 18px;
+            padding: 3px;
+            margin-bottom: 16px;
+        }
+
+        .tab-toggle-btn {
+            flex: 1;
+            padding: 8px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            font-family: inherit;
+            border: none;
+            border-radius: 7px;
+            background: transparent;
+            color: var(--slate-500);
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+        .tab-toggle-btn.active {
+            background: #fff;
+            color: var(--blue-700);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* ═══════════════════════════════════════
+           PIPELINE STEPPER
+        ═══════════════════════════════════════ */
+        .pipeline-box {
+            display: none;
+            background: #fff;
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--slate-200);
+            box-shadow: var(--shadow-md);
+            padding: 20px 22px;
+        }
+
+        .pipeline-title {
+            font-size: 12.5px;
+            font-weight: 700;
+            color: var(--blue-800);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .pipeline-spinner {
+            width: 14px; height: 14px;
+            border: 2.5px solid var(--blue-100);
+            border-top-color: var(--blue-500);
+            border-radius: 50%;
+            animation: spin .8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .pipeline-steps {
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .kpi-label {
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
-            color: var(--slate-500);
-            margin-bottom: 6px;
-        }
-
-        .kpi-value {
-            font-size: 24px;
-            font-weight: 900;
-            color: var(--primary-900);
-            line-height: 1.1;
-        }
-
-        .kpi-desc {
-            font-size: 11px;
-            color: var(--slate-500);
-            margin-top: 6px;
-        }
-
-        /* Multimodal Imaging & XAI Studio */
-        .xai-studio-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 20px 0 14px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid var(--slate-100);
-        }
-
-        .xai-title {
-            font-size: 15px;
-            font-weight: 800;
-            color: var(--primary-800);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .xai-controls {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .xai-btn {
-            font-size: 11px;
-            font-weight: 600;
-            padding: 5px 10px;
-            border-radius: 6px;
-            background: var(--slate-100);
-            border: 1px solid var(--slate-200);
-            color: var(--slate-700);
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .xai-btn.active, .xai-btn:hover {
-            background: var(--primary-700);
-            color: white;
-            border-color: var(--primary-700);
-        }
-
-        /* Studio Grid (4 Cards) */
-        .studio-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-bottom: 20px;
-        }
-
-        @media (max-width: 768px) {
-            .studio-grid { grid-template-columns: 1fr; }
-        }
-
-        .modality-block {
-            background: var(--slate-50);
-            border: 1px solid var(--slate-200);
-            border-radius: var(--radius-lg);
-            padding: 14px;
-        }
-
-        .modality-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .modality-name {
-            font-size: 12.5px;
-            font-weight: 800;
-            color: var(--primary-800);
-            display: flex;
-            align-items: center;
             gap: 6px;
         }
 
-        .modality-tag {
-            font-size: 10.5px;
-            font-weight: 700;
-            background: var(--primary-100);
-            color: var(--primary-700);
-            padding: 2px 8px;
-            border-radius: 4px;
-        }
-
-        .modality-images-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+        .step-row {
+            display: flex;
+            align-items: center;
             gap: 10px;
+            padding: 9px 12px;
+            border-radius: var(--radius-md);
+            background: var(--slate-50);
+            border: 1px solid transparent;
+            transition: all .2s;
+            font-size: 12px;
+            color: var(--slate-400);
+            font-weight: 500;
         }
 
-        .modality-img-card {
-            background: #0f172a;
-            border-radius: 8px;
-            padding: 8px;
-            text-align: center;
-            border: 1px solid #1e293b;
+        .step-row.active {
+            background: var(--blue-50);
+            border-color: rgba(29,111,191,.2);
+            color: var(--blue-700);
+            font-weight: 700;
         }
 
-        .modality-img-card img {
-            max-width: 100%;
-            height: 160px;
-            object-fit: contain;
-            border-radius: 4px;
-            display: block;
-            margin: 0 auto;
-            background: #000;
+        .step-row.done {
+            background: var(--emerald-50);
+            border-color: rgba(5,150,105,.2);
+            color: var(--emerald-700);
         }
 
-        .modality-caption {
-            font-size: 10.5px;
-            color: #cbd5e1;
-            margin-top: 6px;
-            font-weight: 600;
+        .step-num {
+            width: 22px; height: 22px;
+            border-radius: 50%;
+            background: var(--slate-200);
+            color: var(--slate-500);
+            font-size: 11px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
         }
 
-        /* Colorbar Legend */
-        .xai-legend-bar {
+        .step-row.active .step-num {
+            background: var(--blue-600);
+            color: #fff;
+            animation: stepPulse 1.2s ease-in-out infinite;
+        }
+
+        @keyframes stepPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(29,111,191,.4); }
+            50% { box-shadow: 0 0 0 5px rgba(29,111,191,.0); }
+        }
+
+        .step-row.done .step-num {
+            background: var(--emerald-500);
+            color: #fff;
+        }
+
+        /* ═══════════════════════════════════════
+           RESULTS COLUMN (main right side)
+        ═══════════════════════════════════════ */
+        .results-col { display: flex; flex-direction: column; gap: 16px; }
+
+        /* Alert Banner */
+        .alert-banner {
+            display: none;
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            box-shadow: var(--shadow-xl);
+            animation: fadeSlideUp .45s cubic-bezier(.16,1,.3,1);
+        }
+
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .banner-bar {
+            padding: 16px 26px;
+            color: #fff;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: #0f172a;
-            color: #94a3b8;
-            border-radius: 6px;
-            padding: 6px 14px;
-            font-size: 10.5px;
-            margin-top: 10px;
+            gap: 14px;
         }
 
-        .legend-gradient {
-            height: 8px;
-            flex: 1;
-            margin: 0 14px;
+        .banner-bar.urgent     { background: linear-gradient(135deg, #991b1b, var(--red-600)); }
+        .banner-bar.watch      { background: linear-gradient(135deg, #92400e, var(--amber-600)); }
+        .banner-bar.routine    { background: linear-gradient(135deg, #065f46, var(--emerald-600)); }
+
+        .banner-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .banner-icon-wrap {
+            width: 42px; height: 42px;
+            border-radius: 10px;
+            background: rgba(255,255,255,.18);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .banner-heading {
+            font-size: 17px;
+            font-weight: 900;
+            line-height: 1.1;
+        }
+
+        .banner-sub {
+            font-size: 12.5px;
+            opacity: .85;
+            margin-top: 2px;
+        }
+
+        .banner-pill {
+            font-size: 12px;
+            font-weight: 800;
+            background: rgba(255,255,255,.2);
+            border: 1px solid rgba(255,255,255,.3);
+            padding: 5px 14px;
+            border-radius: var(--radius-full);
+            white-space: nowrap;
+            letter-spacing: .3px;
+        }
+
+        /* ═══════════════════════════════════════
+           KPI CARDS ROW
+        ═══════════════════════════════════════ */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .kpi-card {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--slate-200);
+            padding: 16px 18px;
+            box-shadow: var(--shadow-sm);
+            transition: transform .2s, box-shadow .2s;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .kpi-eyebrow {
+            font-size: 10.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            color: var(--slate-400);
+            margin-bottom: 8px;
+        }
+
+        .kpi-main {
+            font-size: 22px;
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 6px;
+        }
+
+        .kpi-sub {
+            font-size: 11px;
+            color: var(--slate-500);
+            font-weight: 500;
+        }
+
+        /* Confidence progress bar */
+        .conf-bar-wrap {
+            height: 5px;
+            background: var(--slate-100);
+            border-radius: var(--radius-full);
+            margin: 8px 0 4px;
+            overflow: hidden;
+        }
+
+        .conf-bar-fill {
+            height: 100%;
+            border-radius: var(--radius-full);
+            background: linear-gradient(90deg, var(--emerald-500), var(--emerald-400));
+            transition: width 1s cubic-bezier(.4,0,.2,1);
+            width: 0%;
+        }
+
+        /* ═══════════════════════════════════════
+           XAI IMAGING STUDIO
+        ═══════════════════════════════════════ */
+        .studio-card {
+            background: #fff;
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--slate-200);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+
+        .studio-header {
+            padding: 16px 22px;
+            border-bottom: 1px solid var(--slate-100);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .studio-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--blue-900);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .studio-controls {
+            display: flex;
+            gap: 4px;
+        }
+
+        .view-toggle-btn {
+            font-size: 11px;
+            font-weight: 600;
+            font-family: inherit;
+            padding: 5px 12px;
+            border-radius: 7px;
+            border: 1px solid var(--slate-200);
+            background: var(--slate-50);
+            color: var(--slate-600);
+            cursor: pointer;
+            transition: all .18s;
+        }
+
+        .view-toggle-btn.active {
+            background: var(--blue-700);
+            border-color: var(--blue-700);
+            color: #fff;
+        }
+
+        .studio-body {
+            padding: 20px;
+        }
+
+        .modalities-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .modality-panel {
+            border-radius: var(--radius-lg);
+            background: var(--slate-900);
+            overflow: hidden;
+        }
+
+        .modality-top-bar {
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--slate-800);
+        }
+
+        .modality-name {
+            font-size: 12px;
+            font-weight: 700;
+            color: #e2e8f0;
+        }
+
+        .modality-tech-tag {
+            font-size: 10px;
+            font-weight: 600;
+            background: rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.12);
+            color: var(--slate-300);
+            padding: 2px 8px;
+            border-radius: var(--radius-full);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .modality-scans {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2px;
+            padding: 2px;
+        }
+
+        .scan-cell {
+            background: #000;
+            position: relative;
+            aspect-ratio: 1;
+        }
+
+        .scan-cell img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .scan-caption {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            padding: 4px 8px;
+            background: linear-gradient(transparent, rgba(0,0,0,.75));
+            font-size: 10px;
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+
+        .scan-label-chip {
+            position: absolute;
+            top: 6px; left: 6px;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: .4px;
+            text-transform: uppercase;
+            padding: 2px 6px;
             border-radius: 4px;
+        }
+
+        .scan-label-chip.input { background: rgba(30,41,59,.85); color: #94a3b8; }
+        .scan-label-chip.gcam  { background: rgba(220,38,38,.7); color: #fef2f2; }
+
+        /* Colorbar */
+        .colorbar-strip {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            background: var(--slate-800);
+            font-size: 10px;
+            color: var(--slate-400);
+            font-weight: 600;
+        }
+
+        .colorbar-gradient {
+            flex: 1;
+            height: 7px;
+            border-radius: var(--radius-full);
             background: linear-gradient(to right, #0000ff, #00ffff, #00ff00, #ffff00, #ff0000);
         }
 
-        /* Details Table */
-        .clinical-table {
+        /* ═══════════════════════════════════════
+           CLINICAL DETAILS CARD
+        ═══════════════════════════════════════ */
+        .details-card {
+            background: #fff;
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--slate-200);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+        }
+
+        .details-table {
             width: 100%;
             border-collapse: collapse;
-            margin: 20px 0;
-            font-size: 13.5px;
         }
 
-        .clinical-table tr {
-            border-bottom: 1px solid var(--slate-200);
+        .details-table tr {
+            border-bottom: 1px solid var(--slate-100);
         }
 
-        .clinical-table td {
-            padding: 10px 12px;
-        }
+        .details-table tr:last-child { border-bottom: none; }
 
-        .clinical-table td:first-child {
-            width: 35%;
-            color: var(--slate-500);
-            font-weight: 600;
+        .details-table td {
+            padding: 12px 20px;
             font-size: 13px;
         }
 
-        .clinical-table td:last-child {
+        .details-table td:first-child {
+            width: 38%;
+            color: var(--slate-500);
+            font-weight: 600;
+        }
+
+        .details-table td:last-child {
             color: var(--slate-900);
             font-weight: 700;
             text-align: right;
         }
 
-        /* Clinical Summary Box */
-        .reasoning-box {
-            background: var(--slate-50);
-            border-left: 4px solid var(--primary-700);
-            border-radius: 0 var(--radius-md) var(--radius-md) 0;
+        /* ═══════════════════════════════════════
+           REASONING / INTERPRETATION BOX
+        ═══════════════════════════════════════ */
+        .reasoning-card {
+            background: var(--blue-50);
+            border: 1px solid rgba(29,111,191,.2);
+            border-left: 4px solid var(--blue-500);
+            border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
             padding: 16px 20px;
-            margin: 16px 0;
+        }
+
+        .reasoning-title {
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            color: var(--blue-700);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .reasoning-text {
             font-size: 13px;
             color: var(--slate-700);
-            line-height: 1.6;
+            line-height: 1.7;
         }
 
-        .reasoning-box strong {
-            color: var(--primary-800);
-            font-size: 13.5px;
-            display: block;
-            margin-bottom: 4px;
-        }
-
-        /* Action Toolbar */
-        .action-toolbar {
-            display: flex;
-            gap: 12px;
-            margin-top: 24px;
-            flex-wrap: wrap;
-        }
-
-        .btn-action-primary {
-            flex: 1;
-            min-width: 220px;
-            padding: 14px 20px;
-            background: var(--primary-700);
-            color: white;
-            border-radius: var(--radius-md);
-            text-align: center;
-            font-weight: 700;
-            font-size: 14px;
-            text-decoration: none;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            box-shadow: var(--shadow-md);
-        }
-
-        .btn-action-primary:hover {
-            background: var(--primary-800);
-            transform: translateY(-1px);
-        }
-
-        .btn-action-secondary {
-            padding: 14px 20px;
-            background: #ffffff;
-            color: var(--slate-700);
-            border: 1.5px solid var(--slate-300);
-            border-radius: var(--radius-md);
-            text-align: center;
-            font-weight: 700;
-            font-size: 14px;
-            text-decoration: none;
-            transition: all 0.2s;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .btn-action-secondary:hover {
-            border-color: var(--primary-700);
-            color: var(--primary-700);
-            background: var(--primary-50);
-        }
-
-        /* Hospital Email Hub */
-        .email-hub {
-            margin-top: 24px;
-            padding: 20px 24px;
-            background: var(--slate-50);
-            border: 1.5px dashed var(--primary-500);
-            border-radius: var(--radius-lg);
-        }
-
-        .email-hub-header {
-            font-size: 14px;
-            font-weight: 800;
-            color: var(--primary-800);
-            margin-bottom: 6px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .email-hub-desc {
-            font-size: 12px;
-            color: var(--slate-500);
-            margin-bottom: 14px;
-        }
-
-        .email-input-row {
+        /* ═══════════════════════════════════════
+           ACTION TOOLBAR
+        ═══════════════════════════════════════ */
+        .action-bar {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
         }
 
-        .email-input-field {
-            flex: 1;
-            min-width: 240px;
-            padding: 11px 14px;
-            border: 1.5px solid var(--slate-300);
-            border-radius: var(--radius-md);
+        .btn-download {
+            flex: 2;
+            min-width: 200px;
+            padding: 13px 20px;
+            background: linear-gradient(135deg, var(--blue-700), var(--blue-500));
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-lg);
             font-size: 13.5px;
-            background: #ffffff;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all .2s;
+            box-shadow: var(--shadow-md);
         }
 
-        .btn-send-email {
-            padding: 11px 22px;
-            background: var(--primary-700);
-            color: white;
+        .btn-download:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            background: linear-gradient(135deg, var(--blue-800), var(--blue-600));
+        }
+
+        .btn-outline {
+            flex: 1;
+            min-width: 130px;
+            padding: 13px 16px;
+            background: #fff;
+            color: var(--slate-700);
+            border: 1.5px solid var(--slate-200);
+            border-radius: var(--radius-lg);
+            font-size: 13px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            transition: all .2s;
+        }
+
+        .btn-outline:hover {
+            border-color: var(--blue-400);
+            color: var(--blue-700);
+            background: var(--blue-50);
+            transform: translateY(-1px);
+        }
+
+        /* ═══════════════════════════════════════
+           EMAIL HUB CARD
+        ═══════════════════════════════════════ */
+        .email-card {
+            background: #fff;
+            border-radius: var(--radius-xl);
+            border: 1.5px dashed var(--slate-300);
+            box-shadow: var(--shadow-sm);
+            padding: 20px 22px;
+        }
+
+        .email-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .email-icon-wrap {
+            width: 38px; height: 38px;
+            border-radius: 10px;
+            background: var(--blue-50);
+            border: 1px solid rgba(29,111,191,.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .email-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--slate-900);
+            margin-bottom: 2px;
+        }
+
+        .email-subtitle {
+            font-size: 12px;
+            color: var(--slate-500);
+            line-height: 1.4;
+        }
+
+        .email-input-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .email-field {
+            flex: 1;
+            padding: 10px 13px;
+            font-size: 13.5px;
+            font-family: inherit;
+            border: 1.5px solid var(--slate-200);
+            border-radius: var(--radius-md);
+            background: var(--slate-50);
+            transition: all .18s;
+        }
+
+        .email-field:focus {
+            outline: none;
+            border-color: var(--blue-400);
+            background: #fff;
+            box-shadow: var(--shadow-glow-blue);
+        }
+
+        .btn-send {
+            padding: 10px 20px;
+            background: var(--blue-700);
+            color: #fff;
             border: none;
             border-radius: var(--radius-md);
+            font-size: 13px;
             font-weight: 700;
-            font-size: 13.5px;
+            font-family: inherit;
             cursor: pointer;
-            transition: all 0.2s;
-            display: inline-flex;
+            transition: all .18s;
+            white-space: nowrap;
+            display: flex;
             align-items: center;
             gap: 6px;
         }
 
-        .btn-send-email:hover {
-            background: var(--primary-800);
-        }
+        .btn-send:hover { background: var(--blue-800); transform: translateY(-1px); }
+        .btn-send:disabled { background: var(--slate-300); cursor: not-allowed; transform: none; }
 
-        .email-feedback-box {
+        .email-feedback {
             display: none;
-            margin-top: 14px;
+            margin-top: 12px;
             padding: 12px 16px;
-            border-radius: 8px;
+            border-radius: var(--radius-md);
             font-size: 12.5px;
             line-height: 1.5;
+        }
+
+        .email-feedback a { color: var(--blue-700); font-weight: 700; }
+
+        /* ═══════════════════════════════════════
+           KAGGLE REGISTRY PANEL
+        ═══════════════════════════════════════ */
+        .registry-card {
+            background: #fff;
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--slate-200);
+            box-shadow: var(--shadow-md);
+            padding: 20px 22px;
+        }
+
+        .registry-desc {
+            font-size: 12.5px;
+            color: var(--slate-600);
+            line-height: 1.5;
+            margin-bottom: 14px;
+        }
+
+        /* ═══════════════════════════════════════
+           FOOTER
+        ═══════════════════════════════════════ */
+        .page-footer {
+            max-width: 1260px;
+            margin: 32px auto 0;
+            padding: 0 28px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-size: 11px;
+            color: var(--slate-400);
+        }
+
+        .footer-disclaimer {
+            background: var(--amber-50);
+            border: 1px solid var(--amber-100);
+            border-radius: var(--radius-md);
+            padding: 8px 14px;
+            font-size: 11px;
+            color: var(--amber-700);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* ═══════════════════════════════════════
+           RESPONSIVE
+        ═══════════════════════════════════════ */
+        @media (max-width: 1100px) {
+            .workspace-wrap { grid-template-columns: 1fr; }
+            .sidebar-card { position: static; }
+            .kpi-row { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            .topbar-center { display: none; }
+            .presets-grid { grid-template-columns: 1fr; }
+            .hero-title { font-size: 22px; }
+            .modalities-grid { grid-template-columns: 1fr; }
+            .kpi-row { grid-template-columns: 1fr 1fr; }
+            .action-bar { flex-direction: column; }
+        }
+
+        @media (max-width: 540px) {
+            .kpi-row { grid-template-columns: 1fr; }
+            .field-row { grid-template-columns: 1fr; }
+            .dropzones-row { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
-<!-- TOP NAVIGATION BAR -->
-<header class="top-navbar">
-    <a href="/form" class="nav-brand">
-        <div class="brand-icon">
-            <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
-            </svg>
-        </div>
-        <div>
-            <div class="brand-title">BCMID Medical AI <span style="font-size:11px; background:#e0f2fe; color:#0369a1; padding:2px 7px; border-radius:12px; font-weight:700;">v2.0 PACS</span></div>
-            <div class="brand-subtitle">Clinical Decision Support & Multimodal XAI Diagnostics</div>
-        </div>
-    </a>
+<!-- ══════════════════════ TOP NAVIGATION ══════════════════════ -->
+<header class="topbar">
+    <div class="topbar-inner">
+        <a href="/form" class="brand">
+            <div class="brand-logo">🩺</div>
+            <div>
+                <div class="brand-text-name">BCMID Medical AI <span style="font-size:10px;background:var(--blue-100);color:var(--blue-700);padding:2px 7px;border-radius:12px;font-weight:700;margin-left:4px;">v2.0</span></div>
+                <div class="brand-text-sub">Breast Cancer Multimodal Intelligent Diagnostic</div>
+            </div>
+        </a>
 
-    <div class="nav-status-group">
-        <span class="status-pill online"><span class="status-dot"></span> API Engine Active</span>
-        <span class="status-pill">🧠 ResNet-18 Dual-Encoder</span>
-        <span class="status-pill">📚 ACR BI-RADS RAG</span>
-        <span class="status-pill">⚡ n8n Webhook</span>
-    </div>
+        <div class="topbar-center">
+            <span class="sys-badge online"><span class="pulse-dot"></span>API FastAPI Active</span>
+            <span class="sys-badge model">🧠 ResNet-18 Dual-Encoder</span>
+            <span class="sys-badge rag">📚 ACR BI-RADS RAG (v5)</span>
+            <span class="sys-badge webhook">⚡ n8n Webhook</span>
+        </div>
 
-    <div class="nav-links">
-        <a href="/dashboard" class="nav-link-btn" title="View 20-Patient Clinical Dashboard">
-            📊 Dashboard
-        </a>
-        <a href="/docs" target="_blank" class="nav-link-btn" title="FastAPI Swagger UI">
-            📑 API Docs ↗
-        </a>
-        <a href="http://localhost:5678" target="_blank" class="nav-link-btn" title="Hospital Workflow Orchestrator">
-            ⚡ n8n ↗
-        </a>
+        <div class="topbar-right">
+            <a href="/dashboard" class="nav-btn">📊 Dashboard</a>
+            <a href="/docs" target="_blank" class="nav-btn">📑 API Docs ↗</a>
+            <a href="http://localhost:5678" target="_blank" class="nav-btn">⚡ n8n ↗</a>
+        </div>
     </div>
 </header>
 
-<!-- MAIN WORKSPACE -->
-<main class="workspace">
-    <!-- Hero Banner -->
-    <section class="hero-banner">
+<!-- ══════════════════════ HERO SECTION ══════════════════════ -->
+<section class="hero">
+    <div class="hero-inner">
+        <div class="hero-eyebrow">
+            <span>🔬</span>
+            Système d'Aide à la Décision Clinique · Imagerie Médicale IA
+        </div>
         <h1 class="hero-title">
-            🩺 Diagnostic Médical du Cancer du Sein par IA Multimodale
+            Diagnostic IA <span class="highlight">Multimodal</span><br>du Cancer du Sein
         </h1>
         <p class="hero-desc">
-            Système d'aide à la décision clinique combinant Réseau Convolutif Profond (CNN), Imagerie XAI Grad-CAM, 
-            Moteur RAG basé sur l'Atlas ACR BI-RADS (5e Édition) et Boucle de Sécurité Anti-Hallucination à 10 Garde-Fous.
+            Plateforme clinique combinant un <strong>CNN ResNet-18 Dual-Encoder</strong>, des cartes d'explicabilité
+            <strong>Grad-CAM XAI</strong>, un moteur de recherche <strong>RAG vectoriel ACR BI-RADS</strong> (5e éd.) et
+            une boucle de sécurité anti-hallucination à <strong>10 garde-fous</strong>. Conforme aux directives ACR/EUSOBI.
         </p>
-        <div class="hero-tags">
-            <span class="hero-tag">🔬 Mammographie (L-MLO / CC)</span>
-            <span class="hero-tag">📡 Échographie Ciblée</span>
-            <span class="hero-tag">🎯 Cartes d'Attention Grad-CAM</span>
-            <span class="hero-tag">🛡️ Boucle de Validation Médicale</span>
-            <span class="hero-tag">📄 Rapport Officiel Box 7 (PDF)</span>
+        <div class="hero-chips">
+            <span class="hero-chip">📷 Mammographie L-MLO / CC</span>
+            <span class="hero-chip">📡 Échographie Ciblée</span>
+            <span class="hero-chip">🎯 Cartes Grad-CAM XAI</span>
+            <span class="hero-chip">🛡️ Boucle Sécurité 10 Règles</span>
+            <span class="hero-chip">📄 Rapport Officiel Box 7 PDF</span>
+            <span class="hero-chip">📧 SMTP Gmail Sécurisé</span>
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- Interactive Benchmark Presets Bar -->
-    <section class="benchmark-bar">
-        <div class="benchmark-header">
-            <h3>🧪 Cas Cliniques Benchmark (Test Set Hold-Out — Strictement Inconnus du Modèle) :</h3>
-            <span style="font-size:11.5px; color:var(--slate-500);">Cliquez sur un cas pour le pré-charger instantanément</span>
-        </div>
+<!-- ══════════════════════ BENCHMARK PRESETS ══════════════════════ -->
+<section class="presets-section">
+    <div class="presets-inner">
+        <div class="section-label">🧪 Cas cliniques benchmark — Test Set Hold-Out (strictement inconnus du modèle) &mdash; Cliquez pour pré-charger instantanément</div>
+        <div class="presets-grid">
 
-        <div class="benchmark-cards">
-            <!-- Case 1: Malignant -->
-            <div class="bench-card urgent" onclick="loadCaseMalignant()">
-                <div class="bench-top">
-                    <span class="bench-patient-id">Patiente P1eb742860c</span>
-                    <span class="bench-badge urgent">URGENT</span>
+            <!-- Case 1: URGENT -->
+            <div class="preset-card urgent" onclick="loadCase('P1eb742860c','58','Masse spiculée irrégulière au quadrant supéro-externe gauche, mesurant 18 mm. Atténuation acoustique postérieure franche avec engainement tissulaire et microcalcifications polymorphes groupées. Biopsie guidée au trocart (CNB) requise en urgence.','high',0)" tabindex="0" role="button">
+                <div class="preset-top">
+                    <span class="preset-pid">P1eb742860c</span>
+                    <span class="preset-badge urgent">🚨 URGENT</span>
                 </div>
-                <div class="bench-info">
-                    Âge : <b>58 ans</b> &bull; Masse spiculée 18 mm (QSE gauche). Atténuation acoustique franche & microcalcifications polymorphes.
+                <div class="preset-info">
+                    Âge : <strong>58 ans</strong> &bull; Masse spiculée 18 mm (QSE gauche). Atténuation acoustique franche &amp; microcalcifications polymorphes.
                 </div>
-                <div class="bench-action-tag">
-                    🚨 Attente BI-RADS 4A / 5 &bull; Biopsie CNB Immédiate &rarr;
+                <div class="preset-footer">
+                    <span class="preset-birads urgent">BI-RADS 4A / 5</span>
+                    <span class="preset-cta">Biopsie CNB Immédiate →</span>
                 </div>
             </div>
 
-            <!-- Case 2: Surveillance -->
-            <div class="bench-card surveillance" onclick="loadCaseSurveillance()">
-                <div class="bench-top">
-                    <span class="bench-patient-id">Patiente Pf9bea655cf</span>
-                    <span class="bench-badge surveillance">SURVEILLANCE</span>
+            <!-- Case 2: SURVEILLANCE -->
+            <div class="preset-card watch" onclick="loadCase('Pf9bea655cf','46','Nodule circonscrit ovale, grand axe parallèle à la peau, mesurant 9 mm, sans atténuation postérieure. Aspect échographique compatible avec un fibroadénome bénin ou kyste compliqué stable. Absence d\'adénopathie axillaire suspecte.','moderate',1)" tabindex="0" role="button">
+                <div class="preset-top">
+                    <span class="preset-pid">Pf9bea655cf</span>
+                    <span class="preset-badge watch">🟡 SURVEILLANCE</span>
                 </div>
-                <div class="bench-info">
-                    Âge : <b>46 ans</b> &bull; Nodule circonscrit ovale 9 mm. Fibroadénome bénin ou kyste compliqué stable.
+                <div class="preset-info">
+                    Âge : <strong>46 ans</strong> &bull; Nodule circonscrit ovale 9 mm. Fibroadénome bénin ou kyste compliqué stable.
                 </div>
-                <div class="bench-action-tag">
-                    🟡 Attente BI-RADS 3 &bull; Suivi Rapproché à 6 Mois &rarr;
+                <div class="preset-footer">
+                    <span class="preset-birads watch">BI-RADS 3</span>
+                    <span class="preset-cta">Suivi 6 Mois →</span>
                 </div>
             </div>
 
-            <!-- Case 3: Routine -->
-            <div class="bench-card routine" onclick="loadCaseRoutine()">
-                <div class="bench-top">
-                    <span class="bench-patient-id">Patiente Paacb1ec57b</span>
-                    <span class="bench-badge routine">ROUTINE</span>
+            <!-- Case 3: ROUTINE -->
+            <div class="preset-card routine" onclick="loadCase('Paacb1ec57b','51','Examen de dépistage annuel bilatéral systématique. Absence de masse palpable, pas de distorsion architecturale ni de microcalcifications groupées suspectes. Tissu glandulaire homogène.','low',2)" tabindex="0" role="button">
+                <div class="preset-top">
+                    <span class="preset-pid">Paacb1ec57b</span>
+                    <span class="preset-badge routine">✅ ROUTINE</span>
                 </div>
-                <div class="bench-info">
-                    Âge : <b>51 ans</b> &bull; Dépistage annuel bilatéral négatif. Absence de masse ou de microcalcifications.
+                <div class="preset-info">
+                    Âge : <strong>51 ans</strong> &bull; Dépistage annuel bilatéral négatif. Absence de masse ou de microcalcifications suspectes.
                 </div>
-                <div class="bench-action-tag">
-                    ✅ Attente BI-RADS 1 / 2 &bull; Routine Annuelle Standard &rarr;
+                <div class="preset-footer">
+                    <span class="preset-birads routine">BI-RADS 1 / 2</span>
+                    <span class="preset-cta">Routine Annuelle →</span>
                 </div>
             </div>
+
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- Workflow Tabs Navigation -->
-    <nav class="workflow-tabs">
-        <button class="tab-button active" onclick="switchTab('tab-upload')">
-            📤 Ingestion & Analyse Nouveau Dossier Patient
-        </button>
-        <button class="tab-button" onclick="switchTab('tab-select')">
-            📋 Registre des 20 Dossiers Pré-Calculés (Kaggle)
-        </button>
-    </nav>
+<!-- ══════════════════════ MAIN WORKSPACE ══════════════════════ -->
+<div class="workspace-wrap">
 
-    <!-- Tab 1: Ingestion Form -->
-    <div class="workspace-content">
-        <div id="tab-upload" class="tab-panel active">
-            <form id="upload-form" onsubmit="handleUploadSubmit(event)">
-                <div class="form-grid-2">
-                    <div class="input-group">
-                        <label class="input-label" for="up-id">
-                            <span>Identifiant Patient (Pseudo-ID anonymisé)</span>
-                            <span class="sub">Requis *</span>
-                        </label>
-                        <input type="text" id="up-id" class="form-control" required value="Paacb1ec57b" placeholder="ex: Paacb1ec57b">
+    <!-- ─── LEFT SIDEBAR: INGESTION FORM ─── -->
+    <div>
+        <!-- Tab Toggle -->
+        <div class="tab-toggle" style="margin-bottom:16px;">
+            <button class="tab-toggle-btn active" id="btn-tab-upload" onclick="switchTab('upload')">
+                📤 Nouveau Dossier Patient
+            </button>
+            <button class="tab-toggle-btn" id="btn-tab-select" onclick="switchTab('select')">
+                📋 Registre Kaggle (20)
+            </button>
+        </div>
+
+        <!-- Upload Panel -->
+        <div id="panel-upload">
+            <div class="sidebar-card">
+                <div class="card-header">
+                    <div class="card-header-icon blue">📋</div>
+                    <div>
+                        <div class="card-header-title">Ingestion du Dossier Patient</div>
+                        <div class="card-header-sub">Analyse multimodale complète en temps réel</div>
                     </div>
+                </div>
+                <div class="card-body">
+                    <form id="upload-form" onsubmit="handleUploadSubmit(event)">
 
-                    <div class="input-group">
-                        <label class="input-label" for="up-age">
-                            <span>Âge de la Patiente</span>
-                            <span class="sub">Années</span>
-                        </label>
-                        <input type="number" id="up-age" class="form-control" value="51" min="18" max="105">
+                        <div class="field-row">
+                            <div class="field-group">
+                                <label class="field-label" for="up-id">
+                                    ID Patient
+                                    <span class="field-required">Requis</span>
+                                </label>
+                                <input type="text" id="up-id" class="form-input" required value="Paacb1ec57b" placeholder="ex: Paacb1ec57b" autocomplete="off">
+                            </div>
+                            <div class="field-group">
+                                <label class="field-label" for="up-age">
+                                    Âge
+                                    <span class="field-optional">Années</span>
+                                </label>
+                                <input type="number" id="up-age" class="form-input" value="51" min="18" max="105">
+                            </div>
+                        </div>
+
+                        <div class="field-group">
+                            <label class="field-label" for="up-notes">Observations Cliniques &amp; Anamnèse</label>
+                            <textarea id="up-notes" class="form-input" placeholder="Données cliniques, antécédents familiaux, caractéristiques palpatoires..."></textarea>
+                        </div>
+
+                        <div class="field-group">
+                            <label class="field-label" for="up-suspicion">Hypothèse Clinique de Travail</label>
+                            <select id="up-suspicion" class="form-input">
+                                <option value="high">🚨 Suspicion Forte → BI-RADS 4A/5 (Biopsie CNB)</option>
+                                <option value="moderate">🟡 Probablement Bénin → BI-RADS 3 (Suivi 6 mois)</option>
+                                <option value="low" selected>✅ Dépistage Négatif → BI-RADS 1/2 (Routine)</option>
+                            </select>
+                        </div>
+
+                        <!-- Dual Modality Dropzones -->
+                        <div class="dropzones-row">
+                            <div class="dropzone" onclick="document.getElementById('file-mammo').click()">
+                                <input type="file" id="file-mammo" accept="image/*" onchange="previewFile(this,'prev-mammo','txt-mammo','cnt-mammo','lbl-mammo')">
+                                <div class="dropzone-ico">📷</div>
+                                <div class="dropzone-label">Mammographie</div>
+                                <div class="dropzone-hint" id="txt-mammo">L-MLO / CC · PNG, DICOM</div>
+                                <div id="cnt-mammo" class="dropzone-preview-wrap">
+                                    <img id="prev-mammo" alt="">
+                                    <div class="dropzone-file-chip" id="lbl-mammo"></div>
+                                </div>
+                            </div>
+                            <div class="dropzone" onclick="document.getElementById('file-us').click()">
+                                <input type="file" id="file-us" accept="image/*" onchange="previewFile(this,'prev-us','txt-us','cnt-us','lbl-us')">
+                                <div class="dropzone-ico">📡</div>
+                                <div class="dropzone-label">Échographie</div>
+                                <div class="dropzone-hint" id="txt-us">Coupe ciblée · PNG, DICOM</div>
+                                <div id="cnt-us" class="dropzone-preview-wrap">
+                                    <img id="prev-us" alt="">
+                                    <div class="dropzone-file-chip" id="lbl-us"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-note">
+                            ℹ️ Si aucun fichier n'est uploadé, le pipeline utilisera automatiquement les scans validés du dataset BCMID.
+                        </div>
+
+                        <button type="submit" class="btn-primary" id="btn-submit-upload">
+                            <span>🚀</span>
+                            <span>Lancer le Pipeline IA Multimodal</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Pipeline Stepper -->
+            <div id="progress-box" class="pipeline-box" style="margin-top:14px;">
+                <div class="pipeline-title">
+                    <div class="pipeline-spinner"></div>
+                    Exécution du Pipeline Hospitalier...
+                </div>
+                <div class="pipeline-steps">
+                    <div class="step-row" id="step-1"><span class="step-num">1</span>Ingestion &amp; Contrôle Qualité (SHA-256)</div>
+                    <div class="step-row" id="step-2"><span class="step-num">2</span>Vision CNN Dual-Encoder (ResNet-18)</div>
+                    <div class="step-row" id="step-3"><span class="step-num">3</span>Cartographie XAI Grad-CAM</div>
+                    <div class="step-row" id="step-4"><span class="step-num">4</span>Recherche RAG ACR BI-RADS (FAISS)</div>
+                    <div class="step-row" id="step-5"><span class="step-num">5</span>Audit Sécurité &amp; Triage n8n (Box 7)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kaggle Registry Panel -->
+        <div id="panel-select" style="display:none;">
+            <div class="registry-card">
+                <div class="card-header" style="border:none;padding:0 0 14px;">
+                    <div class="card-header-icon blue">📋</div>
+                    <div>
+                        <div class="card-header-title">Registre des 20 Dossiers Pré-Calculés</div>
+                        <div class="card-header-sub">Dataset Kaggle BCMID · Résultats GPU validés</div>
                     </div>
                 </div>
-
-                <div class="input-group">
-                    <label class="input-label" for="up-notes">
-                        <span>Observations Cliniques / Historique Médical & Renseignements Anamnestiques</span>
-                    </label>
-                    <textarea id="up-notes" class="form-control" placeholder="Renseignez les données cliniques, caractéristiques palpatoires, antécédents familiaux..."></textarea>
+                <div class="registry-desc">
+                    Sélectionnez un cas parmi les 20 dossiers de référence calculés lors de l'exécution GPU pour inspecter instantanément le diagnostic structuré complet :
                 </div>
-
-                <div class="input-group">
-                    <label class="input-label" for="up-suspicion">
-                        <span>Hypothèse / Suspicion Clinique de Travail</span>
-                    </label>
-                    <select id="up-suspicion" class="form-control">
-                        <option value="high">🚨 Suspicion Forte / Modérée → Attente BI-RADS 4A / 5 (Biopsie CNB Recommandée)</option>
-                        <option value="moderate">🟡 Lésion Probablement Bénigne → Attente BI-RADS 3 (Suivi Court Terme à 6 Mois)</option>
-                        <option value="low">✅ Examen de Dépistage Négatif → Attente BI-RADS 1 / 2 (Routine Annuelle)</option>
+                <div class="field-group">
+                    <label class="field-label" for="select-existing">Dossier Clinique Patient</label>
+                    <select id="select-existing" class="form-input" onchange="handleSelectExisting(this.value)">
+                        <option value="">— Sélectionnez une patiente dans le registre hospitalier —</option>
+                        <optgroup label="🚨 CAS URGENTS (Biopsie CNB Requise)">
+                            <option value="P0159">P0159 — BI-RADS 4A (Suspicion Modérée, Biopsie Recommandée)</option>
+                            <option value="P0309">P0309 — BI-RADS 5 (Forte Suspicion de Malignité)</option>
+                        </optgroup>
+                        <optgroup label="🟡 CAS SOUS SURVEILLANCE (Contrôle 6 Mois)">
+                            <option value="P0193">P0193 — BI-RADS 3 (Probablement Bénin)</option>
+                            <option value="P0207">P0207 — BI-RADS 3 (Probablement Bénin)</option>
+                            <option value="P0280">P0280 — BI-RADS 3 (Probablement Bénin)</option>
+                            <option value="P0284">P0284 — BI-RADS 3 (Probablement Bénin)</option>
+                            <option value="P0276">P0276 — BI-RADS 3 (Probablement Bénin)</option>
+                            <option value="P0017">P0017 — BI-RADS 3 (Probablement Bénin)</option>
+                            <option value="P0264">P0264 — BI-RADS 3 (Probablement Bénin)</option>
+                            <option value="P0022">P0022 — BI-RADS 3 (Probablement Bénin)</option>
+                            <option value="P0260">P0260 — BI-RADS 3 (Probablement Bénin)</option>
+                        </optgroup>
+                        <optgroup label="✅ CAS DE ROUTINE (Dépistage Annuel)">
+                            <option value="P0206">P0206 — BI-RADS 1 (Négatif)</option>
+                            <option value="P0221">P0221 — BI-RADS 1 (Négatif)</option>
+                            <option value="P0081">P0081 — BI-RADS 2 (Bénin)</option>
+                            <option value="P0176">P0176 — BI-RADS 2 (Bénin)</option>
+                        </optgroup>
                     </select>
                 </div>
-
-                <!-- Dual Modality Upload Dropzones -->
-                <div class="form-grid-2">
-                    <!-- Dropzone Mammography -->
-                    <div class="dropzone-card" onclick="document.getElementById('file-mammo').click()">
-                        <div class="dropzone-icon">📷</div>
-                        <h4>1. Cliché Mammographique (L-MLO / CC)</h4>
-                        <p id="txt-mammo">Glissez-déposez le fichier DICOM/PNG ou cliquez pour parcourir</p>
-                        <input type="file" id="file-mammo" accept="image/*" onchange="previewFile(this, 'prev-mammo', 'txt-mammo', 'cnt-mammo')">
-                        <div id="cnt-mammo" class="dropzone-preview-container">
-                            <img id="prev-mammo" class="dropzone-preview-img" alt="Mammography Preview">
-                            <div class="dropzone-filename" id="lbl-mammo"></div>
-                        </div>
-                    </div>
-
-                    <!-- Dropzone Ultrasound -->
-                    <div class="dropzone-card" onclick="document.getElementById('file-us').click()">
-                        <div class="dropzone-icon">📡</div>
-                        <h4>2. Coupe Échographique Ciblée</h4>
-                        <p id="txt-us">Glissez-déposez le fichier échographique ou cliquez pour parcourir</p>
-                        <input type="file" id="file-us" accept="image/*" onchange="previewFile(this, 'prev-us', 'txt-us', 'cnt-us')">
-                        <div id="cnt-us" class="dropzone-preview-container">
-                            <img id="prev-us" class="dropzone-preview-img" alt="Ultrasound Preview">
-                            <div class="dropzone-filename" id="lbl-us"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div style="font-size:12px; color:var(--slate-500); margin: -8px 0 20px; text-align:center;">
-                    ℹ️ <em>Note : Si aucun fichier image n'est chargé manuellement, le pipeline utilisera automatiquement les scans réels correspondants du dataset validé.</em>
-                </div>
-
-                <!-- Submit Button -->
-                <button type="submit" class="btn-run" id="btn-submit-upload">
-                    <span>🚀 Lancer le Pipeline IA Multimodal Complet (Vision + Grad-CAM + RAG + Triage)</span>
-                </button>
-            </form>
-
-            <!-- Real-Time Pipeline Execution Stepper -->
-            <div id="progress-box" class="stepper-container">
-                <div class="stepper-title">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <polyline points="12 6 12 12 16 14"></polyline>
-                    </svg>
-                    <span>Exécution du Pipeline Hospitalier en Temps Réel...</span>
-                </div>
-                <div class="stepper-steps">
-                    <div class="step-node" id="step-1"><span class="step-icon">1</span> Ingestion & Contrôle Qualité (SHA-256)</div>
-                    <div class="step-node" id="step-2"><span class="step-icon">2</span> Vision CNN Dual-Encoder (ResNet-18)</div>
-                    <div class="step-node" id="step-3"><span class="step-icon">3</span> Cartographie XAI Grad-CAM (Attention)</div>
-                    <div class="step-node" id="step-4"><span class="step-icon">4</span> Recherche RAG ACR BI-RADS (FAISS)</div>
-                    <div class="step-node" id="step-5"><span class="step-icon">5</span> Audit Sécurité & Triage n8n (Box 7)</div>
-                </div>
             </div>
         </div>
+    </div>
 
-        <!-- Tab 2: Kaggle Registry -->
-        <div id="tab-select" class="tab-panel">
-            <p style="font-size:14px; color:var(--slate-600); margin-bottom:18px;">
-                Sélectionnez un cas parmi les 20 dossiers de référence calculés lors de l'exécution GPU pour inspecter instantanément le diagnostic structuré :
-            </p>
-            <div class="input-group">
-                <label class="input-label" for="select-existing">
-                    <span>Dossier Clinique Patient</span>
-                </label>
-                <select id="select-existing" class="form-control" onchange="handleSelectExisting(this.value)">
-                    <option value="">-- Sélectionnez une patiente dans le registre hospitalier --</option>
-                    <optgroup label="🚨 CAS URGENTS (Biopsie CNB Requise)">
-                        <option value="P0159">P0159 — BI-RADS 4A (Suspicion Modérée, Biopsie Recommandée)</option>
-                        <option value="P0309">P0309 — BI-RADS 5 (Forte Suspicion de Malignité)</option>
-                    </optgroup>
-                    <optgroup label="🟡 CAS SOUS SURVEILLANCE (Contrôle 6 Mois)">
-                        <option value="P0193">P0193 — BI-RADS 3 (Probablement Bénin)</option>
-                        <option value="P0207">P0207 — BI-RADS 3 (Probablement Bénin)</option>
-                        <option value="P0280">P0280 — BI-RADS 3 (Probablement Bénin)</option>
-                        <option value="P0284">P0284 — BI-RADS 3 (Probablement Bénin)</option>
-                        <option value="P0276">P0276 — BI-RADS 3 (Probablement Bénin)</option>
-                        <option value="P0017">P0017 — BI-RADS 3 (Probablement Bénin)</option>
-                        <option value="P0264">P0264 — BI-RADS 3 (Probablement Bénin)</option>
-                        <option value="P0022">P0022 — BI-RADS 3 (Probablement Bénin)</option>
-                        <option value="P0260">P0260 — BI-RADS 3 (Probablement Bénin)</option>
-                    </optgroup>
-                    <optgroup label="✅ CAS DE ROUTINE (Dépistage Annuel)">
-                        <option value="P0206">P0206 — BI-RADS 1 (Négatif)</option>
-                        <option value="P0221">P0221 — BI-RADS 1 (Négatif)</option>
-                        <option value="P0081">P0081 — BI-RADS 2 (Bénin)</option>
-                        <option value="P0176">P0176 — BI-RADS 2 (Bénin)</option>
-                    </optgroup>
-                </select>
-            </div>
-        </div>
+    <!-- ─── RIGHT COLUMN: RESULTS ─── -->
+    <div class="results-col">
 
-        <!-- RESULTS HUB SECTION -->
-        <section id="result-box">
-            <!-- Urgency Banner -->
-            <div class="result-banner">
-                <div class="result-banner-title">
-                    <span id="res-badge-icon">🚨</span>
-                    <span id="res-badge-title">ALERTE CLINIQUE URGENTE</span>
+        <!-- Alert Banner (initially hidden) -->
+        <div class="alert-banner" id="result-box">
+            <div class="banner-bar" id="banner-bar">
+                <div class="banner-left">
+                    <div class="banner-icon-wrap" id="res-badge-icon">🚨</div>
+                    <div>
+                        <div class="banner-heading" id="res-badge-title">ALERTE CLINIQUE URGENTE</div>
+                        <div class="banner-sub">Rapport généré · Signature radiologue requise</div>
+                    </div>
                 </div>
-                <div class="result-priority-pill" id="res-badge-prio">
-                    PRIORITY: URGENT
+                <div class="banner-pill" id="res-badge-prio">PRIORITÉ : URGENT</div>
+            </div>
+
+            <!-- KPI Row -->
+            <div class="kpi-row" style="padding:16px;background:#f8fafc;border-bottom:1px solid var(--slate-200);">
+                <div class="kpi-card">
+                    <div class="kpi-eyebrow">Catégorie BI-RADS</div>
+                    <div class="kpi-main" id="kpi-birads" style="color:var(--blue-700);">—</div>
+                    <div class="kpi-sub" id="kpi-birads-sub">Évaluation Multimodale</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-eyebrow">Indice de Confiance</div>
+                    <div class="kpi-main" id="kpi-conf" style="color:var(--emerald-600);">—</div>
+                    <div class="conf-bar-wrap"><div class="conf-bar-fill" id="conf-bar-fill"></div></div>
+                    <div class="kpi-sub">Concordance Vision + RAG</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-eyebrow">Priorité n8n Triage</div>
+                    <div class="kpi-main" id="kpi-priority">—</div>
+                    <div class="kpi-sub" id="kpi-action-short">Aiguillage Hospitalier</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-eyebrow">Audit Sécurité IA</div>
+                    <div class="kpi-main" style="color:var(--emerald-600);">100%</div>
+                    <div class="kpi-sub">10 Garde-Fous ACR Validés</div>
                 </div>
             </div>
 
-            <div class="result-body">
-                <!-- 4 KPI Diagnostic Cards -->
-                <div class="kpi-grid">
-                    <div class="kpi-card">
-                        <div class="kpi-label">Catégorie BI-RADS</div>
-                        <div class="kpi-value" id="kpi-birads" style="color:var(--primary-700);">-</div>
-                        <div class="kpi-desc" id="kpi-birads-sub">Évaluation Multimodale</div>
+            <!-- XAI Imaging Studio -->
+            <div class="studio-card" style="border-radius:0;border-left:none;border-right:none;border-bottom:none;">
+                <div class="studio-header">
+                    <div class="studio-title">
+                        🔬 Studio Imagerie Multimodale &amp; XAI Grad-CAM
                     </div>
-
-                    <div class="kpi-card">
-                        <div class="kpi-label">Indice de Confiance</div>
-                        <div class="kpi-value" id="kpi-conf" style="color:var(--success-600);">-</div>
-                        <div class="kpi-desc">Concordance Vision + RAG</div>
-                    </div>
-
-                    <div class="kpi-card">
-                        <div class="kpi-label">Priorité n8n Triage</div>
-                        <div class="kpi-value" id="kpi-priority">-</div>
-                        <div class="kpi-desc" id="kpi-action-short">Aiguillage Hospitalier</div>
-                    </div>
-
-                    <div class="kpi-card">
-                        <div class="kpi-label">Audit Sécurité IA</div>
-                        <div class="kpi-value" style="color:var(--success-600);">100%</div>
-                        <div class="kpi-desc">10 Garde-Fous Validés</div>
+                    <div class="studio-controls">
+                        <button type="button" class="view-toggle-btn active" onclick="setStudioLayout('both')">Vue Complète (4)</button>
+                        <button type="button" class="view-toggle-btn" onclick="setStudioLayout('heatmaps')">Grad-CAM Seuls</button>
                     </div>
                 </div>
+                <div class="studio-body">
+                    <div class="modalities-grid" id="studio-grid">
 
-                <!-- Multimodal Imaging & XAI Studio Header -->
-                <div class="xai-studio-header">
-                    <div class="xai-title">
-                        <span>🔬 Studio d'Imagerie Multimodale & Cartographie d'Explicabilité XAI</span>
-                    </div>
-                    <div class="xai-controls">
-                        <button type="button" class="xai-btn active" onclick="setStudioLayout('both')">Vue Complète (4 Scans)</button>
-                        <button type="button" class="xai-btn" onclick="setStudioLayout('heatmaps')">Cartes Grad-CAM Seules</button>
+                        <!-- Mammography -->
+                        <div class="modality-panel">
+                            <div class="modality-top-bar">
+                                <span class="modality-name">📷 Mammographie (L-MLO / CC)</span>
+                                <span class="modality-tech-tag">CLAHE 512×512</span>
+                            </div>
+                            <div class="modality-scans">
+                                <div class="scan-cell" id="card-mammo-input">
+                                    <img id="img-mammo-input" src="" alt="Scan Mammographique">
+                                    <span class="scan-label-chip input">INPUT</span>
+                                    <div class="scan-caption">Scan d'Entrée</div>
+                                </div>
+                                <div class="scan-cell">
+                                    <img id="img-mammo-res" src="" alt="Grad-CAM Mammo">
+                                    <span class="scan-label-chip gcam">GRAD-CAM</span>
+                                    <div class="scan-caption">Carte d'Attention</div>
+                                </div>
+                            </div>
+                            <div class="colorbar-strip">
+                                <span>0.0 Normal</span>
+                                <div class="colorbar-gradient"></div>
+                                <span>1.0 Suspect</span>
+                            </div>
+                        </div>
+
+                        <!-- Ultrasound -->
+                        <div class="modality-panel">
+                            <div class="modality-top-bar">
+                                <span class="modality-name">📡 Échographie Mammaire Ciblée</span>
+                                <span class="modality-tech-tag">Médian 512×512</span>
+                            </div>
+                            <div class="modality-scans">
+                                <div class="scan-cell" id="card-us-input">
+                                    <img id="img-us-input" src="" alt="Scan Échographique">
+                                    <span class="scan-label-chip input">INPUT</span>
+                                    <div class="scan-caption">Scan d'Entrée</div>
+                                </div>
+                                <div class="scan-cell">
+                                    <img id="img-us-res" src="" alt="Grad-CAM US">
+                                    <span class="scan-label-chip gcam">GRAD-CAM</span>
+                                    <div class="scan-caption">Carte d'Attention</div>
+                                </div>
+                            </div>
+                            <div class="colorbar-strip">
+                                <span>0.0 Normal</span>
+                                <div class="colorbar-gradient"></div>
+                                <span>1.0 Suspect</span>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
+            </div>
 
-                <!-- Imaging Studio Grid -->
-                <div class="studio-grid" id="studio-grid">
-                    <!-- Mammography Modality Block -->
-                    <div class="modality-block">
-                        <div class="modality-header">
-                            <span class="modality-name">📷 Mammographie (Cliché L-MLO / CC)</span>
-                            <span class="modality-tag">CLAHE 512×512</span>
-                        </div>
-                        <div class="modality-images-row">
-                            <div class="modality-img-card" id="card-mammo-input">
-                                <img id="img-mammo-input" src="" alt="Scan Mammographique d'entrée">
-                                <div class="modality-caption">Scan d'Entrée Test</div>
-                            </div>
-                            <div class="modality-img-card">
-                                <img id="img-mammo-res" src="" alt="Grad-CAM Mammographie">
-                                <div class="modality-caption">Carte d'Attention Grad-CAM</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Ultrasound Modality Block -->
-                    <div class="modality-block">
-                        <div class="modality-header">
-                            <span class="modality-name">📡 Échographie Mammaire Ciblée</span>
-                            <span class="modality-tag">Médian 512×512</span>
-                        </div>
-                        <div class="modality-images-row">
-                            <div class="modality-img-card" id="card-us-input">
-                                <img id="img-us-input" src="" alt="Scan Échographique d'entrée">
-                                <div class="modality-caption">Scan d'Entrée Test</div>
-                            </div>
-                            <div class="modality-img-card">
-                                <img id="img-us-res" src="" alt="Grad-CAM Échographie">
-                                <div class="modality-caption">Carte d'Attention Grad-CAM</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Grad-CAM Intensity Colorbar -->
-                <div class="xai-legend-bar">
-                    <span>🔵 0.0 (Tissu Normal / Graisse)</span>
-                    <div class="legend-gradient"></div>
-                    <span>🔴 1.0 (Attention Maximale / Lésion Suspecte)</span>
-                </div>
-
-                <!-- Structured Clinical Table -->
-                <table class="clinical-table">
+            <!-- Clinical Details Table -->
+            <div class="details-card" style="border-radius:0;border-left:none;border-right:none;border-bottom:none;border-top:1px solid var(--slate-200);">
+                <table class="details-table">
                     <tr>
                         <td>Identifiant Patient :</td>
-                        <td id="td-pid">-</td>
+                        <td id="td-pid" style="font-family:'JetBrains Mono',monospace;font-size:12.5px;">—</td>
                     </tr>
                     <tr>
                         <td>Source des Images :</td>
-                        <td id="td-img-source" style="color:var(--slate-600); font-size:12.5px;">-</td>
+                        <td id="td-img-source" style="font-size:12px;color:var(--slate-500);">—</td>
                     </tr>
                     <tr>
                         <td>Catégorie BI-RADS Prédite :</td>
-                        <td id="td-birads" style="font-size:15px; color:var(--primary-700);">-</td>
+                        <td id="td-birads" style="font-size:16px;color:var(--blue-700);">—</td>
                     </tr>
                     <tr>
                         <td>Confiance du Modèle Multimodal :</td>
-                        <td id="td-conf">-</td>
+                        <td id="td-conf">—</td>
                     </tr>
                     <tr>
-                        <td>Niveau de Priorité Clinique (n8n) :</td>
-                        <td id="td-prio">-</td>
+                        <td>Priorité Clinique (n8n Triage) :</td>
+                        <td id="td-prio">—</td>
                     </tr>
                     <tr>
                         <td>Action Médicale Recommandée :</td>
-                        <td id="td-action">-</td>
+                        <td id="td-action">—</td>
                     </tr>
                     <tr>
-                        <td>Orchestration Hospitalière (n8n) :</td>
-                        <td id="td-n8n" style="color:var(--success-600); font-weight:700;">⚡ Prêt pour Exécution</td>
+                        <td>Orchestration n8n :</td>
+                        <td id="td-n8n" style="color:var(--emerald-600);">⚡ Prêt pour Exécution</td>
                     </tr>
                     <tr>
-                        <td>Audit de Sécurité Anti-Hallucination :</td>
-                        <td id="td-safety" style="color:var(--success-600);">✅ checks_passed (100% conforme)</td>
+                        <td>Audit Sécurité Anti-Hallucination :</td>
+                        <td id="td-safety" style="color:var(--emerald-600);">✅ checks_passed (100% conforme)</td>
                     </tr>
                     <tr>
                         <td>Validation Humaine :</td>
-                        <td style="color:var(--danger-500); font-weight:700;">OBLIGATOIRE — Signature Radiologue Diplômé Requise</td>
+                        <td style="color:var(--red-600);">⚠️ Signature Radiologue Diplômé Requise</td>
                     </tr>
                 </table>
+            </div>
 
-                <!-- Interpretability & RAG Clinical Synthesis -->
-                <div class="reasoning-box">
-                    <strong>Synthèse Clinique & Interprétation IA (Agent de Raisonnement) :</strong>
-                    <span id="td-interp">-</span>
-                </div>
-
-                <!-- Action Toolbar -->
-                <div class="action-toolbar">
-                    <a id="btn-pdf-download" class="btn-action-primary" href="#" download>
-                        <span>📥 Télécharger le Rapport Officiel (PDF Box 7)</span>
-                    </a>
-                    <a id="btn-html-view" class="btn-action-secondary" href="#" target="_blank">
-                        <span>👁️ Consulter Dossier HTML Interactif ↗</span>
-                    </a>
-                    <button type="button" class="btn-action-secondary" onclick="window.print()">
-                        <span>🖨️ Imprimer la Fiche</span>
-                    </button>
-                </div>
-
-                <!-- Hospital Email Hub -->
-                <div class="email-hub">
-                    <div class="email-hub-header">
-                        <span>📧 Expédition Sécurisée du Dossier Médical par Email</span>
+            <!-- Interpretation Box -->
+            <div style="padding:16px 20px;background:#fff;">
+                <div class="reasoning-card">
+                    <div class="reasoning-title">
+                        🧠 Synthèse Clinique &amp; Interprétation IA (Agent de Raisonnement RAG)
                     </div>
-                    <div class="email-hub-desc">
-                        Envoie directement le rapport officiel avec pièce jointe PDF <strong>Medical_Report_{ID}_BIRADS_{Cat}.pdf</strong> et alertes cliniques au médecin référent ou radiologue traitant :
+                    <div class="reasoning-text" id="td-interp">
+                        Analyse multimodale en cours de traitement…
                     </div>
-                    <div class="email-input-row">
-                        <input type="email" id="email-recipient" class="email-input-field" placeholder="Adresse du médecin (ex: doctor.radiology@hospital.tn)" value="doctor.radiology@hospital.tn">
-                        <button type="button" class="btn-send-email" onclick="handleSendEmail()" id="btn-send-email">
-                            <span>📤 Expédier le Rapport</span>
-                        </button>
-                    </div>
-                    <div id="email-status-box" class="email-feedback-box"></div>
                 </div>
             </div>
-        </section>
-    </div>
-</main>
 
+            <!-- Action Toolbar -->
+            <div style="padding:0 20px 16px;">
+                <div class="action-bar">
+                    <a id="btn-pdf-download" class="btn-download" href="#" download>
+                        📥 Télécharger Rapport Officiel PDF (Box 7)
+                    </a>
+                    <a id="btn-html-view" class="btn-outline" href="#" target="_blank">
+                        👁️ Dossier HTML ↗
+                    </a>
+                    <button type="button" class="btn-outline" onclick="window.print()">
+                        🖨️ Imprimer
+                    </button>
+                </div>
+            </div>
+
+            <!-- Email Hub -->
+            <div style="padding:0 20px 20px;">
+                <div class="email-card">
+                    <div class="email-header">
+                        <div class="email-icon-wrap">📧</div>
+                        <div>
+                            <div class="email-title">Expédition Sécurisée du Dossier Médical</div>
+                            <div class="email-subtitle">Envoie le rapport officiel <strong>Medical_Report_{ID}_BIRADS_{Cat}.pdf</strong> directement via Gmail SMTP au médecin référent.</div>
+                        </div>
+                    </div>
+                    <div class="email-input-row">
+                        <input type="email" id="email-recipient" class="email-field" placeholder="Adresse du médecin référent (ex: doctor@hospital.tn)" value="doctor.radiology@hospital.tn">
+                        <button type="button" class="btn-send" onclick="handleSendEmail()" id="btn-send-email">
+                            📤 Expédier
+                        </button>
+                    </div>
+                    <div id="email-status-box" class="email-feedback"></div>
+                </div>
+            </div>
+
+        </div><!-- end result-box -->
+
+        <!-- Empty state (shown before first analysis) -->
+        <div id="empty-state" style="background:#fff;border-radius:var(--radius-xl);border:1px solid var(--slate-200);padding:60px 40px;text-align:center;box-shadow:var(--shadow-sm);">
+            <div style="font-size:48px;margin-bottom:16px;">🩻</div>
+            <div style="font-size:16px;font-weight:800;color:var(--slate-700);margin-bottom:8px;">Aucune analyse en cours</div>
+            <div style="font-size:13px;color:var(--slate-500);max-width:360px;margin:0 auto;line-height:1.6;">
+                Renseignez un dossier patient à gauche et lancez le pipeline IA, ou cliquez sur un cas de benchmark ci-dessus pour un diagnostic instantané.
+            </div>
+        </div>
+
+    </div><!-- end results-col -->
+</div><!-- end workspace-wrap -->
+
+<!-- ══════════════════════ FOOTER ══════════════════════ -->
+<div class="page-footer">
+    <div style="display:flex;align-items:center;gap:10px;">
+        <span>BCMID Medical AI v2.0 PACS</span>
+        <span style="color:var(--slate-300);">|</span>
+        <span>FastAPI + ResNet-18 + RAG Llama-3 + n8n</span>
+        <span style="color:var(--slate-300);">|</span>
+        <span>ESPRIT 2025–2026</span>
+    </div>
+    <div class="footer-disclaimer">
+        ⚠️ Outil d'aide à la décision — Ne remplace pas le jugement clinique d'un radiologue certifié ACR.
+    </div>
+</div>
+
+<!-- ══════════════════════ JAVASCRIPT ══════════════════════ -->
 <script>
 let currentPatientId = 'Paacb1ec57b';
 
-function switchTab(tabId) {
-    document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.tab-panel').forEach(c => c.classList.remove('active'));
-    
-    if (tabId === 'tab-upload') {
-        document.querySelectorAll('.tab-button')[0].classList.add('active');
-    } else {
-        document.querySelectorAll('.tab-button')[1].classList.add('active');
-    }
-    document.getElementById(tabId).classList.add('active');
+/* ── Tab switching ── */
+function switchTab(tab) {
+    const isUpload = tab === 'upload';
+    document.getElementById('panel-upload').style.display = isUpload ? 'block' : 'none';
+    document.getElementById('panel-select').style.display = isUpload ? 'none' : 'block';
+    document.getElementById('btn-tab-upload').classList.toggle('active', isUpload);
+    document.getElementById('btn-tab-select').classList.toggle('active', !isUpload);
 }
 
-function previewFile(input, imgId, txtId, cntId) {
+/* ── Benchmark Preset Loader ── */
+function loadCase(pid, age, notes, suspicion, cardIdx) {
+    switchTab('upload');
+    document.getElementById('up-id').value = pid;
+    document.getElementById('up-age').value = age;
+    document.getElementById('up-notes').value = notes;
+    document.getElementById('up-suspicion').value = suspicion;
+    animatePresetCard(cardIdx);
+}
+
+function animatePresetCard(idx) {
+    const cards = document.querySelectorAll('.preset-card');
+    cards.forEach((c, i) => {
+        c.style.transition = 'all .25s';
+        if (i === idx) {
+            c.style.transform = 'scale(1.03)';
+            c.style.boxShadow = '0 0 0 2.5px var(--blue-500), var(--shadow-lg)';
+            setTimeout(() => {
+                c.style.transform = '';
+                c.style.boxShadow = '';
+            }, 700);
+        }
+    });
+}
+
+/* ── Dropzone File Preview ── */
+function previewFile(input, imgId, txtId, cntId, lblId) {
     if (input.files && input.files[0]) {
         const reader = new FileReader();
-        reader.onload = function(e) {
-            const img = document.getElementById(imgId);
-            img.src = e.target.result;
+        reader.onload = e => {
+            document.getElementById(imgId).src = e.target.result;
             document.getElementById(cntId).style.display = 'block';
-            document.getElementById(txtId).textContent = "Fichier sélectionné : " + input.files[0].name;
+            document.getElementById(txtId).style.display = 'none';
+            document.getElementById(lblId).textContent = '📁 ' + input.files[0].name;
         };
         reader.readAsDataURL(input.files[0]);
     }
 }
 
-function loadCaseMalignant() {
-    switchTab('tab-upload');
-    document.getElementById('up-id').value = 'P1eb742860c';
-    document.getElementById('up-age').value = '58';
-    document.getElementById('up-notes').value = 'Masse spiculée irrégulière au quadrant supéro-externe gauche, mesurant 18 mm. Atténuation acoustique postérieure franche avec engainement tissulaire et microcalcifications polymorphes groupées. Biopsie guidée au trocart (CNB) requise en urgence.';
-    document.getElementById('up-suspicion').value = 'high';
-    highlightBenchCard(0);
-}
-
-function loadCaseSurveillance() {
-    switchTab('tab-upload');
-    document.getElementById('up-id').value = 'Pf9bea655cf';
-    document.getElementById('up-age').value = '46';
-    document.getElementById('up-notes').value = 'Nodule circonscrit ovale, grand axe parallèle à la peau, mesurant 9 mm, sans atténuation postérieure. Aspect échographique compatible avec un fibroadénome bénin ou kyste compliqué stable. Absence d\'adénopathie axillaire suspecte.';
-    document.getElementById('up-suspicion').value = 'moderate';
-    highlightBenchCard(1);
-}
-
-function loadCaseRoutine() {
-    switchTab('tab-upload');
-    document.getElementById('up-id').value = 'Paacb1ec57b';
-    document.getElementById('up-age').value = '51';
-    document.getElementById('up-notes').value = 'Examen de dépistage annuel bilatéral systématique. Absence de masse palpable, pas de distorsion architecturale ni de microcalcifications groupées suspectes. Tissu glandulaire homogène.';
-    document.getElementById('up-suspicion').value = 'low';
-    highlightBenchCard(2);
-}
-
-function highlightBenchCard(index) {
-    const cards = document.querySelectorAll('.bench-card');
-    cards.forEach((c, i) => {
-        if (i === index) {
-            c.style.transform = 'scale(1.02)';
-            c.style.boxShadow = '0 0 0 2px #0284c7';
-            setTimeout(() => {
-                c.style.transform = '';
-                c.style.boxShadow = '';
-            }, 600);
-        }
-    });
-}
-
+/* ── Studio Layout Toggle ── */
 function setStudioLayout(mode) {
     const cardMammo = document.getElementById('card-mammo-input');
     const cardUs = document.getElementById('card-us-input');
-    const btns = document.querySelectorAll('.xai-btn');
-    
-    if (mode === 'heatmaps') {
-        if (cardMammo) cardMammo.style.display = 'none';
-        if (cardUs) cardUs.style.display = 'none';
-        btns[0].classList.remove('active');
-        btns[1].classList.add('active');
-    } else {
-        if (cardMammo) cardMammo.style.display = 'block';
-        if (cardUs) cardUs.style.display = 'block';
-        btns[0].classList.add('active');
-        btns[1].classList.remove('active');
-    }
+    const btns = document.querySelectorAll('.view-toggle-btn');
+    const isHeatmap = mode === 'heatmaps';
+    if (cardMammo) cardMammo.style.display = isHeatmap ? 'none' : '';
+    if (cardUs)    cardUs.style.display    = isHeatmap ? 'none' : '';
+    btns[0].classList.toggle('active', !isHeatmap);
+    btns[1].classList.toggle('active', isHeatmap);
 }
 
-function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+/* ── Pipeline Stepper ── */
+const sleep = ms => new Promise(r => setTimeout(r, ms));
 
+function setStep(n, status) {
+    const el = document.getElementById(`step-${n}`);
+    if (!el) return;
+    el.className = 'step-row ' + status;
+    const num = el.querySelector('.step-num');
+    num.textContent = status === 'done' ? '✓' : status === 'active' ? '…' : n;
+}
+
+/* ── Upload & Analyze ── */
 async function handleUploadSubmit(e) {
     e.preventDefault();
-    const btn = document.getElementById('btn-submit-upload');
+    const btn  = document.getElementById('btn-submit-upload');
     const pBox = document.getElementById('progress-box');
-    const resBox = document.getElementById('result-box');
+    const res  = document.getElementById('result-box');
 
     btn.disabled = true;
     pBox.style.display = 'block';
-    resBox.style.display = 'none';
+    res.style.display  = 'none';
 
-    // Animation pas-à-pas du pipeline
-    setStep(1, 'active');
-    await sleep(350);
-    setStep(1, 'done'); setStep(2, 'active');
-    await sleep(400);
-    setStep(2, 'done'); setStep(3, 'active');
-    await sleep(350);
-    setStep(3, 'done'); setStep(4, 'active');
-    await sleep(400);
+    // Reset stepper
+    for (let i = 1; i <= 5; i++) setStep(i, '');
+
+    setStep(1, 'active'); await sleep(380);
+    setStep(1, 'done'); setStep(2, 'active'); await sleep(440);
+    setStep(2, 'done'); setStep(3, 'active'); await sleep(380);
+    setStep(3, 'done'); setStep(4, 'active'); await sleep(440);
     setStep(4, 'done'); setStep(5, 'active');
 
-    const formData = new FormData();
-    formData.append('pseudo_id', document.getElementById('up-id').value);
-    formData.append('age', document.getElementById('up-age').value);
-    formData.append('clinical_notes', document.getElementById('up-notes').value);
-    formData.append('suspicion_level', document.getElementById('up-suspicion').value);
+    const fd = new FormData();
+    fd.append('pseudo_id', document.getElementById('up-id').value);
+    fd.append('age', document.getElementById('up-age').value);
+    fd.append('clinical_notes', document.getElementById('up-notes').value);
+    fd.append('suspicion_level', document.getElementById('up-suspicion').value);
 
     const mammoFile = document.getElementById('file-mammo').files[0];
-    if (mammoFile) formData.append('mammo_file', mammoFile);
-
+    if (mammoFile) fd.append('mammo_file', mammoFile);
     const usFile = document.getElementById('file-us').files[0];
-    if (usFile) formData.append('us_file', usFile);
+    if (usFile) fd.append('us_file', usFile);
 
     try {
-        const resp = await fetch('http://localhost:8000/patient/upload_and_analyze', {
-            method: 'POST',
-            body: formData
-        });
+        const resp = await fetch('http://localhost:8000/patient/upload_and_analyze', { method: 'POST', body: fd });
         if (!resp.ok) throw new Error('Erreur API HTTP ' + resp.status);
         const data = await resp.json();
-
         setStep(5, 'done');
-        await sleep(250);
-
+        await sleep(260);
         displayResult(data);
     } catch (err) {
-        alert('Erreur lors du traitement : ' + err.message);
+        alert('❌ Erreur lors du traitement : ' + err.message);
     } finally {
         btn.disabled = false;
     }
 }
 
+/* ── Select Existing (Kaggle Registry) ── */
 async function handleSelectExisting(pid) {
     if (!pid) return;
     try {
         const resp = await fetch(`http://localhost:8000/kaggle/reports/${pid}/triage`);
         if (!resp.ok) throw new Error('Erreur API HTTP ' + resp.status);
-        const data = await resp.json();
-        
+        const d = await resp.json();
         displayResult({
-            pseudo_id: data.pseudo_id,
-            predicted_birads: data.predicted_birads,
-            confidence: data.confidence,
-            clinical_priority: data.clinical_priority,
-            action_required: data.action_required,
-            safety_status: data.safety_status,
-            interpretation: data.interpretation,
-            mammo_image_url: `http://localhost:8000/uploads/${data.pseudo_id}/${data.pseudo_id}_mammo.png`,
-            us_image_url: `http://localhost:8000/uploads/${data.pseudo_id}/${data.pseudo_id}_us.png`,
-            mammo_gradcam_url: `http://localhost:8000/uploads/${data.pseudo_id}/${data.pseudo_id}_mammo_gradcam.png`,
-            us_gradcam_url: `http://localhost:8000/uploads/${data.pseudo_id}/${data.pseudo_id}_us_gradcam.png`,
-            report_view_url: data.report_view_url
+            pseudo_id: d.pseudo_id,
+            predicted_birads: d.predicted_birads,
+            confidence: d.confidence,
+            clinical_priority: d.clinical_priority,
+            action_required: d.action_required,
+            safety_status: d.safety_status,
+            interpretation: d.interpretation,
+            mammo_image_url:   `http://localhost:8000/uploads/${d.pseudo_id}/${d.pseudo_id}_mammo.png`,
+            us_image_url:      `http://localhost:8000/uploads/${d.pseudo_id}/${d.pseudo_id}_us.png`,
+            mammo_gradcam_url: `http://localhost:8000/uploads/${d.pseudo_id}/${d.pseudo_id}_mammo_gradcam.png`,
+            us_gradcam_url:    `http://localhost:8000/uploads/${d.pseudo_id}/${d.pseudo_id}_us_gradcam.png`,
+            report_view_url: d.report_view_url
         });
     } catch (err) {
-        alert('Erreur : ' + err.message);
+        alert('❌ Erreur : ' + err.message);
     }
 }
 
-function setStep(stepNum, status) {
-    const el = document.getElementById(`step-${stepNum}`);
-    if (!el) return;
-    el.className = 'step-node ' + status;
-    const icon = el.querySelector('.step-icon');
-    if (status === 'done') icon.textContent = '✓';
-    else if (status === 'active') icon.textContent = '…';
-    else icon.textContent = stepNum;
-}
-
+/* ── Display Result ── */
 function displayResult(d) {
-    const box = document.getElementById('result-box');
+    const box  = document.getElementById('result-box');
+    const empty = document.getElementById('empty-state');
     const prio = (d.clinical_priority || 'ROUTINE').toUpperCase();
     currentPatientId = d.pseudo_id;
 
-    let cssClass = 'routine';
-    let icon = '✅';
-    let title = 'RAPPORT DE DÉPISTAGE NÉGATIF — Surveillance Annuelle Routine';
-    let prioColor = '#059669';
-
-    if (prio === 'URGENT') {
-        cssClass = 'urgent';
-        icon = '🚨';
-        title = 'ALERTE CLINIQUE URGENTE — Biopsie Guidée Recommandée';
-        prioColor = '#dc2626';
-    } else if (prio === 'SURVEILLANCE') {
-        cssClass = 'surveillance';
-        icon = '🟡';
-        title = 'SURVEILLANCE RAPPROCHÉE — Contrôle Unilatéral à 6 Mois';
-        prioColor = '#d97706';
+    // Determine urgency class
+    let cls = 'routine', icon = '✅', heading = 'RAPPORT DE DÉPISTAGE NÉGATIF — Surveillance Annuelle Routine', prioColor = 'var(--emerald-600)';
+    if (prio === 'URGENT' || prio.includes('URGENT')) {
+        cls = 'urgent'; icon = '🚨';
+        heading = 'ALERTE CLINIQUE URGENTE — Biopsie Guidée Recommandée';
+        prioColor = 'var(--red-600)';
+    } else if (prio === 'SURVEILLANCE' || prio.includes('SURVEILLANCE')) {
+        cls = 'watch'; icon = '🟡';
+        heading = 'SURVEILLANCE RAPPROCHÉE — Contrôle Unilatéral à 6 Mois';
+        prioColor = 'var(--amber-600)';
     }
 
-    box.className = cssClass;
+    // Banner
+    document.getElementById('banner-bar').className = 'banner-bar ' + cls;
     document.getElementById('res-badge-icon').textContent = icon;
-    document.getElementById('res-badge-title').textContent = title;
+    document.getElementById('res-badge-title').textContent = heading;
     document.getElementById('res-badge-prio').textContent = `PRIORITÉ : ${prio}`;
 
-    // KPI Cards
-    const cleanBirads = String(d.predicted_birads || '1').replace('BI-RADS ', '');
-    document.getElementById('kpi-birads').textContent = `BI-RADS ${cleanBirads}`;
-    
-    let biradsSub = 'Tissu Normal';
-    if (['4A','4B','4C','5'].includes(cleanBirads)) biradsSub = 'Suspicion de Malignité';
-    else if (cleanBirads === '3') biradsSub = 'Lésion Probablement Bénigne';
-    document.getElementById('kpi-birads-sub').textContent = biradsSub;
+    // BI-RADS
+    const raw = String(d.predicted_birads || '1').replace(/bi-rads\s*/i,'');
+    document.getElementById('kpi-birads').textContent = 'BI-RADS ' + raw;
+    document.getElementById('kpi-birads').style.color = prioColor;
+    let biSub = 'Tissu Normal / Bénin';
+    if (['4A','4B','4C','5'].includes(raw)) biSub = 'Suspicion de Malignité';
+    else if (raw === '3') biSub = 'Lésion Probablement Bénigne';
+    document.getElementById('kpi-birads-sub').textContent = biSub;
 
+    // Confidence
     const confVal = Math.round((d.confidence || 0.94) * 100);
-    document.getElementById('kpi-conf').textContent = `${confVal}%`;
+    document.getElementById('kpi-conf').textContent = confVal + '%';
+    document.getElementById('conf-bar-fill').style.width = confVal + '%';
+
+    // Priority
     document.getElementById('kpi-priority').textContent = prio;
     document.getElementById('kpi-priority').style.color = prioColor;
-    document.getElementById('kpi-action-short').textContent = (d.action_required || 'ROUTINE').replace(/_/g, ' ');
+    document.getElementById('kpi-action-short').textContent = (d.action_required || 'ROUTINE').replace(/_/g,' ');
 
-    // Table rows
+    // Details table
     document.getElementById('td-pid').textContent = d.pseudo_id;
-    const imgSourceEl = document.getElementById('td-img-source');
-    if (imgSourceEl) {
-        imgSourceEl.textContent = d.images_source || "Images de référence validées du dataset BCMID";
-    }
-    document.getElementById('td-birads').textContent = `BI-RADS ${cleanBirads}`;
-    document.getElementById('td-conf').textContent = `${confVal}%`;
+    const imgSrc = document.getElementById('td-img-source');
+    if (imgSrc) imgSrc.textContent = d.images_source || 'Images de référence validées du dataset BCMID';
+    document.getElementById('td-birads').textContent = 'BI-RADS ' + raw;
+    document.getElementById('td-conf').textContent = confVal + '%';
     document.getElementById('td-prio').textContent = prio;
     document.getElementById('td-prio').style.color = prioColor;
-    document.getElementById('td-action').textContent = (d.action_required || 'ROUTINE').replace(/_/g, ' ');
+    document.getElementById('td-action').textContent = (d.action_required || 'ROUTINE').replace(/_/g,' ');
     document.getElementById('td-interp').textContent = d.interpretation || 'Évaluation clinique conforme aux directives ACR BI-RADS.';
 
     const n8nEl = document.getElementById('td-n8n');
-    if (n8nEl) {
-        n8nEl.innerHTML = '⚡ <span style="color:#059669;"><b>Active n8n Webhook</b></span> (Routage: ' + prio + ') &bull; <a href="http://localhost:5678" target="_blank" style="color:#134074; text-decoration:underline;">Inspecter dans n8n ↗</a>';
-    }
+    if (n8nEl) n8nEl.innerHTML = `⚡ <span style="color:var(--emerald-600);"><b>Active n8n Webhook</b></span> (Routage: ${prio}) &bull; <a href="http://localhost:5678" target="_blank" style="color:var(--blue-700);text-decoration:underline;">Inspecter dans n8n ↗</a>`;
 
-    // Multimodal Images (Input Scans + Grad-CAM)
-    const mammoIn = document.getElementById('img-mammo-input');
-    const usIn = document.getElementById('img-us-input');
-    const mammoImg = document.getElementById('img-mammo-res');
-    const usImg = document.getElementById('img-us-res');
+    // Images
+    const pid = d.pseudo_id;
+    const setImg = (id, url) => { const el = document.getElementById(id); if (el) el.src = url; };
+    setImg('img-mammo-input', d.mammo_image_url   || `http://localhost:8000/uploads/${pid}/${pid}_mammo.png`);
+    setImg('img-us-input',    d.us_image_url       || `http://localhost:8000/uploads/${pid}/${pid}_us.png`);
+    setImg('img-mammo-res',   d.mammo_gradcam_url  || `http://localhost:8000/uploads/${pid}/${pid}_mammo_gradcam.png`);
+    setImg('img-us-res',      d.us_gradcam_url     || `http://localhost:8000/uploads/${pid}/${pid}_us_gradcam.png`);
 
-    const mammoInUrl = d.mammo_image_url || `http://localhost:8000/uploads/${d.pseudo_id}/${d.pseudo_id}_mammo.png`;
-    const usInUrl = d.us_image_url || `http://localhost:8000/uploads/${d.pseudo_id}/${d.pseudo_id}_us.png`;
-    const mammoGcUrl = d.mammo_gradcam_url || `http://localhost:8000/uploads/${d.pseudo_id}/${d.pseudo_id}_mammo_gradcam.png`;
-    const usGcUrl = d.us_gradcam_url || `http://localhost:8000/uploads/${d.pseudo_id}/${d.pseudo_id}_us_gradcam.png`;
-
-    if (mammoIn) mammoIn.src = mammoInUrl;
-    if (usIn) usIn.src = usInUrl;
-    if (mammoImg) mammoImg.src = mammoGcUrl;
-    if (usImg) usImg.src = usGcUrl;
-
-    // Action links
+    // PDF & HTML buttons
     const pdfBtn = document.getElementById('btn-pdf-download');
     if (pdfBtn) {
-        pdfBtn.href = `http://localhost:8000/report/${d.pseudo_id}/pdf`;
-        pdfBtn.setAttribute('download', `Medical_Report_${d.pseudo_id}_BIRADS_${cleanBirads}.pdf`);
+        pdfBtn.href = `http://localhost:8000/report/${pid}/pdf`;
+        pdfBtn.setAttribute('download', `Medical_Report_${pid}_BIRADS_${raw}.pdf`);
     }
-
     const htmlBtn = document.getElementById('btn-html-view');
-    if (htmlBtn) {
-        htmlBtn.href = d.report_view_url || `http://localhost:8000/report/${d.pseudo_id}`;
-    }
+    if (htmlBtn) htmlBtn.href = d.report_view_url || `http://localhost:8000/report/${pid}`;
 
-    // Reset email box
+    // Reset email
     const statusBox = document.getElementById('email-status-box');
     if (statusBox) statusBox.style.display = 'none';
 
+    // Show result, hide empty state
+    if (empty) empty.style.display = 'none';
     box.style.display = 'block';
-    box.scrollIntoView({ behavior: 'smooth' });
+    box.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+/* ── Send Email ── */
 async function handleSendEmail() {
-    const btn = document.getElementById('btn-send-email');
+    const btn       = document.getElementById('btn-send-email');
     const recipient = document.getElementById('email-recipient').value.trim();
     const statusBox = document.getElementById('email-status-box');
 
-    if (!recipient) {
-        alert('Veuillez saisir une adresse email de destinataire valide.');
-        return;
-    }
+    if (!recipient) { alert('Veuillez saisir une adresse email valide.'); return; }
 
     btn.disabled = true;
-    btn.innerHTML = '<span>⏳ Expédition en cours...</span>';
+    btn.innerHTML = '⏳ Envoi…';
     statusBox.style.display = 'none';
 
     try {
         const resp = await fetch('http://localhost:8000/patient/send_email', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                pseudo_id: currentPatientId,
-                recipient_email: recipient
-            })
+            body: JSON.stringify({ pseudo_id: currentPatientId, recipient_email: recipient })
         });
         if (!resp.ok) throw new Error('Erreur API HTTP ' + resp.status);
         const data = await resp.json();
 
         statusBox.style.display = 'block';
         if (data.sent_via_smtp) {
-            statusBox.style.background = '#ecfdf5';
-            statusBox.style.color = '#047857';
-            statusBox.style.border = '1px solid #a7f3d0';
-            statusBox.innerHTML = `✅ <b>Email réel expédié avec succès via Gmail SMTP à ${data.recipient} !</b><br>` +
-                `<span style="font-size:12px; color:#475569;">Expéditeur: <b>${data.from_sender}</b> &bull; Pièce jointe: <b>Medical_Report_${currentPatientId}_BIRADS_*.pdf</b></span><br>` +
-                `<a href="${data.email_preview_url}" target="_blank" style="color:#0369a1; font-weight:700; text-decoration:underline; display:inline-block; margin-top:8px;">` +
-                `👁️ Visualiser la copie d'archive HTML de l'email envoyé ↗</a>`;
+            statusBox.style.cssText = 'display:block;background:var(--emerald-50);color:var(--emerald-700);border:1px solid var(--emerald-100);border-radius:var(--radius-md);padding:12px 16px;font-size:12.5px;line-height:1.5;margin-top:12px;';
+            statusBox.innerHTML = `✅ <b>Email SMTP envoyé avec succès à ${data.recipient}</b><br><span style="font-size:12px;color:var(--slate-600);">Expéditeur : <b>${data.from_sender}</b> · Pièce jointe : <b>Medical_Report_${currentPatientId}_BIRADS_*.pdf</b></span><br><a href="${data.email_preview_url}" target="_blank" style="display:inline-block;margin-top:8px;font-weight:700;">👁️ Visualiser l'archive HTML de l'email ↗</a>`;
         } else {
-            statusBox.style.background = '#fffbeb';
-            statusBox.style.color = '#b45309';
-            statusBox.style.border = '1px solid #fde68a';
-            const reason = data.smtp_error ? `(Erreur SMTP : ${data.smtp_error})` : `(Mode simulation hospitalière locale)`;
-            statusBox.innerHTML = `ℹ️ <b>Email archivé dans le dossier du système hospitalier.</b> <span style="font-size:12px;">${reason}</span><br>` +
-                `<a href="${data.email_preview_url}" target="_blank" style="color:#0369a1; font-weight:700; text-decoration:underline; display:inline-block; margin-top:8px;">` +
-                `👁️ Visualiser la prévisualisation de l'email archivé ↗</a>`;
+            statusBox.style.cssText = 'display:block;background:var(--amber-50);color:var(--amber-700);border:1px solid var(--amber-100);border-radius:var(--radius-md);padding:12px 16px;font-size:12.5px;line-height:1.5;margin-top:12px;';
+            const reason = data.smtp_error ? `(Erreur SMTP : ${data.smtp_error})` : '(Mode simulation hospitalière locale)';
+            statusBox.innerHTML = `ℹ️ <b>Email archivé dans le dossier du système hospitalier.</b> <span style="font-size:12px;">${reason}</span><br><a href="${data.email_preview_url}" target="_blank" style="display:inline-block;margin-top:8px;font-weight:700;">👁️ Visualiser la prévisualisation archivée ↗</a>`;
         }
     } catch (err) {
-        statusBox.style.display = 'block';
-        statusBox.style.background = '#fef2f2';
-        statusBox.style.color = '#b91c1c';
-        statusBox.style.border = '1px solid #fca5a5';
-        statusBox.textContent = '❌ Échec lors de l\'expédition de l\'email : ' + err.message;
+        statusBox.style.cssText = 'display:block;background:var(--red-50);color:var(--red-700);border:1px solid var(--red-100);border-radius:var(--radius-md);padding:12px 16px;font-size:12.5px;margin-top:12px;';
+        statusBox.textContent = `❌ Échec lors de l'expédition : ${err.message}`;
     } finally {
         btn.disabled = false;
-        btn.innerHTML = '<span>📤 Expédier le Rapport</span>';
+        btn.innerHTML = '📤 Expédier';
     }
 }
 </script>
