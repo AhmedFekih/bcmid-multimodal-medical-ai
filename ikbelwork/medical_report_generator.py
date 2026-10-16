@@ -140,11 +140,12 @@ class MedicalReportGenerator:
             color: #0b2545;
             border-bottom: 2px solid #e2e8f0;
             padding-bottom: 8px;
-            margin-top: 28px;
+            margin-top: 32px;
             margin-bottom: 16px;
             display: flex;
             align-items: center;
             gap: 8px;
+            clear: both;
         }}
         .interpretation-box {{
             background: #fdfefe;
@@ -161,29 +162,47 @@ class MedicalReportGenerator:
             grid-template-columns: 1fr 1fr;
             gap: 20px;
             margin-top: 16px;
+            margin-bottom: 24px;
         }}
         .visual-card {{
             background: #0f172a;
             color: white;
-            padding: 16px;
-            border-radius: 8px;
+            padding: 18px;
+            border-radius: 10px;
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
         }}
         .visual-card h4 {{
             margin: 0 0 12px 0;
             font-size: 14px;
             color: #94a3b8;
+            font-weight: 600;
         }}
         .visual-placeholder {{
             width: 100%;
-            height: 220px;
+            min-height: 260px;
+            height: auto;
             background: #1e293b;
-            border-radius: 6px;
+            border-radius: 8px;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            color: #64748b;
+            color: #94a3b8;
             font-size: 13px;
+            padding: 14px;
+            box-sizing: border-box;
+        }}
+        .visual-placeholder img {{
+            max-width: 100%;
+            max-height: 240px;
+            height: auto;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto;
+            border-radius: 6px;
         }}
         .evidence-card {{
             background: #f8fafc;

@@ -655,8 +655,8 @@ async def upload_and_analyze_patient(
             ],
             "evidence": evidence,
             "heatmaps": {
-                "mammo_html": f'<div style="text-align:center;"><img src="/uploads/{clean_id}/{clean_id}_mammo_gradcam.png" style="max-width:320px; border-radius:8px; border:2px solid #134074;"><p style="font-size:12px; color:#64748b; margin-top:4px;"><b>Mammography</b>: Grad-CAM XAI Attention Map</p></div>',
-                "us_html": f'<div style="text-align:center;"><img src="/uploads/{clean_id}/{clean_id}_us_gradcam.png" style="max-width:320px; border-radius:8px; border:2px solid #134074;"><p style="font-size:12px; color:#64748b; margin-top:4px;"><b>Ultrasound</b>: Grad-CAM XAI Attention Map</p></div>'
+                "mammo_html": f'<div style="text-align:center; width:100%;"><img src="/uploads/{clean_id}/{clean_id}_mammo_gradcam.png" style="max-width:100%; max-height:230px; object-fit:contain; border-radius:8px; border:2px solid #3b82f6; display:block; margin:0 auto;"><p style="font-size:12px; color:#cbd5e1; margin-top:8px; margin-bottom:0;"><b>Mammography</b>: Grad-CAM XAI Attention Map</p></div>',
+                "us_html": f'<div style="text-align:center; width:100%;"><img src="/uploads/{clean_id}/{clean_id}_us_gradcam.png" style="max-width:100%; max-height:230px; object-fit:contain; border-radius:8px; border:2px solid #3b82f6; display:block; margin:0 auto;"><p style="font-size:12px; color:#cbd5e1; margin-top:8px; margin-bottom:0;"><b>Ultrasound</b>: Grad-CAM XAI Attention Map</p></div>'
             },
             "safety_audit": safety_output.get("safety_audit", {"status": "checks_passed", "attempts": 1, "violations": []})
         }

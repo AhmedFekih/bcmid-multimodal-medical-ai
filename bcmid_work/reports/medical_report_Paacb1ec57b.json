@@ -1,9 +1,9 @@
 {
   "pseudo_id": "Paacb1ec57b",
-  "age": 52,
+  "age": 51,
   "predicted_birads": "BI-RADS 1",
   "confidence": 0.94,
-  "risk_level": "Bénin",
+  "risk_level": "Benign / Normal",
   "summary": "Bilateral breast screening for patient Paacb1ec57b shows no discrete masses, architectural distortion, or suspicious microcalcifications. Malignancy probability is minimal (0.02).",
   "recommendations": [
     "Negative bilateral examination. Standard age-appropriate annual screening mammography."
@@ -36,8 +36,8 @@
     }
   ],
   "heatmaps": {
-    "mammo_html": "<div style=\"text-align:center;\"><img src=\"/uploads/Paacb1ec57b/Paacb1ec57b_mammo_gradcam.png\" style=\"max-width:320px; border-radius:8px; border:2px solid #134074;\"><p style=\"font-size:12px; color:#64748b; margin-top:4px;\"><b>Mammographie</b> : Carte Grad-CAM XAI</p></div>",
-    "us_html": "<div style=\"text-align:center;\"><img src=\"/uploads/Paacb1ec57b/Paacb1ec57b_us_gradcam.png\" style=\"max-width:320px; border-radius:8px; border:2px solid #134074;\"><p style=\"font-size:12px; color:#64748b; margin-top:4px;\"><b>Échographie</b> : Carte Grad-CAM XAI</p></div>"
+    "mammo_html": "<div style=\"text-align:center;\"><img src=\"/uploads/Paacb1ec57b/Paacb1ec57b_mammo_gradcam.png\" style=\"max-width:320px; border-radius:8px; border:2px solid #134074;\"><p style=\"font-size:12px; color:#64748b; margin-top:4px;\"><b>Mammography</b>: Grad-CAM XAI Attention Map</p></div>",
+    "us_html": "<div style=\"text-align:center;\"><img src=\"/uploads/Paacb1ec57b/Paacb1ec57b_us_gradcam.png\" style=\"max-width:320px; border-radius:8px; border:2px solid #134074;\"><p style=\"font-size:12px; color:#64748b; margin-top:4px;\"><b>Ultrasound</b>: Grad-CAM XAI Attention Map</p></div>"
   },
   "safety_audit": {
     "approved": true,

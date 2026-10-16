@@ -1,6 +1,30 @@
 [
   {
     "patient_summary": {
+      "pseudo_id": "Paacb1ec57b",
+      "condition": "les_deux",
+      "acquisition_device": "Standard (Uploaded via Web)"
+    },
+    "predicted_birads": "1",
+    "prediction_available": true,
+    "confidence": 0.94,
+    "confidence_note": "Calibrated multimodal vision + RAG confidence",
+    "interpretation": "Bilateral breast screening for patient Paacb1ec57b shows no discrete masses, architectural distortion, or suspicious microcalcifications. Malignancy probability is minimal (0.02).",
+    "supporting_evidence": [
+      "E1: [ACR BI-RADS Category 4B: Moderate Suspicion for Malignancy] ACR BI-RADS Category 4B: Moderate suspi",
+      "E2: [ACR BI-RADS Category 5: Highly Suggestive of Malignancy] ACR BI-RADS Category 5: Highly Suggestive ",
+      "E3: [ACR BI-RADS Category 4C: High Suspicion for Malignancy] ACR BI-RADS Category 4C: High suspicion for"
+    ],
+    "recommendations": [
+      "Negative bilateral examination. Standard age-appropriate annual screening mammography."
+    ],
+    "quality_safety_check": {
+      "safety_status": "checks_passed",
+      "validation_errors": []
+    }
+  },
+  {
+    "patient_summary": {
       "pseudo_id": "P1eb742860c",
       "condition": "les_deux",
       "acquisition_device": "Standard (Uploaded via Web)"
@@ -44,30 +68,6 @@
     "recommendations": [
       "Short-interval 6-month follow-up imaging (unilateral).",
       "Comparison with baseline views."
-    ],
-    "quality_safety_check": {
-      "safety_status": "checks_passed",
-      "validation_errors": []
-    }
-  },
-  {
-    "patient_summary": {
-      "pseudo_id": "Paacb1ec57b",
-      "condition": "les_deux",
-      "acquisition_device": "Standard (Uploaded via Web)"
-    },
-    "predicted_birads": "1",
-    "prediction_available": true,
-    "confidence": 0.94,
-    "confidence_note": "Calibrated multimodal vision + RAG confidence",
-    "interpretation": "Bilateral breast screening for patient Paacb1ec57b shows no discrete masses, architectural distortion, or suspicious microcalcifications. Malignancy probability is minimal (0.02).",
-    "supporting_evidence": [
-      "E1: [ACR BI-RADS Category 4B: Moderate Suspicion for Malignancy] ACR BI-RADS Category 4B: Moderate suspi",
-      "E2: [ACR BI-RADS Category 5: Highly Suggestive of Malignancy] ACR BI-RADS Category 5: Highly Suggestive ",
-      "E3: [ACR BI-RADS Category 4C: High Suspicion for Malignancy] ACR BI-RADS Category 4C: High suspicion for"
-    ],
-    "recommendations": [
-      "Negative bilateral examination. Standard age-appropriate annual screening mammography."
     ],
     "quality_safety_check": {
       "safety_status": "checks_passed",
