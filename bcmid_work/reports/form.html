@@ -389,9 +389,7 @@
                 <span id="td-interp">-</span>
             </div>
 
-            <a id="btn-report-link" class="btn-report" href="#" download>
-                📥 Download Official Box 7 Medical Report (PDF)
-            </a>
+
 
             <!-- Email Dispatch Box -->
             <div style="margin-top:20px; padding:18px; background:white; border-radius:10px; border:2px dashed #93c5fd;">
@@ -590,8 +588,7 @@ function displayResult(d) {
     const statusBox = document.getElementById('email-status-box');
     if (statusBox) statusBox.style.display = 'none';
 
-    const pdfUrl = `http://localhost:8000/report/${d.pseudo_id}/pdf`;
-    document.getElementById('btn-report-link').href = pdfUrl;
+
 
     box.style.display = 'block';
     box.scrollIntoView({ behavior: 'smooth' });
