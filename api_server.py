@@ -285,6 +285,39 @@ def view_report_direct(patient_id: str):
     return view_report(patient_id)
 
 
+@app.get("/report/{patient_id}/pdf", summary="Download Box 7 Medical Report as PDF")
+def download_report_pdf(patient_id: str):
+    """
+    Converts the HTML medical report to PDF and returns it as a downloadable file.
+    Uses xhtml2pdf to render the report.
+    """
+    import io
+    from xhtml2pdf import pisa
+    from fastapi.responses import StreamingResponse
+
+    safe_id = patient_id.replace("/", "_").replace("\\", "_")
+    html_file = REPORTS_DIR / f"medical_report_{safe_id}.html"
+    if not html_file.exists():
+        raise HTTPException(status_code=404, detail=f"Report not found for {patient_id}.")
+
+    html_content = html_file.read_text(encoding="utf-8")
+
+    # xhtml2pdf needs absolute paths for local images — strip <img> src pointing to /uploads/
+    # We keep them as-is; images embedded as external URLs won't render in PDF but layout will be clean
+    pdf_buffer = io.BytesIO()
+    pisa_status = pisa.CreatePDF(src=html_content, dest=pdf_buffer, encoding="utf-8")
+    if pisa_status.err:
+        raise HTTPException(status_code=500, detail="PDF generation failed.")
+
+    pdf_buffer.seek(0)
+    filename = f"Box7_Medical_Report_{safe_id}.pdf"
+    return StreamingResponse(
+        pdf_buffer,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'}
+    )
+
+
 @app.get("/dashboard", summary="Tableau de bord clinique des 20 patients Kaggle")
 def view_dashboard():
     """Affiche le Dashboard HTML récapitulatif des 20 patients avec statut n8n."""
@@ -962,8 +995,8 @@ def send_medical_report_email(
         <strong>Clinical Summary:</strong><br>{interpretation}
       </div>
       <div style="margin-top:24px; text-align:center;">
-        <a href="http://localhost:8000/report/{clean_id}" style="display:inline-block; padding:12px 26px; background:#134074; color:#ffffff; text-decoration:none; border-radius:8px; font-weight:700; font-size:14px;">
-          📄 View Full Box 7 Medical Report & XAI Heatmaps
+        <a href="http://localhost:8000/report/{clean_id}/pdf" style="display:inline-block; padding:12px 26px; background:#134074; color:#ffffff; text-decoration:none; border-radius:8px; font-weight:700; font-size:14px;">
+          📥 Download Full Box 7 Medical Report (PDF)
         </a>
       </div>
     </div>
@@ -984,12 +1017,20 @@ def send_medical_report_email(
     body_part.attach(MIMEText(html_body, "html", "utf-8"))
     msg.attach(body_part)
 
-    # Attacher le fichier HTML Box 7 si disponible
+    # Attacher le rapport PDF Box 7 si disponible
     report_file = REPORTS_DIR / f"medical_report_{clean_id}.html"
     if report_file.exists():
-        att = MIMEApplication(report_file.read_bytes(), _subtype="html")
-        att.add_header("Content-Disposition", "attachment", filename=f"Box7_Medical_Report_{clean_id}.html")
-        msg.attach(att)
+        try:
+            import io as _io
+            from xhtml2pdf import pisa as _pisa
+            _pdf_buf = _io.BytesIO()
+            _pisa.CreatePDF(src=report_file.read_text(encoding="utf-8"), dest=_pdf_buf, encoding="utf-8")
+            _pdf_bytes = _pdf_buf.getvalue()
+            att = MIMEApplication(_pdf_bytes, _subtype="pdf")
+            att.add_header("Content-Disposition", "attachment", filename=f"Box7_Medical_Report_{clean_id}.pdf")
+            msg.attach(att)
+        except Exception as _pdf_err:
+            print(f"Warning: PDF generation for email failed: {_pdf_err}")
 
     # Sauvegarde locale (Preview + EML)
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
