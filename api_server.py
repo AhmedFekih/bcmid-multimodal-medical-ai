@@ -287,15 +287,20 @@ def view_report_direct(patient_id: str):
 
 @app.get("/report/architecture/pdf", summary="Download Comprehensive BCMID Architecture PDF Report")
 @app.get("/architecture/pdf", include_in_schema=False)
+@app.get("/report/technical-report/pdf", summary="Download Grand Rapport Technique PDF")
+@app.get("/technical-report/pdf", include_in_schema=False)
+@app.get("/grand-rapport/pdf", include_in_schema=False)
 def download_architecture_pdf():
-    """Returns the comprehensive multi-page BCMID Architecture & Engineering PDF report."""
-    pdf_path = REPORTS_DIR / "BCMID_Final_Architecture_Report.pdf"
+    """Returns the comprehensive publication-grade BCMID Grand Rapport Technique & Architecture PDF."""
+    pdf_path = REPORTS_DIR / "BCMID_Grand_Technical_Report.pdf"
+    if not pdf_path.exists():
+        pdf_path = REPORTS_DIR / "BCMID_Final_Architecture_Report.pdf"
     if not pdf_path.exists():
         raise HTTPException(status_code=404, detail="Architecture report not found.")
     return FileResponse(
         str(pdf_path),
         media_type="application/pdf",
-        headers={"Content-Disposition": 'inline; filename="BCMID_Final_Architecture_Report.pdf"'}
+        headers={"Content-Disposition": 'inline; filename="BCMID_Grand_Rapport_Technique_Architecture.pdf"'}
     )
 
 
