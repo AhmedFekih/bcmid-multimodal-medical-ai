@@ -1,7 +1,6 @@
 """
 Enhanced Compiler: BCMID_Final_Technical_Report_EN.md -> High-Fidelity PDF
-Fixes all Unicode box/symbol glyphs, renders structured TOC, embeds high-res
-figures and patient Grad-CAM evidence.
+Fixes all text placement, table column widths, code word-wrapping, and mathematical formulas.
 """
 
 import re
@@ -23,23 +22,78 @@ def compile_grand_report():
     with open(md_file, "r", encoding="utf-8") as f:
         md_text = f.read()
 
-    # 1. Clean box-drawing characters and mathematical symbols
+    # ── 1. Clean box-drawing characters and typographical symbols ─────────────
     box_chars = {
         '│': '|', '─': '-', '┌': '+', '┐': '+', '└': '+', '┘': '+',
         '├': '+', '┤': '+', '┬': '+', '┴': '+', '┼': '+',
         '▼': 'v', '▲': '^', '►': '-&gt;', '◄': '&lt;-',
-        '≥': '&ge;', '≤': '&le;', '±': '&plusmn;', '×': '&times;',
+        '≥': '&gt;=', '≤': '&lt;=', '±': '+/-', '×': 'x',
         '—': ' - ', '–': '-', '·': '&bull;',
         '“': '"', '”': '"', '‘': "'", '’': "'"
     }
     for char, repl in box_chars.items():
         md_text = md_text.replace(char, repl)
 
-    # 2. Process Mermaid blocks with rendered diagrams
-    flowchart_img = (fig_dir / "diagram_system_flowchart.png").as_posix()
-    n8n_img = (fig_dir / "diagram_n8n_workflow.png").as_posix()
-    preprocess_img = (fig_dir / "diagram_preprocessing_pipeline.png").as_posix()
-    safety_img = (fig_dir / "diagram_safety_feedback_loop.png").as_posix()
+    # ── 2. Clean mathematical LaTeX formulas ──────────────────────────────────
+    md_text = md_text.replace(r"$$\mathcal{Y} \in \{\text{Normal}, \text{Benign}, \text{Malignant}\}$$",
+                              '<div class="math-box"><b>Diagnostic Target Classes:</b> {Normal, Benign, Malignant}</div>')
+    md_text = md_text.replace(r"$$L^c_{\text{Grad-CAM}} = \text{ReLU}\left(\sum_k \alpha_k^c A^k\right), \quad \text{where } \alpha_k^c = \frac{1}{Z}\sum_i\sum_j \frac{\partial Y^c}{\partial A_{i,j}^k}$$",
+                              '<div class="math-box"><b>Grad-CAM Formulation:</b> <i>L</i><sup>c</sup><sub>Grad-CAM</sub> = ReLU( SUM<sub>k</sub> a<sub>k</sub><sup>c</sup> <i>A</i><sup>k</sup> ) &nbsp;&bull;&nbsp; where a<sub>k</sub><sup>c</sup> = (1/<i>Z</i>) SUM<sub>i</sub> SUM<sub>j</sub> (d<i>Y</i><sup>c</sup> / d<i>A</i><sub>i,j</sub><sup>k</sup>)</div>')
+    md_text = md_text.replace(r"$$\text{AUC}_{\text{Fusion}} (0.8198) > \text{AUC}_{\text{Mammo}} (0.7917) > \text{AUC}_{\text{US}} (0.6743)$$",
+                              '<div class="math-box"><b>Empirical Synergy:</b> AUC<sub>Fusion</sub> (0.8198) &gt; AUC<sub>Mammo</sub> (0.7917) &gt; AUC<sub>US</sub> (0.6743)</div>')
+    md_text = md_text.replace(r"$$\text{Sim}(q, d) = \frac{q \cdot d}{\|q\|_2 \|d\|_2}$$",
+                              '<div class="math-box"><b>Cosine Metric:</b> Sim(<i>q</i>, <i>d</i>) = (<i>q</i> &bull; <i>d</i>) / ( ||<i>q</i>||<sub>2</sub> * ||<i>d</i>||<sub>2</sub> )</div>')
+
+    # In-line math cleanup
+    inline_math = [
+        (r"($0.74$, $0.78$, $0.94$)", "(0.74, 0.78, 0.94)"),
+        (r"$0.20$", "0.20"),
+        (r"$\mathcal{H} = -\sum p_i \log_2(p_i)$", "<i>H</i> = -SUM(<i>p</i><sub>i</sub> * log<sub>2</sub>(<i>p</i><sub>i</sub>))"),
+        (r"$\mathcal{H} \ge 0.50$", "<i>H</i> &gt;= 0.50"),
+        (r"$\mathcal{H}$", "<i>H</i>"),
+        (r"$p_{\text{mal}} < 0.02$", "<i>p</i><sub>mal</sub> &lt; 0.02"),
+        (r"$0.02 \le p_{\text{mal}} < 0.10$", "0.02 &lt;= <i>p</i><sub>mal</sub> &lt; 0.10"),
+        (r"$0.10 \le p_{\text{mal}} < 0.35$", "0.10 &lt;= <i>p</i><sub>mal</sub> &lt; 0.35"),
+        (r"$0.35 \le p_{\text{mal}} < 0.65$", "0.35 &lt;= <i>p</i><sub>mal</sub> &lt; 0.65"),
+        (r"$0.65 \le p_{\text{mal}} < 0.85$", "0.65 &lt;= <i>p</i><sub>mal</sub> &lt; 0.85"),
+        (r"$0.85 \le p_{\text{mal}} < 0.95$", "0.85 &lt;= <i>p</i><sub>mal</sub> &lt; 0.95"),
+        (r"$p_{\text{mal}} \ge 0.95$", "<i>p</i><sub>mal</sub> &gt;= 0.95"),
+        (r"($p_{\text{mal}}$)", "(<i>p</i><sub>mal</sub>)"),
+        (r"$p_{\text{mal}}$", "<i>p</i><sub>mal</sub>"),
+        (r"($\ge 0.35$)", "(&gt;= 0.35)"),
+        (r"($< 2\%$ malignancy risk)", "(&lt; 2% malignancy risk)"),
+        (r"($\ge 95\%$)", "(&gt;= 95%)"),
+        (r"$\pm 0.6\%$", "+/- 0.6%"),
+        (r"($\Delta = 0$)", "(Delta = 0)"),
+        (r"Exactly $332 - 5\text{ (BI-RADS 0)} = 327$", "Exactly 332 - 5 (BI-RADS 0) = 327"),
+        (r"($< 30$ words)", "(&lt; 30 words)"),
+        (r"($I' = 255 - I$)", "(<i>I</i>' = 255 - <i>I</i>)"),
+        (r"($1280 \times 1024$ for mammography, $360 \times 512$ for ultrasound)", "(1280 &times; 1024 for mammography, 360 &times; 512 for ultrasound)"),
+        (r"($512 \times 512$)", "(512 &times; 512)"),
+        (r"($\sum p_i = 1.0$)", "(SUM(<i>p</i><sub>i</sub>) = 1.0)"),
+        ("✅", '<span class="badge-pass">[PASS]</span>'),
+        ("⚠️", '<span class="badge-warn">[SIMULATED]</span>'),
+    ]
+    for old, new in inline_math:
+        md_text = md_text.replace(old, new)
+
+    # ── 3. Optimize table text breaks before parsing ───────────────────────────
+    # In Section 11 (Audit Defects)
+    md_text = md_text.replace("`test_simulation_mode_disclosure`", "<code>test_simulation_<br/>mode_disclosure</code>")
+    md_text = md_text.replace("`test_missing_summary_fails`, `test_fake_citation_id_fails`", "<code>test_missing_summary_fails</code>,<br/><code>test_fake_citation_id_fails</code>")
+    md_text = md_text.replace("`test_shannon_entropy_uniform`, `test_high_entropy_not_disclosed_fails`", "<code>test_shannon_entropy_uniform</code>,<br/><code>test_high_entropy_not_<br/>disclosed_fails</code>")
+    md_text = md_text.replace("`test_ungrounded_medical_term_detected`", "<code>test_ungrounded_medical_<br/>term_detected</code>")
+    md_text = md_text.replace("`QualitySafetyAgent.verify_safety_and_groundedness()`", "<code>QualitySafetyAgent.<br/>verify_safety_and_<br/>groundedness()</code>")
+
+    # In Section 3.4 (Endpoints)
+    md_text = md_text.replace("`/kaggle/reports/{id}/triage`", "<code>/kaggle/reports/<br/>{id}/triage</code>")
+    md_text = md_text.replace("`/kaggle/reports/{id}/review`", "<code>/kaggle/reports/<br/>{id}/review</code>")
+
+    # ── 4. Process Mermaid blocks with rendered diagrams ───────────────────────
+    fig_flowchart = (fig_dir / "diagram_system_flowchart.png").as_posix()
+    fig_n8n = (fig_dir / "diagram_n8n_workflow.png").as_posix()
+    fig_preprocess = (fig_dir / "diagram_preprocessing_pipeline.png").as_posix()
+    fig_safety = (fig_dir / "diagram_safety_feedback_loop.png").as_posix()
 
     def replace_mermaid_blocks(text):
         blocks = re.findall(r"```mermaid\n(.*?)```", text, re.DOTALL)
@@ -49,7 +103,7 @@ def compile_grand_report():
                 replacement = (
                     f'<div class="diagram-box">'
                     f'<p class="diagram-title">Figure 2.1 — End-to-End Multimodal System Architecture Flowchart</p>'
-                    f'<img src="{flowchart_img}" class="diagram-img" />'
+                    f'<img src="{fig_flowchart}" class="diagram-img" />'
                     f'<div class="mermaid-caption"><b>Architecture Flowchart Schema:</b><pre class="mermaid-code">{block.strip()}</pre></div>'
                     f'</div>'
                 )
@@ -57,7 +111,7 @@ def compile_grand_report():
                 replacement = (
                     f'<div class="diagram-box">'
                     f'<p class="diagram-title">Figure 3.1 — Hospital n8n 9-Node Orchestration Topology</p>'
-                    f'<img src="{n8n_img}" class="diagram-img" />'
+                    f'<img src="{fig_n8n}" class="diagram-img" />'
                     f'<div class="mermaid-caption"><b>Orchestration Topology Schema:</b><pre class="mermaid-code">{block.strip()}</pre></div>'
                     f'</div>'
                 )
@@ -65,7 +119,7 @@ def compile_grand_report():
                 replacement = (
                     f'<div class="diagram-box">'
                     f'<p class="diagram-title">Figure 5.1 — 5-Stage Data Quality & Image Preprocessing Pipeline</p>'
-                    f'<img src="{preprocess_img}" class="diagram-img" />'
+                    f'<img src="{fig_preprocess}" class="diagram-img" />'
                     f'<div class="mermaid-caption"><b>Preprocessing Pipeline Schema:</b><pre class="mermaid-code">{block.strip()}</pre></div>'
                     f'</div>'
                 )
@@ -73,7 +127,7 @@ def compile_grand_report():
                 replacement = (
                     f'<div class="diagram-box">'
                     f'<p class="diagram-title">Figure 9.1 — Quality & Safety Agent Deterministic Verification & Revision Protocol</p>'
-                    f'<img src="{safety_img}" class="diagram-img" />'
+                    f'<img src="{fig_safety}" class="diagram-img" />'
                     f'<div class="mermaid-caption"><b>Sequence Protocol Schema:</b><pre class="mermaid-code">{block.strip()}</pre></div>'
                     f'</div>'
                 )
@@ -84,7 +138,7 @@ def compile_grand_report():
 
     processed_md = replace_mermaid_blocks(md_text)
 
-    # 3. Embed Real Patient Grad-CAM Visual Evidence in Section 6.2
+    # ── 5. Embed Real Patient Grad-CAM Visual Evidence in Section 6.2 ──────────
     p_mammo = (uploads_dir / "P1eb742860c" / "P1eb742860c_mammo.png").as_posix()
     p_mammo_cam = (uploads_dir / "P1eb742860c" / "P1eb742860c_mammo_gradcam.png").as_posix()
     p_us = (uploads_dir / "P1eb742860c" / "P1eb742860c_us.png").as_posix()
@@ -96,19 +150,19 @@ def compile_grand_report():
   <table class="img-grid">
     <tr>
       <td style="width: 25%; text-align: center;">
-        <img src="{p_mammo}" style="width: 155px; height: 155px;" /><br/>
+        <img src="{p_mammo}" style="width: 150px; height: 150px;" /><br/>
         <span class="img-caption">(A) FFDM Mammography CC</span>
       </td>
       <td style="width: 25%; text-align: center;">
-        <img src="{p_mammo_cam}" style="width: 155px; height: 155px;" /><br/>
+        <img src="{p_mammo_cam}" style="width: 150px; height: 150px;" /><br/>
         <span class="img-caption">(B) Mammogram Grad-CAM</span>
       </td>
       <td style="width: 25%; text-align: center;">
-        <img src="{p_us}" style="width: 155px; height: 155px;" /><br/>
+        <img src="{p_us}" style="width: 150px; height: 150px;" /><br/>
         <span class="img-caption">(C) Targeted Ultrasound</span>
       </td>
       <td style="width: 25%; text-align: center;">
-        <img src="{p_us_cam}" style="width: 155px; height: 155px;" /><br/>
+        <img src="{p_us_cam}" style="width: 150px; height: 150px;" /><br/>
         <span class="img-caption">(D) Ultrasound Grad-CAM</span>
       </td>
     </tr>
@@ -120,7 +174,7 @@ def compile_grand_report():
     if target_62 in processed_md:
         processed_md = processed_md.replace(target_62, target_62 + "\n\n" + gradcam_html)
 
-    # 4. GitHub-style alerts
+    # ── 6. Format GitHub-style Alerts ──────────────────────────────────────────
     processed_md = re.sub(
         r">\s*\[!IMPORTANT\]\s*\n((?:>.*\n?)+)",
         lambda m: '<div class="alert alert-important">' + m.group(1).replace(">", "").strip() + '</div>\n',
@@ -132,43 +186,63 @@ def compile_grand_report():
         processed_md
     )
 
-    # 5. Math LaTeX cleanings
-    processed_md = processed_md.replace(r"\mathcal{H}", "<i>H</i>")
-    processed_md = processed_md.replace(r"p_{\text{mal}}", "<i>p</i><sub>mal</sub>")
-    processed_md = processed_md.replace(r"\text{AUC}_{\text{Fusion}}", "AUC<sub>Fusion</sub>")
-    processed_md = processed_md.replace(r"\text{AUC}_{\text{Mammo}}", "AUC<sub>Mammo</sub>")
-    processed_md = processed_md.replace(r"\text{AUC}_{\text{US}}", "AUC<sub>US</sub>")
-    processed_md = processed_md.replace("✅", '<span class="badge-pass">[PASS]</span>')
-    processed_md = processed_md.replace("⚠️", '<span class="badge-warn">[SIMULATED]</span>')
-
-    # 6. Convert Table of Contents to structured HTML table to prevent markdown renumbering
+    # ── 7. Convert Table of Contents to structured HTML ────────────────────────
     toc_html = """
 <div class="toc-container">
 <table class="toc-table">
-  <tr><th style="width: 18%;">Section</th><th style="width: 82%;">Description / Chapter Title</th></tr>
-  <tr><td><b>Chapter 1</b></td><td>Executive Summary & Project Overview</td></tr>
+  <tr><th style="width: 16%;">Section</th><th style="width: 84%;">Description / Chapter Title</th></tr>
+  <tr><td><b>Chapter 1</b></td><td>Executive Summary &amp; Project Overview</td></tr>
   <tr><td><b>Chapter 2</b></td><td>Global System Architecture (7-Bloc Pipeline, Mermaid Flowchart, Data Contracts)</td></tr>
   <tr><td><b>Chapter 3</b></td><td>n8n Clinical Workflow Orchestration (9-Node Architecture, Decision Logic, 12 Endpoints)</td></tr>
-  <tr><td><b>Chapter 4</b></td><td>Dataset & Data Engineering (332 Patients, 5 BI-RADS 0 Cases, GroupKFold, Reconciliation Matrix)</td></tr>
-  <tr><td><b>Chapter 5</b></td><td>Data Quality & Preprocessing Pipeline (Polarity, Otsu Crop, Letterbox, EasyOCR Inpainting, De-identification)</td></tr>
-  <tr><td><b>Chapter 6</b></td><td>Multimodal Vision & Explainable AI (Dual ResNet-18, 387 Grad-CAM Heatmaps, AUC 0.8198, Calibration)</td></tr>
+  <tr><td><b>Chapter 4</b></td><td>Dataset &amp; Data Engineering (332 Patients, 5 BI-RADS 0 Cases, GroupKFold, Reconciliation Matrix)</td></tr>
+  <tr><td><b>Chapter 5</b></td><td>Data Quality &amp; Preprocessing Pipeline (Polarity, Otsu Crop, Letterbox, EasyOCR Inpainting, De-identification)</td></tr>
+  <tr><td><b>Chapter 6</b></td><td>Multimodal Vision &amp; Explainable AI (Dual ResNet-18, 387 Grad-CAM Heatmaps, AUC 0.8198, Calibration)</td></tr>
   <tr><td><b>Chapter 7</b></td><td>Clinical RAG Vector Search (Dual FAISS Indices, BGE Embeddings, Fold-Isolated Retrieval)</td></tr>
   <tr><td><b>Chapter 8</b></td><td>Medical Reasoning Agent (Qwen2.5-3B-Instruct Setup, Conditioning Modes, JSON Schema)</td></tr>
-  <tr><td><b>Chapter 9</b></td><td>Quality & Safety Agent with Feedback Loop (Deterministic Verification Gates, Revision Protocol)</td></tr>
+  <tr><td><b>Chapter 9</b></td><td>Quality &amp; Safety Agent with Feedback Loop (Deterministic Verification Gates, Revision Protocol)</td></tr>
   <tr><td><b>Chapter 10</b></td><td>Structured Clinical Reporting (Doctor PDF vs. Technician HTML, ACR Recommendations, Patient P0159 Case)</td></tr>
-  <tr><td><b>Chapter 11</b></td><td>Codebase Audit & Implemented Corrections (Defect Rectification Matrix)</td></tr>
-  <tr><td><b>Chapter 12</b></td><td>Verification, Unit & Integration Tests (61/61 PASS Automated Clinical Suite)</td></tr>
-  <tr><td><b>Chapter 13</b></td><td>Honest Provenance & Deployment Status (Component Audit & Verification Status)</td></tr>
-  <tr><td><b>Chapter 14</b></td><td>Conclusion & Future Perspectives (Strategic Industrial & Clinical Roadmap)</td></tr>
+  <tr><td><b>Chapter 11</b></td><td>Codebase Audit &amp; Implemented Corrections (Defect Rectification Matrix)</td></tr>
+  <tr><td><b>Chapter 12</b></td><td>Verification, Unit &amp; Integration Tests (61/61 PASS Automated Clinical Suite)</td></tr>
+  <tr><td><b>Chapter 13</b></td><td>Honest Provenance &amp; Deployment Status (Component Audit &amp; Verification Status)</td></tr>
+  <tr><td><b>Chapter 14</b></td><td>Conclusion &amp; Future Perspectives (Strategic Industrial &amp; Clinical Roadmap)</td></tr>
 </table>
 </div>
 """
     toc_pattern = r"## Table of Contents\s*\n.*?(?=\n## 1\. Executive Summary)"
     processed_md = re.sub(toc_pattern, "## Table of Contents\n" + toc_html + "\n\n---\n", processed_md, flags=re.DOTALL)
 
+    # ── 8. Render to HTML via Markdown ─────────────────────────────────────────
     raw_html = markdown.markdown(processed_md, extensions=['tables', 'fenced_code'])
 
-    # CSS
+    # ── 9. Inject Exact Column Widths to all 9 HTML Tables ─────────────────────
+    table_configs = [
+        # (Identifying text, list of width percentages)
+        ("Source Bloc", ["13%", "13%", "42%", "32%"]),
+        ("Consuming n8n Node", ["28%", "12%", "20%", "40%"]),
+        ("Pathological Class", ["22%", "14%", "18%", "18%", "28%"]),
+        ("Documented Metric", ["24%", "12%", "24%", "40%"]),
+        ("Diagnostic Modality", ["34%", "18%", "16%", "32%"]),
+        ("Predicted Probability Range", ["24%", "18%", "18%", "40%"]),
+        ("Experimental Condition", ["22%", "38%", "15%", "25%"]),
+        ("Defect ID", ["14%", "29%", "31%", "26%"]),
+        ("Architectural Component", ["24%", "22%", "22%", "32%"]),
+    ]
+
+    for id_text, widths in table_configs:
+        pattern = re.compile(rf'(<table>\s*<thead>\s*<tr>)(.*?)(</tr>\s*</thead>)', re.DOTALL)
+        for match in pattern.finditer(raw_html):
+            header_content = match.group(2)
+            if id_text in header_content:
+                ths = re.findall(r'<th>(.*?)</th>', header_content)
+                if len(ths) == len(widths):
+                    new_header = ""
+                    for th_text, w in zip(ths, widths):
+                        new_header += f'<th width="{w}">{th_text}</th>\n'
+                    old_table_head = match.group(0)
+                    new_table_head = f'<table>\n<thead>\n<tr>\n{new_header}</tr>\n</thead>'
+                    raw_html = raw_html.replace(old_table_head, new_table_head)
+
+    # ── 10. Document Stylesheet ────────────────────────────────────────────────
     css = """
     @page {
         size: a4 portrait;
@@ -258,11 +332,12 @@ def compile_grand_report():
     ul, ol { margin: 4px 0 4px 18px; padding: 0; }
     li { margin-bottom: 2px; }
 
+    /* Tables */
     table {
         width: 100%;
         border-collapse: collapse;
         margin: 8px 0;
-        font-size: 7.5pt;
+        font-size: 7.2pt;
     }
     th {
         background-color: #0b2545;
@@ -276,11 +351,32 @@ def compile_grand_report():
         padding: 4px 6px;
         border: 1px solid #cbd5e1;
         vertical-align: top;
+        word-wrap: break-word;
     }
     tr:nth-child(even) { background-color: #f8fafc; }
 
+    td code {
+        font-family: Courier, monospace;
+        font-size: 6.4pt;
+        background-color: #f1f5f9;
+        padding: 1px 2px;
+        word-wrap: break-word;
+    }
+
     .toc-table th { background-color: #134074; }
     .toc-table td { padding: 3px 6px; }
+
+    .math-box {
+        background-color: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-left: 3px solid #0284c7;
+        padding: 6px 10px;
+        margin: 8px 0;
+        font-size: 8pt;
+        text-align: center;
+        color: #0b2545;
+        page-break-inside: avoid;
+    }
 
     .alert {
         padding: 6px 10px;
@@ -350,7 +446,7 @@ def compile_grand_report():
 
     pre {
         font-family: Courier, monospace;
-        font-size: 7pt;
+        font-size: 6.8pt;
         background-color: #f1f5f9;
         padding: 6px;
         border: 1px solid #cbd5e1;
@@ -361,7 +457,7 @@ def compile_grand_report():
     }
     code {
         font-family: Courier, monospace;
-        font-size: 7.5pt;
+        font-size: 7.2pt;
         background-color: #f1f5f9;
         padding: 1px 3px;
         border-radius: 2px;
@@ -411,7 +507,7 @@ def compile_grand_report():
 </body>
 </html>"""
 
-    print(f"Compiling publication PDF...")
+    print(f"Compiling publication PDF with refined table layouts...")
     with open(output_pdf, "wb") as f_out:
         pisa_status = pisa.CreatePDF(full_document, dest=f_out)
 
