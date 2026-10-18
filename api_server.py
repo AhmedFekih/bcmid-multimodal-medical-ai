@@ -719,11 +719,27 @@ async def upload_and_analyze_patient(
         evidence = rag.retrieve(f"BI-RADS {pb} malignant probability {p_mal:.2f}", top_k=3, exclude_pseudo_id=clean_id)
 
         # 5. Safety Audit
+        # CORRECTION DEFECT-3: Compute real Shannon entropy from the probability distribution
+        # instead of hardcoding entropy=0.20. This ensures the high-entropy disclosure check
+        # in QualitySafetyAgent fires correctly when predictions are uncertain.
+        import math as _math
+        _probs = [p for p in [p_norm, p_benign, p_mal] if p > 0]
+        _uncertainty_entropy = round(-sum(p * _math.log2(p) for p in _probs), 4)
+
         safety = get_safety()
         patient_case_dict = {
             "pseudo_id": clean_id,
             "age": age,
-            "vision_scores": {"p_normal": p_norm, "p_benign": p_benign, "p_malignant": p_mal, "uncertainty_entropy": 0.20},
+            # CORRECTION DEFECT-1: Add simulation_mode=True to disclose that vision scores
+            # are derived from a keyword-heuristic fallback (no .pth checkpoint present).
+            "vision_scores": {
+                "p_normal": p_norm,
+                "p_benign": p_benign,
+                "p_malignant": p_mal,
+                "uncertainty_entropy": _uncertainty_entropy,
+                "simulation_mode": True,
+                "simulation_note": "Keyword-heuristic fallback — no CNN checkpoint available in this deployment."
+            },
             "standard_device": True,
             "is_birads_0": False,
             "report_text": clinical_notes
@@ -759,6 +775,14 @@ async def upload_and_analyze_patient(
         report_html_file = report_gen.generate_html_report(report_data, output_filename=f"medical_report_{clean_id}.html")
 
         # 7. Mise à jour de final_medical_reports.json (pour persistance et dashboard)
+        # CORRECTION DEFECT-2: Propagate REAL safety agent outcome instead of hardcoding
+        # "safety_status: checks_passed" regardless of actual check results.
+        _sa = safety_output.get("safety_audit", {})
+        _sa_approved = _sa.get("approved", True)
+        _sa_status = _sa.get("status", "APPROVED_BY_SAFETY_AGENT")
+        _sa_errors = _sa.get("unresolved_errors", [])
+        _real_safety_status = "checks_passed" if _sa_approved else "needs_revision"
+
         report_file = _get_report_file()
         if report_file and report_file.exists():
             try:
@@ -774,13 +798,22 @@ async def upload_and_analyze_patient(
                     "predicted_birads": pb,
                     "prediction_available": True,
                     "confidence": conf,
-                    "confidence_note": "Calibrated multimodal vision + RAG confidence",
+                    # CORRECTION DEFECT-1: Clearly label scores as heuristic simulation
+                    "confidence_note": "Keyword-heuristic simulation — no CNN checkpoint deployed. Not clinically calibrated.",
+                    "reasoning_mode": "keyword_heuristic_simulation",
+                    "simulation_mode": True,
                     "interpretation": interpretation,
                     "supporting_evidence": [f"{ev.get('evidence_id', 'G1')}: {ev.get('passage', '')[:100]}" for ev in evidence],
                     "recommendations": recs,
+                    # CORRECTION DEFECT-2: Use real safety agent status
                     "quality_safety_check": {
-                        "safety_status": "checks_passed",
-                        "validation_errors": []
+                        "safety_status": _real_safety_status,
+                        "agent_status": _sa_status,
+                        "approved": _sa_approved,
+                        "validation_errors": _sa_errors,
+                        "safety_attempts": _sa.get("attempts", 1),
+                        "human_review_required": True,
+                        "human_review_note": "Automated checks only — radiologist review mandatory for any clinical use"
                     }
                 }
                 all_reports = [r for r in all_reports if r.get("patient_summary", {}).get("pseudo_id") != clean_id]
@@ -815,9 +848,16 @@ async def upload_and_analyze_patient(
             "pseudo_id": clean_id,
             "predicted_birads": pb,
             "confidence": conf,
+            # CORRECTION DEFECT-1: Explicit simulation disclosure in API response
+            "confidence_note": "Keyword-heuristic simulation — no CNN checkpoint deployed. Not clinically calibrated.",
+            "reasoning_mode": "keyword_heuristic_simulation",
+            "simulation_mode": True,
             "clinical_priority": priority,
             "action_required": action,
-            "safety_status": "checks_passed",
+            # CORRECTION DEFECT-2: Use real safety agent result
+            "safety_status": _real_safety_status,
+            "safety_agent_status": _sa_status,
+            "safety_violations": _sa_errors,
             "interpretation": interpretation,
             "recommendations": recs,
             "evidence": evidence,
@@ -943,22 +983,66 @@ def agent_reasoning(req: AgentRequest):
 
 @app.post("/agent/quality", summary="n8n Nœud 6 : Quality / Safety Agent (Anti-Hallucination)")
 def agent_quality_safety(req: AgentRequest):
-    """Contrôle qualité, détection d'incohérences, validation des 10 tests adversariaux."""
+    """Contrôle qualité réel via QualitySafetyAgent — hallucination, schéma, citations, entropie."""
     pid = req.pseudo_id
-    return {
-        "step": 6,
-        "agent": "Quality / Safety Agent (XAI-based Verification)",
-        "pseudo_id": pid,
-        "safety_audit": {
-            "status": "checks_passed",
-            "hallucination_detected": False,
-            "bi_rads_consistency": "CONSISTENT",
-            "groundedness_score": 0.98,
-            "violations_count": 0,
-            "human_review_mandated": True
-        },
-        "decision": "APPROVED_FOR_REPORT_GENERATION"
-    }
+    # CORRECTION DEFECT-4: Call the real QualitySafetyAgent instead of returning a
+    # hardcoded positive result. Retrieve the saved report to get real candidate output.
+    safety = get_safety()
+    rep = get_kaggle_patient_report(pid) if _get_report_file() else None
+
+    if rep:
+        # Build a minimal patient_case for the safety check
+        p_mal_rep = 0.74 if rep.get("predicted_birads") in ("4A", "4B", "4C", "5") else (0.12 if rep.get("predicted_birads") == "3" else 0.03)
+        import math as _math_q
+        _probs_q = [p for p in [1.0 - p_mal_rep - 0.1, 0.1, p_mal_rep] if p > 0]
+        _ent_q = round(-sum(p * _math_q.log2(p) for p in _probs_q if p > 0), 4)
+        patient_case_dict_q = {
+            "pseudo_id": pid,
+            "vision_scores": {"p_malignant": p_mal_rep, "uncertainty_entropy": _ent_q},
+            "standard_device": True,
+            "is_birads_0": False,
+            "report_text": rep.get("interpretation", "")
+        }
+        rag = get_rag()
+        evidence_q = rag.retrieve(f"BI-RADS {rep.get('predicted_birads', '4A')}", top_k=2)
+
+        # Build candidate_output for safety check
+        candidate_output_q = {
+            "summary": rep.get("interpretation", ""),
+            "predicted_birads": rep.get("predicted_birads", "4A"),
+            "risk_level": "Moderate Suspicion",
+            "evidence_citations": [ev.get("evidence_id") for ev in evidence_q],
+            "limitations": rep.get("limitations", ["Research AI model — radiologist review required."])
+        }
+        is_valid, errors = safety.verify_safety_and_groundedness(candidate_output_q, patient_case_dict_q, evidence_q)
+
+        return {
+            "step": 6,
+            "agent": "Quality / Safety Agent (XAI-based Verification)",
+            "pseudo_id": pid,
+            "safety_audit": {
+                "status": "checks_passed" if is_valid else "needs_revision",
+                "approved": is_valid,
+                "hallucination_detected": any("hallucination" in e.lower() for e in errors),
+                "bi_rads_consistency": "CONSISTENT",
+                "violations_count": len(errors),
+                "violations": errors,
+                "human_review_mandated": True
+            },
+            "decision": "APPROVED_FOR_REPORT_GENERATION" if is_valid else "FLAGGED_FOR_RADIOLOGIST_REVIEW"
+        }
+    else:
+        return {
+            "step": 6,
+            "agent": "Quality / Safety Agent (XAI-based Verification)",
+            "pseudo_id": pid,
+            "safety_audit": {
+                "status": "not_evaluated",
+                "reason": f"No pre-computed report found for patient '{pid}'. Run /analyse first.",
+                "human_review_mandated": True
+            },
+            "decision": "REPORT_NOT_FOUND"
+        }
 
 
 @app.post("/agent/report", summary="n8n Nœud 7 : Generate Report (PDF/JSON Box 7)")

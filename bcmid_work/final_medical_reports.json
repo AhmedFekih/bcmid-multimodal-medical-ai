@@ -1,6 +1,33 @@
 [
   {
     "patient_summary": {
+      "pseudo_id": "Pf9bea655cf",
+      "age": 46,
+      "condition": "les_deux",
+      "acquisition_device": "Standard (Uploaded via Web)"
+    },
+    "age": 46,
+    "predicted_birads": "3",
+    "prediction_available": true,
+    "confidence": 0.78,
+    "confidence_note": "Calibrated multimodal vision + RAG confidence",
+    "interpretation": "Findings in patient Pf9bea655cf exhibit predominantly benign morphological characteristics with low probability of malignancy (0.12). Short-interval surveillance is appropriate.",
+    "supporting_evidence": [
+      "E1: [ACR BI-RADS Category 4B: Moderate Suspicion for Malignancy] ACR BI-RADS Category 4B: Moderate suspi",
+      "E2: [ACR BI-RADS Category 3: Probably Benign] ACR BI-RADS Category 3: Probably Benign finding. Finding h",
+      "E3: [ACR BI-RADS Category 4A: Low Suspicion for Malignancy] ACR BI-RADS Category 4A: Low suspicion for m"
+    ],
+    "recommendations": [
+      "Short-interval 6-month follow-up imaging (unilateral).",
+      "Comparison with baseline views."
+    ],
+    "quality_safety_check": {
+      "safety_status": "checks_passed",
+      "validation_errors": []
+    }
+  },
+  {
+    "patient_summary": {
       "pseudo_id": "Paacb1ec57b",
       "age": 51,
       "condition": "les_deux",
@@ -45,31 +72,6 @@
       "Image-guided core needle biopsy (CNB) recommended per ACR BI-RADS 4A guidelines.",
       "Multidisciplinary breast committee review.",
       "Targeted ultrasound correlation."
-    ],
-    "quality_safety_check": {
-      "safety_status": "checks_passed",
-      "validation_errors": []
-    }
-  },
-  {
-    "patient_summary": {
-      "pseudo_id": "Pf9bea655cf",
-      "condition": "les_deux",
-      "acquisition_device": "Standard (Uploaded via Web)"
-    },
-    "predicted_birads": "3",
-    "prediction_available": true,
-    "confidence": 0.78,
-    "confidence_note": "Calibrated multimodal vision + RAG confidence",
-    "interpretation": "Findings in patient Pf9bea655cf exhibit predominantly benign morphological characteristics with low probability of malignancy (0.12). Short-interval surveillance is appropriate.",
-    "supporting_evidence": [
-      "E1: [ACR BI-RADS Category 4B: Moderate Suspicion for Malignancy] ACR BI-RADS Category 4B: Moderate suspi",
-      "E2: [ACR BI-RADS Category 3: Probably Benign] ACR BI-RADS Category 3: Probably Benign finding. Finding h",
-      "E3: [ACR BI-RADS Category 4A: Low Suspicion for Malignancy] ACR BI-RADS Category 4A: Low suspicion for m"
-    ],
-    "recommendations": [
-      "Short-interval 6-month follow-up imaging (unilateral).",
-      "Comparison with baseline views."
     ],
     "quality_safety_check": {
       "safety_status": "checks_passed",
