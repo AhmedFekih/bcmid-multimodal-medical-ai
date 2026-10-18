@@ -24,7 +24,7 @@ except Exception:
 sys.path.insert(0, str(Path(__file__).parent / "ikbelwork"))
 
 try:
-    from fastapi import FastAPI, HTTPException, UploadFile, File, Form
+    from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Request
     from fastapi.responses import JSONResponse, HTMLResponse, FileResponse
     from fastapi.middleware.cors import CORSMiddleware
     from fastapi.staticfiles import StaticFiles
@@ -119,14 +119,17 @@ class RAGQueryRequest(BaseModel):
 # ENDPOINTS
 # ════════════════════════════════════════════════════════════════════════════
 
-@app.get("/", summary="Health Check")
-def root():
-    """Vérifie que l'API est en ligne — n8n peut utiliser cet endpoint pour tester la connexion."""
+@app.get("/", summary="MammoScan Clinic Form & Health Check")
+def root(request: Request):
+    """Sert l'interface du formulaire clinique BCMID au navigateur, ou JSON pour API."""
+    accept = request.headers.get("accept", "")
+    if "text/html" in accept:
+        return view_form()
     return {
         "status": "online",
         "service": "BCMID Medical AI API",
         "version": "1.0.0",
-        "endpoints": ["/analyze", "/rag/query", "/report/{patient_id}", "/pipeline/run", "/docs"]
+        "endpoints": ["/analyze", "/rag/query", "/report/{patient_id}", "/pipeline/run", "/docs", "/form"]
     }
 
 
