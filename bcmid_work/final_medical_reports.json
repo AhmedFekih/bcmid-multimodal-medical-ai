@@ -1,6 +1,39 @@
 [
   {
     "patient_summary": {
+      "pseudo_id": "Paacb1ec57b",
+      "age": 51,
+      "condition": "les_deux",
+      "acquisition_device": "Standard (Uploaded via Web)"
+    },
+    "age": 51,
+    "predicted_birads": "1",
+    "prediction_available": true,
+    "confidence": 0.94,
+    "confidence_note": "Keyword-heuristic simulation — no CNN checkpoint deployed. Not clinically calibrated.",
+    "reasoning_mode": "keyword_heuristic_simulation",
+    "simulation_mode": true,
+    "interpretation": "Bilateral breast screening for patient Paacb1ec57b shows no discrete masses, architectural distortion, or suspicious microcalcifications. Malignancy probability is minimal (0.02).",
+    "supporting_evidence": [
+      "E1: [ACR BI-RADS Category 4B: Moderate Suspicion for Malignancy] ACR BI-RADS Category 4B: Moderate suspi",
+      "E2: [ACR BI-RADS Category 5: Highly Suggestive of Malignancy] ACR BI-RADS Category 5: Highly Suggestive ",
+      "E3: [ACR BI-RADS Category 4C: High Suspicion for Malignancy] ACR BI-RADS Category 4C: High suspicion for"
+    ],
+    "recommendations": [
+      "Negative bilateral examination. Standard age-appropriate annual screening mammography."
+    ],
+    "quality_safety_check": {
+      "safety_status": "checks_passed",
+      "agent_status": "APPROVED_BY_SAFETY_AGENT",
+      "approved": true,
+      "validation_errors": [],
+      "safety_attempts": 1,
+      "human_review_required": true,
+      "human_review_note": "Automated checks only — radiologist review mandatory for any clinical use"
+    }
+  },
+  {
+    "patient_summary": {
       "pseudo_id": "Pf9bea655cf",
       "age": 46,
       "condition": "les_deux",
@@ -20,32 +53,6 @@
     "recommendations": [
       "Short-interval 6-month follow-up imaging (unilateral).",
       "Comparison with baseline views."
-    ],
-    "quality_safety_check": {
-      "safety_status": "checks_passed",
-      "validation_errors": []
-    }
-  },
-  {
-    "patient_summary": {
-      "pseudo_id": "Paacb1ec57b",
-      "age": 51,
-      "condition": "les_deux",
-      "acquisition_device": "Standard (Uploaded via Web)"
-    },
-    "age": 51,
-    "predicted_birads": "1",
-    "prediction_available": true,
-    "confidence": 0.94,
-    "confidence_note": "Calibrated multimodal vision + RAG confidence",
-    "interpretation": "Bilateral breast screening for patient Paacb1ec57b shows no discrete masses, architectural distortion, or suspicious microcalcifications. Malignancy probability is minimal (0.02).",
-    "supporting_evidence": [
-      "E1: [ACR BI-RADS Category 4B: Moderate Suspicion for Malignancy] ACR BI-RADS Category 4B: Moderate suspi",
-      "E2: [ACR BI-RADS Category 5: Highly Suggestive of Malignancy] ACR BI-RADS Category 5: Highly Suggestive ",
-      "E3: [ACR BI-RADS Category 4C: High Suspicion for Malignancy] ACR BI-RADS Category 4C: High suspicion for"
-    ],
-    "recommendations": [
-      "Negative bilateral examination. Standard age-appropriate annual screening mammography."
     ],
     "quality_safety_check": {
       "safety_status": "checks_passed",
