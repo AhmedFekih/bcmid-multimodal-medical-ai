@@ -426,6 +426,28 @@ def download_fine_tuning_pdf():
     )
 
 
+@app.get("/report/agents-finetuning/pdf", summary="Télécharger le Rapport Fine-Tuning & Agentic AI PDF")
+@app.get("/agents-finetuning/pdf", include_in_schema=False)
+@app.get("/report/agents-et-finetuning/pdf", include_in_schema=False)
+def download_agents_finetuning_pdf():
+    """Retourne le Rapport d'Expertise Fine-Tuning & Agentic AI BCMID en PDF."""
+    pdf_path = REPORTS_DIR / "BCMID_Rapport_Agents_FineTuning.pdf"
+    if not pdf_path.exists():
+        try:
+            from scripts.generate_agents_finetuning_report_pdf import build_agents_finetuning_pdf
+            build_agents_finetuning_pdf(str(pdf_path))
+        except Exception:
+            pass
+    if not pdf_path.exists():
+        raise HTTPException(status_code=404, detail="Rapport Agents & Fine-Tuning PDF non trouvé.")
+    return FileResponse(
+        str(pdf_path),
+        media_type="application/pdf",
+        headers={"Content-Disposition": 'inline; filename="BCMID_Rapport_Agents_FineTuning.pdf"'}
+    )
+
+
+
 
 @app.get("/report/{patient_id}/pdf", summary="Download Box 7 Medical Report as PDF")
 def download_report_pdf(patient_id: str):
