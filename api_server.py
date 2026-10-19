@@ -326,6 +326,28 @@ def download_technical_report_fr():
     )
 
 
+@app.get("/report/fine-tuning/pdf", summary="Télécharger le Rapport Spécialisé Fine-Tuning PDF")
+@app.get("/fine-tuning/pdf", include_in_schema=False)
+@app.get("/report/fine-tuning", include_in_schema=False)
+def download_fine_tuning_pdf():
+    """Retourne le Rapport d'Expertise Fine-Tuning BCMID en PDF."""
+    pdf_path = REPORTS_DIR / "BCMID_Rapport_Fine_Tuning.pdf"
+    if not pdf_path.exists():
+        try:
+            from scripts.generate_fine_tuning_report_pdf import build_fine_tuning_pdf
+            build_fine_tuning_pdf(str(pdf_path))
+        except Exception:
+            pass
+    if not pdf_path.exists():
+        raise HTTPException(status_code=404, detail="Rapport Fine-Tuning PDF non trouvé.")
+    return FileResponse(
+        str(pdf_path),
+        media_type="application/pdf",
+        headers={"Content-Disposition": 'inline; filename="BCMID_Rapport_Fine_Tuning.pdf"'}
+    )
+
+
+
 @app.get("/report/{patient_id}/pdf", summary="Download Box 7 Medical Report as PDF")
 def download_report_pdf(patient_id: str):
     """
