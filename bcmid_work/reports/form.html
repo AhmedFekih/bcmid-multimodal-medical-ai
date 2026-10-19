@@ -263,16 +263,46 @@
             <i class="ti ti-bolt me-1"></i>Workflows
           </a>
         </div>
-        <div class="nav-item me-1">
-          <a href="http://localhost:8000/report/technical-report-fr/pdf" target="_blank" class="btn btn-sm btn-primary fw-bold text-white shadow-sm px-3" style="border-radius:8px;">
-            <i class="ti ti-file-certificate me-1"></i>Rapport Technique FR 🇫🇷 📥
+        <!-- Bouton Rapport Technique avec Choix de Langue -->
+        <div class="nav-item dropdown me-1">
+          <button class="btn btn-sm btn-primary dropdown-toggle fw-bold text-white shadow-sm px-3" type="button" id="dropdownReportLang" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius:8px;">
+            <i class="ti ti-file-certificate me-1"></i>Rapport Technique (Langue 🌐)
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0" aria-labelledby="dropdownReportLang" style="border-radius:10px; min-width: 250px;">
+            <li><h6 class="dropdown-header text-uppercase text-muted" style="font-size:0.75rem; letter-spacing:0.5px;">Choisir la langue du rapport</h6></li>
+            <li>
+              <a class="dropdown-item d-flex align-items-center py-2" href="http://localhost:8000/report/technical-report-fr/pdf" target="_blank">
+                <span class="fs-4 me-2">🇫🇷</span>
+                <div>
+                  <div class="fw-bold text-dark">Version Française</div>
+                  <small class="text-muted">Rapport technique officiel (9 pages)</small>
+                </div>
+              </a>
+            </li>
+            <li><hr class="dropdown-divider my-1"></li>
+            <li>
+              <a class="dropdown-item d-flex align-items-center py-2" href="http://localhost:8000/report/technical-report/pdf?lang=en" target="_blank">
+                <span class="fs-4 me-2">🇬🇧</span>
+                <div>
+                  <div class="fw-bold text-dark">English Version</div>
+                  <small class="text-muted">Official technical report (9 pages)</small>
+                </div>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Boutons directs de langue -->
+        <div class="nav-item btn-group me-2" role="group" aria-label="Langue du rapport">
+          <a href="http://localhost:8000/report/technical-report-fr/pdf" target="_blank" class="btn btn-sm btn-outline-primary fw-bold shadow-sm px-2" style="border-top-left-radius:8px; border-bottom-left-radius:8px; background:#fff;" title="Télécharger le rapport technique en Français">
+            🇫🇷 FR
+          </a>
+          <a href="http://localhost:8000/report/technical-report/pdf?lang=en" target="_blank" class="btn btn-sm btn-outline-primary fw-bold shadow-sm px-2" style="border-top-right-radius:8px; border-bottom-right-radius:8px; background:#fff;" title="Download technical report in English">
+            🇬🇧 EN
           </a>
         </div>
-        <div class="nav-item me-1">
-          <a href="http://localhost:8000/report/technical-report/pdf" target="_blank" class="btn btn-sm btn-outline-primary fw-bold shadow-sm px-3" style="border-radius:8px; background: #ffffff;">
-            <i class="ti ti-file-text me-1"></i>Technical Report EN 🇬🇧 📥
-          </a>
-        </div>
+
+        <!-- Bouton Rapport Fine-Tuning -->
         <div class="nav-item me-1">
           <a href="http://localhost:8000/report/fine-tuning/pdf" target="_blank" class="btn btn-sm btn-outline-success fw-bold shadow-sm px-3" style="border-radius:8px; background: #ffffff;">
             <i class="ti ti-adjustments me-1"></i>Rapport Fine-Tuning 🎯 📥

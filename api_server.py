@@ -269,7 +269,82 @@ def generate_report(patient: PatientRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# ── Accès rapport HTML ───────────────────────────────────────────────────────
+# ── Accès rapport technique et sélection de langue ──────────────────────────────
+@app.get("/report/technical-report", summary="Page de choix de la langue pour le Rapport Technique")
+@app.get("/technical-report", include_in_schema=False)
+def choose_technical_report_language(lang: Optional[str] = None):
+    """
+    Permet de choisir la langue du rapport technique ou redirige directement selon le paramètre lang.
+    Exemples: /report/technical-report?lang=fr ou /report/technical-report?lang=en
+    """
+    if lang:
+        if lang.lower() in ["fr", "fra", "french", "francais"]:
+            return download_technical_report_fr()
+        elif lang.lower() in ["en", "eng", "english", "anglais"]:
+            return download_architecture_pdf(lang="en")
+
+    html_content = """
+    <!DOCTYPE html>
+    <html lang="fr">
+    <head>
+      <meta charset="UTF-8">
+      <title>BCMID · Choisir la langue du Rapport Technique</title>
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0/dist/css/tabler.min.css">
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+      <style>
+        body { background: #f1f5f9; min-height: 100vh; display: flex; align-items: center; justify-content: center; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .lang-card { border-radius: 14px; transition: transform .2s, box-shadow .2s; border: 2px solid transparent; background: #fff; }
+        .lang-card:hover { transform: translateY(-4px); box-shadow: 0 15px 35px rgba(0,0,0,0.1) !important; border-color: #0284c7; }
+      </style>
+    </head>
+    <body>
+      <div class="container" style="max-width: 760px;">
+        <div class="text-center mb-4">
+          <span class="badge bg-blue-lt text-uppercase px-3 py-1 mb-2 fw-bold" style="letter-spacing:1px;">BCMID · Architecture & XAI</span>
+          <h2 class="fw-bold text-dark mb-1">Rapport Technique Officiel (9 Pages)</h2>
+          <p class="text-muted">Sélectionnez la langue de votre document PDF à télécharger / Select report language:</p>
+        </div>
+        <div class="row g-4">
+          <div class="col-md-6">
+            <div class="card lang-card shadow-sm p-4 text-center h-100 d-flex flex-column justify-content-between">
+              <div>
+                <div style="font-size: 3.5rem;" class="mb-2">🇫🇷</div>
+                <h4 class="fw-bold text-dark mb-2">Version Française</h4>
+                <p class="text-muted small mb-4">Rapport complet (9 pages) avec architecture multimodale, audit de sécurité et annexe A.</p>
+              </div>
+              <div>
+                <a href="/report/technical-report-fr/pdf" class="btn btn-primary w-100 fw-bold py-2 shadow-sm" style="border-radius: 8px;">
+                  <i class="ti ti-download me-1"></i> Télécharger en Français
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card lang-card shadow-sm p-4 text-center h-100 d-flex flex-column justify-content-between">
+              <div>
+                <div style="font-size: 3.5rem;" class="mb-2">🇬🇧</div>
+                <h4 class="fw-bold text-dark mb-2">English Version</h4>
+                <p class="text-muted small mb-4">Complete 9-page technical report covering multimodal vision, RAG, agentic safety & Appendix A.</p>
+              </div>
+              <div>
+                <a href="/report/technical-report/pdf?lang=en" class="btn btn-outline-primary w-100 fw-bold py-2 shadow-sm" style="border-radius: 8px;">
+                  <i class="ti ti-download me-1"></i> Download in English
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-center mt-4">
+          <a href="/" class="text-muted small text-decoration-none"><i class="ti ti-arrow-left me-1"></i> Retour à l'application principale</a>
+        </div>
+      </div>
+    </body>
+    </html>
+    """
+    return HTMLResponse(content=html_content)
+
+
+# ── Accès rapport HTML patient ───────────────────────────────────────────────
 @app.get("/report/{patient_id}", summary="Visualiser rapport HTML dans le navigateur")
 def view_report(patient_id: str):
     """
@@ -288,19 +363,23 @@ def view_report_direct(patient_id: str):
     return view_report(patient_id)
 
 
+
 @app.get("/report/architecture/pdf", summary="Download Comprehensive BCMID Architecture PDF Report (EN)")
 @app.get("/architecture/pdf", include_in_schema=False)
-@app.get("/report/technical-report/pdf", summary="Download Grand Rapport Technique PDF (EN)")
+@app.get("/report/technical-report/pdf", summary="Download Grand Rapport Technique PDF (EN/FR)")
 @app.get("/report/technical-report-en/pdf", summary="Download Technical Report PDF (EN)")
 @app.get("/technical-report/pdf", include_in_schema=False)
 @app.get("/grand-rapport/pdf", include_in_schema=False)
-def download_architecture_pdf():
-    """Returns the comprehensive publication-grade BCMID Technical Report PDF (English)."""
-    pdf_path = REPORTS_DIR / "BCMID_Grand_Technical_Report.pdf"
+def download_architecture_pdf(lang: str = "en"):
+    """Returns the comprehensive publication-grade BCMID Technical Report PDF (English or French based on ?lang=fr)."""
+    if lang.lower() in ["fr", "fra", "french", "francais"]:
+        return download_technical_report_fr()
+
+    pdf_path = REPORTS_DIR / "BCMID_Technical_Report_EN.pdf"
     if not pdf_path.exists():
-        pdf_path = REPORTS_DIR / "BCMID_Technical_Report_EN.pdf"
+        pdf_path = REPORTS_DIR / "BCMID_Grand_Technical_Report.pdf"
     if not pdf_path.exists():
-        raise HTTPException(status_code=404, detail="Technical report not found.")
+        raise HTTPException(status_code=404, detail="Technical report EN not found.")
     return FileResponse(
         str(pdf_path),
         media_type="application/pdf",
