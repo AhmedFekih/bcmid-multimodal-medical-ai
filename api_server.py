@@ -305,30 +305,44 @@ def choose_technical_report_language(lang: Optional[str] = None):
           <p class="text-muted">Sélectionnez la langue de votre document PDF à télécharger / Select report language:</p>
         </div>
         <div class="row g-4">
-          <div class="col-md-6">
+          <div class="col-md-4">
             <div class="card lang-card shadow-sm p-4 text-center h-100 d-flex flex-column justify-content-between">
               <div>
-                <div style="font-size: 3.5rem;" class="mb-2">🇫🇷</div>
+                <div style="font-size: 3rem;" class="mb-2">🇫🇷</div>
                 <h4 class="fw-bold text-dark mb-2">Version Française</h4>
-                <p class="text-muted small mb-4">Rapport complet (9 pages) avec architecture multimodale, audit de sécurité et annexe A.</p>
+                <p class="text-muted small mb-4">Rapport complet (9 pages PDF) avec architecture multimodale, audit de sécurité et annexes.</p>
               </div>
               <div>
                 <a href="/report/technical-report-fr/pdf" class="btn btn-primary w-100 fw-bold py-2 shadow-sm" style="border-radius: 8px;">
-                  <i class="ti ti-download me-1"></i> Télécharger en Français
+                  <i class="ti ti-download me-1"></i> Télécharger (PDF FR)
                 </a>
               </div>
             </div>
           </div>
-          <div class="col-md-6">
+          <div class="col-md-4">
             <div class="card lang-card shadow-sm p-4 text-center h-100 d-flex flex-column justify-content-between">
               <div>
-                <div style="font-size: 3.5rem;" class="mb-2">🇬🇧</div>
+                <div style="font-size: 3rem;" class="mb-2">🇬🇧</div>
                 <h4 class="fw-bold text-dark mb-2">English Version</h4>
-                <p class="text-muted small mb-4">Complete 9-page technical report covering multimodal vision, RAG, agentic safety & Appendix A.</p>
+                <p class="text-muted small mb-4">Complete 9-page PDF technical report covering multimodal vision, RAG, agentic safety & Appendix A.</p>
               </div>
               <div>
                 <a href="/report/technical-report/pdf?lang=en" class="btn btn-outline-primary w-100 fw-bold py-2 shadow-sm" style="border-radius: 8px;">
-                  <i class="ti ti-download me-1"></i> Download in English
+                  <i class="ti ti-download me-1"></i> Download (PDF EN)
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card lang-card shadow-sm p-4 text-center h-100 d-flex flex-column justify-content-between border-primary">
+              <div>
+                <div style="font-size: 3rem;" class="mb-2">📄</div>
+                <h4 class="fw-bold text-dark mb-2">Code Source LaTeX</h4>
+                <p class="text-muted small mb-4">Fichier maître <code>.tex</code> (8-10 pages) structuré pour Overleaf ou compilation TeX locale.</p>
+              </div>
+              <div>
+                <a href="/report/latex" class="btn btn-dark w-100 fw-bold py-2 shadow-sm" style="border-radius: 8px;">
+                  <i class="ti ti-file-code me-1"></i> Télécharger (.tex)
                 </a>
               </div>
             </div>
@@ -342,6 +356,23 @@ def choose_technical_report_language(lang: Optional[str] = None):
     </html>
     """
     return HTMLResponse(content=html_content)
+
+
+@app.get("/report/latex", summary="Télécharger le code source LaTeX du Rapport Technique (8-10 pages)")
+@app.get("/report/technical-report/latex", include_in_schema=False)
+@app.get("/technical-report/latex", include_in_schema=False)
+def download_technical_report_latex():
+    """Retourne le code source LaTeX (.tex) officiel du Rapport Technique BCMID (8 à 10 pages)."""
+    tex_path = REPORTS_DIR / "BCMID_Technical_Report.tex"
+    if not tex_path.exists():
+        tex_path = Path("BCMID_Technical_Report.tex")
+    if not tex_path.exists():
+        raise HTTPException(status_code=404, detail="Fichier LaTeX BCMID_Technical_Report.tex non trouvé.")
+    return FileResponse(
+        str(tex_path),
+        media_type="text/x-tex",
+        headers={"Content-Disposition": 'attachment; filename="BCMID_Technical_Report.tex"'}
+    )
 
 
 # ── Accès rapport HTML patient ───────────────────────────────────────────────
@@ -403,6 +434,8 @@ def download_technical_report_fr():
         media_type="application/pdf",
         headers={"Content-Disposition": 'inline; filename="BCMID_Rapport_Technique_FR.pdf"'}
     )
+
+
 
 
 @app.get("/report/fine-tuning/pdf", summary="Télécharger le Rapport Spécialisé Fine-Tuning PDF")
