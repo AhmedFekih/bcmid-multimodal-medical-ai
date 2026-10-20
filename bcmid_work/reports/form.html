@@ -1686,10 +1686,40 @@ async function handleSendEmail(){
     if(!resp.ok) throw new Error('HTTP '+resp.status);
     const data=await resp.json();
     sb.classList.remove('d-none');
+    const pdfUrl = data.pdf_download_url || `http://localhost:8000/report/${currentPatientId}/pdf`;
+    const emailUrl = data.email_preview_url;
+    const pdfName = data.pdf_filename || `Medical_Report_${currentPatientId}.pdf`;
+    
     if(data.sent_via_smtp){
-      sb.innerHTML=`<div class="alert alert-success mb-0 py-2" style="font-size:12.5px">✅ <b>Report successfully delivered to ${data.recipient}</b><br><small class="text-muted">From: ${data.from_sender} · Attachment: Medical_Report_${currentPatientId}_BIRADS_*.pdf</small><br><a href="${data.email_preview_url}" target="_blank" class="fw-bold">👁️ View email archive ↗</a></div>`;
+      sb.innerHTML=`<div class="alert alert-success mb-0 py-3" style="font-size:12.5px; border-radius:10px;">
+        <div class="mb-1">
+          <b>✅ Rapport expédié avec succès par email !</b><br>
+          <span class="text-muted" style="font-size:11.5px;">Destinataire : <b>${data.recipient}</b> &bull; Pièce jointe : <b>${pdfName}</b></span>
+        </div>
+        <div class="d-flex gap-2 flex-wrap mt-2">
+          <a href="${pdfUrl}" target="_blank" class="btn btn-sm btn-primary fw-bold text-white shadow-sm" style="border-radius:6px;">
+            <i class="ti ti-download me-1"></i> Ouvrir / Télécharger le PDF joint
+          </a>
+          <a href="${emailUrl}" target="_blank" class="btn btn-sm btn-outline-primary fw-bold shadow-sm" style="border-radius:6px; background:#fff;">
+            <i class="ti ti-mail me-1"></i> Voir l'email envoyé
+          </a>
+        </div>
+      </div>`;
     } else {
-      sb.innerHTML=`<div class="alert alert-warning mb-0 py-2" style="font-size:12.5px">ℹ️ <b>Case record archived in hospital system.</b> ${data.smtp_error?'('+data.smtp_error+')':''}<br><a href="${data.email_preview_url}" target="_blank" class="fw-bold">👁️ View preview ↗</a></div>`;
+      sb.innerHTML=`<div class="alert alert-info mb-0 py-3" style="font-size:12.5px; border-radius:10px;">
+        <div class="mb-1">
+          <b>ℹ️ Rapport et email archivés dans le système hospitalier.</b><br>
+          <span class="text-muted" style="font-size:11.5px;">Destinataire simulé : <b>${data.recipient}</b> &bull; Pièce jointe générée : <b>${pdfName}</b></span>
+        </div>
+        <div class="d-flex gap-2 flex-wrap mt-2">
+          <a href="${pdfUrl}" target="_blank" class="btn btn-sm btn-primary fw-bold text-white shadow-sm" style="border-radius:6px;">
+            <i class="ti ti-download me-1"></i> Ouvrir / Télécharger le PDF joint
+          </a>
+          <a href="${emailUrl}" target="_blank" class="btn btn-sm btn-outline-primary fw-bold shadow-sm" style="border-radius:6px; background:#fff;">
+            <i class="ti ti-mail me-1"></i> Voir l'archive email
+          </a>
+        </div>
+      </div>`;
     }
   } catch(err){
     sb.classList.remove('d-none');

@@ -7,20 +7,21 @@
       "acquisition_device": "Standard (Uploaded via Web)"
     },
     "age": 51,
-    "predicted_birads": "1",
+    "predicted_birads": "3",
     "prediction_available": true,
-    "confidence": 0.94,
+    "confidence": 0.78,
     "confidence_note": "Keyword-heuristic simulation — no CNN checkpoint deployed. Not clinically calibrated.",
     "reasoning_mode": "keyword_heuristic_simulation",
     "simulation_mode": true,
-    "interpretation": "Bilateral breast screening for patient Paacb1ec57b shows no discrete masses, architectural distortion, or suspicious microcalcifications. Malignancy probability is minimal (0.02).",
+    "interpretation": "Findings in patient Paacb1ec57b exhibit predominantly benign morphological characteristics with low probability of malignancy (0.12). Short-interval surveillance is appropriate.",
     "supporting_evidence": [
       "E1: [ACR BI-RADS Category 4B: Moderate Suspicion for Malignancy] ACR BI-RADS Category 4B: Moderate suspi",
-      "E2: [ACR BI-RADS Category 5: Highly Suggestive of Malignancy] ACR BI-RADS Category 5: Highly Suggestive ",
-      "E3: [ACR BI-RADS Category 4C: High Suspicion for Malignancy] ACR BI-RADS Category 4C: High suspicion for"
+      "E2: [ACR BI-RADS Category 3: Probably Benign] ACR BI-RADS Category 3: Probably Benign finding. Finding h",
+      "E3: [ACR BI-RADS Category 4A: Low Suspicion for Malignancy] ACR BI-RADS Category 4A: Low suspicion for m"
     ],
     "recommendations": [
-      "Negative bilateral examination. Standard age-appropriate annual screening mammography."
+      "Short-interval 6-month follow-up imaging (unilateral).",
+      "Comparison with baseline views."
     ],
     "quality_safety_check": {
       "safety_status": "checks_passed",

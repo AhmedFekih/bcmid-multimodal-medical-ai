@@ -74,7 +74,7 @@
         }
         .birads-tag {
             display: inline-block;
-            background-color: #28a745;
+            background-color: #ffc107;
             color: white;
             padding: 2px 10px;
             border-radius: 6px;
@@ -230,18 +230,18 @@
                 </div>
                 <div class="meta-item">
                     <div class="label">Predicted Assessment</div>
-                    <div class="value"><span class="birads-tag">BI-RADS 1</span></div>
+                    <div class="value"><span class="birads-tag">BI-RADS 3</span></div>
                 </div>
                 <div class="meta-item">
                     <div class="label">Confidence & Risk</div>
-                    <div class="value">94.0% &bull; Benign / Normal</div>
+                    <div class="value">78.0% &bull; Short-Interval Surveillance</div>
                 </div>
             </div>
 
             <!-- Interpretation -->
             <div class="section-title">Diagnostic Interpretation (Reasoning Agent)</div>
             <div class="interpretation-box">
-                Bilateral breast screening for patient Paacb1ec57b shows no discrete masses, architectural distortion, or suspicious microcalcifications. Malignancy probability is minimal (0.02).
+                Findings in patient Paacb1ec57b exhibit predominantly benign morphological characteristics with low probability of malignancy (0.12). Short-interval surveillance is appropriate.
             </div>
 
             <!-- Visual Explanations (XAI Heatmaps) -->
@@ -275,24 +275,24 @@
             <div class="evidence-card">
                 <div class="evidence-header">
                     <span class="evidence-tag">[E2]</span>
-                    <span class="evidence-source">ACR_GUIDELINE &bull; Sim: 0.79</span>
+                    <span class="evidence-source">ACR_GUIDELINE &bull; Sim: 0.80</span>
                 </div>
-                <div class="evidence-body">"[ACR BI-RADS Category 5: Highly Suggestive of Malignancy] ACR BI-RADS Category 5: Highly Suggestive of Malignancy. Malignancy risk is >= 95%. Classic findings include irregular, spiculated high-density mass, segmental or linear fine linear/branching calcifications. Management: Biopsy required. Surgical oncology consultation indicated even if initial needle biopsy is non-malignant (discordance)."</div>
+                <div class="evidence-body">"[ACR BI-RADS Category 3: Probably Benign] ACR BI-RADS Category 3: Probably Benign finding. Finding has a very high probability (> 98%) of being benign. Malignancy risk is > 0% but <= 2%. Specific findings include non-calcified circumscribed solid mass, focal asymmetry, or cluster of round punctate calcifications. Management: Short-interval follow-up (usually unilateral at 6 months, then bilateral at 12 and 24 months) to establish stability."</div>
             </div>
             
             <div class="evidence-card">
                 <div class="evidence-header">
                     <span class="evidence-tag">[E3]</span>
-                    <span class="evidence-source">ACR_GUIDELINE &bull; Sim: 0.79</span>
+                    <span class="evidence-source">ACR_GUIDELINE &bull; Sim: 0.80</span>
                 </div>
-                <div class="evidence-body">"[ACR BI-RADS Category 4C: High Suspicion for Malignancy] ACR BI-RADS Category 4C: High suspicion for malignancy. Malignancy risk range is > 50% to < 95%. Includes new cluster of fine pleomorphic calcifications or irregular solid mass with microlobulated or indistinct margins. Histopathological verification is mandatory."</div>
+                <div class="evidence-body">"[ACR BI-RADS Category 4A: Low Suspicion for Malignancy] ACR BI-RADS Category 4A: Low suspicion for malignancy. Malignancy risk range is > 2% to <= 10%. Includes partially circumscribed solid mass with ultrasound features suggestive of fibroadenoma, or solitary complicated cyst. Tissue sampling (core needle biopsy) is indicated, though benign pathology is expected."</div>
             </div>
             
 
             <!-- Clinical Recommendations -->
             <div class="section-title">Clinical Recommendations</div>
             <div class="recs-box">
-                <ul><li>Negative bilateral examination. Standard age-appropriate annual screening mammography.</li></ul>
+                <ul><li>Short-interval 6-month follow-up imaging (unilateral).</li><li>Comparison with baseline views.</li></ul>
             </div>
 
             <!-- Limitations & Uncertainty -->
