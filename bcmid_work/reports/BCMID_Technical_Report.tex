@@ -4,10 +4,10 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
-\usepackage[margin=2.0cm,headheight=15pt,bottom=2.2cm]{geometry}
+\usepackage[margin=1.8cm,headheight=16pt,headsep=12pt,footskip=24pt]{geometry}
 \usepackage{microtype}
 \usepackage{amsmath,amssymb,amsfonts,bm}
-\usepackage{booktabs,tabularx,multirow,array}
+\usepackage{booktabs,tabularx,multirow,array,colortbl}
 \usepackage{graphicx}
 \usepackage{xcolor}
 \usepackage{fancyhdr}
@@ -69,6 +69,10 @@
   {\thesubsubsection}{0.5em}{}
 
 \setlist{itemsep=2pt,topsep=3pt,parsep=1pt}
+
+% --- Caption Styling (Standard Above Tables) ---
+\captionsetup[table]{position=top,skip=6pt,labelfont={bf,color=NavyBlue},textfont=small}
+\captionsetup[figure]{position=bottom,skip=6pt,labelfont={bf,color=NavyBlue},textfont=small}
 
 % --- Callout Box Styles ---
 \tcbuselibrary{skins,breakable}
@@ -232,41 +236,83 @@ Pour garantir la tra\c{c}abilit\'e, la modularit\'e et la s\'ecurit\'e, BCMID r\
 \begin{figure}[htbp]
 \centering
 \begin{tikzpicture}[
-    scale=0.88, transform shape,
+    scale=0.84, transform shape,
     box/.style={rectangle, draw=NavyBlue, fill=LightBlueBg, thick, rounded corners=3pt, align=center, inner sep=5pt, font=\small\bfseries},
-    agentbox/.style={rectangle, draw=DeepCyan, fill=white, thick, rounded corners=3pt, align=left, inner sep=6pt, font=\footnotesize},
-    decision/.style={diamond, draw=MedRose, fill=LightRedBg, thick, align=center, inner sep=3pt, font=\footnotesize\bfseries},
+    agentbox/.style={rectangle, draw=DeepCyan, fill=white, thick, rounded corners=3pt, align=left, inner sep=5pt, font=\footnotesize},
+    decision/.style={diamond, draw=MedRose, fill=LightRedBg, thick, align=center, inner sep=3pt, font=\footnotesize\bfseries, aspect=1.8},
     arrow/.style={-Latex, thick, draw=NavyBlue},
     dasharrow/.style={-Latex, dashed, thick, draw=MedRose}
 ]
-    % Level 1: Ingestion & Quality
-    \node[box, fill=NavyBlue, text=white] (input) at (0, 0) {Examens Médicaux Bruts\\(Mammo + US + TSV)};
-    \node[agentbox] (a1) at (4.0, 0) {\textbf{Agent 1 : Ingestion}\\$\bullet$ Contrôle d'intégrité\\$\bullet$ Empreintes SHA-256};
-    \node[agentbox] (a2) at (8.5, 0) {\textbf{Agent 2 : Data Quality}\\$\bullet$ Otsu \& rognage sein\\$\bullet$ Inpainting EasyOCR};
+    % --- Level 0: Patient Input ---
+    \node[box, fill=NavyBlue, text=white, text width=11.5cm] (input) at (0, 0) {
+        \textbf{Examens Médicaux Bruts Entrants}\\
+        Mammographie Plein Champ (CC/MLO) + Échographie (US) + Dossier Clinique
+    };
 
-    % Level 2: Perception & Retrieval
-    \node[agentbox] (a3) at (8.5, -2.4) {\textbf{Agent 3 : Multimodal Vision}\\$\bullet$ Dual ResNet-18\\$\bullet$ Fusion & Grad-CAM XAI};
-    \node[agentbox] (a4) at (4.0, -2.4) {\textbf{Agent 4 : Clinical RAG}\\$\bullet$ FAISS (Directives ACR)\\$\bullet$ Cas similaires non-fuités};
+    % --- Level 1: Ingestion & Data Quality ---
+    \node[agentbox, text width=6.2cm] (a1) at (-3.7, -1.8) {
+        \textbf{Agent 1 : Ingestion Agent}\\
+        $\bullet$ Contrôle d'intégrité binaire\\
+        $\bullet$ Empreintes cryptographiques SHA-256
+    };
+    \node[agentbox, text width=6.2cm] (a2) at (3.7, -1.8) {
+        \textbf{Agent 2 : Data Quality Agent}\\
+        $\bullet$ Découpage Otsu du parenchyme\\
+        $\bullet$ Inpainting EasyOCR \& split \texttt{GroupKFold}
+    };
 
-    % Level 3: Reasoning & Safety
-    \node[agentbox] (a5) at (4.0, -4.8) {\textbf{Agent 5 : Reasoning Agent}\\$\bullet$ Qwen2.5-3B-Instruct\\$\bullet$ JSON Clinique Structuré};
-    \node[decision] (a6) at (8.5, -4.8) {Agent 6 :\\Safety\\Audit ?};
+    % --- Level 2: Multimodal Perception & RAG ---
+    \node[agentbox, text width=6.2cm] (a3) at (-3.7, -4.0) {
+        \textbf{Agent 3 : Multimodal Vision Agent}\\
+        $\bullet$ Dual ResNet-18 (Branches Mammo \& US)\\
+        $\bullet$ Fusion multimodale \& Cartes Grad-CAM
+    };
+    \node[agentbox, text width=6.2cm] (a4) at (3.7, -4.0) {
+        \textbf{Agent 4 : Clinical RAG Agent}\\
+        $\bullet$ Double index FAISS (Atlas ACR \& cas réels)\\
+        $\bullet$ Embeddings BGE 384d \& isolation sans fuite
+    };
 
-    % Level 4: Output
-    \node[box, fill=LightGreenBg, draw=DeepCyan] (a7) at (8.5, -7.2) {\textbf{Agent 7 : Reporting}\\$\bullet$ PDF Médecin (ReportLab)\\$\bullet$ Dashboard Technicien HTML};
-    \node[box, fill=NavyBlue, text=white] (out) at (3.5, -7.2) {Validation Humaine (Radiologue)\\\& Intégration n8n (PACS/HIS)};
+    % --- Level 3: Medical Reasoning ---
+    \node[box, text width=11.5cm, fill=LightBlueBg, draw=NavyBlue] (a5) at (0, -6.1) {
+        \textbf{Agent 5 : Medical Reasoning Agent (Qwen2.5-3B-Instruct)}\\
+        \footnotesize Synthèse cognitive sous prompt structuré $\to$ Proposition de rapport JSON (BI-RADS \& Rationale)
+    };
 
-    % Connections
-    \draw[arrow] (input) -- (a1);
-    \draw[arrow] (a1) -- (a2);
-    \draw[arrow] (a2) -- (a3);
-    \draw[arrow] (a2.south) |- (a4.east);
-    \draw[arrow] (a3.west) -- (a5.north east);
-    \draw[arrow] (a4.south) -- (a5.north);
-    \draw[arrow] (a5) -- (a6);
-    \draw[arrow] (a6) -- node[right, font=\scriptsize\bfseries\color{DeepCyan}] {PASS} (a7);
-    \draw[dasharrow] (a6.north) -- ++(0, 0.7) -| node[above, font=\scriptsize\bfseries\color{MedRose}] {REJET : Boucle de Révision Active (Max 2)} (a5.east);
-    \draw[arrow] (a7) -- (out);
+    % --- Level 4: Deterministic Safety Audit ---
+    \node[decision, text width=4.0cm] (a6) at (0, -8.0) {
+        \textbf{Agent 6 : Safety Audit ?}\\
+        \scriptsize Concordance $\pm 0.6\%$, lexique \& $\mathcal{H}$
+    };
+
+    % --- Level 5: Reporting & Clinical Sign-off ---
+    \node[box, fill=LightGreenBg, draw=DeepCyan, text width=6.0cm] (a7) at (-3.6, -10.1) {
+        \textbf{Agent 7 : Reporting Agent}\\
+        \footnotesize PDF Médecin (ReportLab) \& Vue Web HTML
+    };
+    \node[box, fill=NavyBlue, text=white, text width=6.0cm] (out) at (3.6, -10.1) {
+        \textbf{Validation Humaine (Radiologue)}\\
+        \footnotesize Revue obligatoire \& Intégration n8n (PACS)
+    };
+
+    % --- Forward Connections ---
+    \draw[arrow] (input.south) -- ++(0,-0.3) -| (a1.north);
+    \draw[arrow] (a1.east) -- (a2.west);
+    \draw[arrow] (a2.south) -- ++(0,-0.3) -| (a4.north);
+    \draw[arrow] (a1.south) -- (a3.north);
+    \draw[arrow] (a3.south) |- (a5.160);
+    \draw[arrow] (a4.south) |- (a5.20);
+    \draw[arrow] (a5.south) -- (a6.north);
+
+    \draw[arrow] (a6.south) -- ++(0,-0.4) -| node[pos=0.25, left, font=\scriptsize\bfseries\color{DeepCyan}] {PASS} (a7.north);
+    \draw[arrow] (a7.east) -- (out.west);
+
+    % --- Active Revision Loop (Completely clear on the right side) ---
+    \draw[dasharrow] (a6.east) -- ++(4.6, 0) |- node[pos=0.25, right, font=\scriptsize\bfseries\color{MedRose}, align=left] {
+        \textbf{REJET : Boucle Active}\\
+        Incohérence détectée\\
+        (Max 2 itérations)
+    } (a5.east);
 
 \end{tikzpicture}
 \caption{Architecture globale multi-agents du système BCMID et boucle de rétroaction active.}
@@ -276,21 +322,29 @@ Pour garantir la tra\c{c}abilit\'e, la modularit\'e et la s\'ecurit\'e, BCMID r\
 \begin{table}[htbp]
 \centering
 \small
-\begin{tabularx}{\linewidth}{lXp{4.2cm}}
-\toprule
-\textbf{Agent Spécialisé} & \textbf{Rôle Opérationnel \& Algorithmes Impliqués} & \textbf{Livrable Technique} \\
-\midrule
-\textbf{1. Ingestion Agent} & Réception sécurisée, contrôle d'intégrité binaire, validation des métadonnées TSV et hachage cryptographique salé. & Dossiers vérifiés avec empreintes SHA-256. \\
-\textbf{2. Data Quality Agent} & Binarisation d'Otsu pour détourer le parenchyme mammaire, masquage EasyOCR et inpainting Navier-Stokes des inscriptions incrustées sur les échographies, partitionnement \texttt{GroupKFold(k=5)}. & Tenseurs $224\times 224$ sans artefacts de raccourci, zéro fuite inter-patientes. \\
-\textbf{3. Vision Agent} & Inférence parallèle sur mammographie et échographie via un double ResNet-18, fusion multimodale et calcul des gradients Grad-CAM. & Logits, probabilités, score d'incertitude et cartes Grad-CAM. \\
-\textbf{4. Clinical RAG Agent} & Encodage dense (\texttt{bge-small-en-v1.5}), recherche vectorielle cosinus sur l'Atlas ACR BI-RADS et cas antérieurs dé-identifiés avec protocole d'exclusion de pli. & Top-4 passages d'évidence médicale (\texttt{[G1]}, \texttt{[E1]}). \\
-\textbf{5. Reasoning Agent} & Modèle Qwen2.5-3B-Instruct exploitant un prompt contraint pour synthétiser les probabilités vision, l'explicabilité et les règles ACR. & Proposition JSON structurée avec BI-RADS et justifications. \\
-\textbf{6. Safety Agent} & Barrière de contrôle déterministe analysant l'exactitude numérique ($\pm 0.6\%$), le vocabulaire clinique et l'entropie d'incertitude. & Accord de conformité ou consigne de révision (max 2 essais). \\
-\textbf{7. Reporting Agent} & Moteur d'édition dynamique produisant un document PDF officiel médecin (ReportLab) et une interface HTML technicien détaillée. & PDF vectoriel infalsifiable et vue Web interactive. \\
-\bottomrule
-\end{tabularx}
+\renewcommand{\arraystretch}{1.25}
 \caption{Matrice fonctionnelle des 7 agents spécialisés de la plateforme BCMID.}
 \label{tab:mas_matrix}
+\begin{tabularx}{\linewidth}{|l|X|p{4.2cm}|}
+\hline
+\rowcolor{LightBlueBg}
+\textbf{Agent Spécialisé} & \textbf{Rôle Opérationnel \& Algorithmes Impliqués} & \textbf{Livrable Technique} \\
+\hline
+\textbf{1. Ingestion Agent} & Réception sécurisée, contrôle d'intégrité binaire, validation des métadonnées TSV et hachage cryptographique salé. & Dossiers vérifiés avec empreintes SHA-256. \\
+\hline
+\textbf{2. Data Quality Agent} & Binarisation d'Otsu pour détourer le parenchyme mammaire, masquage EasyOCR et inpainting Navier-Stokes des inscriptions incrustées sur les échographies, partitionnement \texttt{GroupKFold(k=5)}. & Tenseurs $224\times 224$ sans artefacts de raccourci, zéro fuite inter-patientes. \\
+\hline
+\textbf{3. Vision Agent} & Inférence parallèle sur mammographie et échographie via un double ResNet-18, fusion multimodale et calcul des gradients Grad-CAM. & Logits, probabilités, score d'incertitude et cartes Grad-CAM. \\
+\hline
+\textbf{4. Clinical RAG Agent} & Encodage dense (\texttt{bge-small-en-v1.5}), recherche vectorielle cosinus sur l'Atlas ACR BI-RADS et cas antérieurs dé-identifiés avec protocole d'exclusion de pli. & Top-4 passages d'évidence médicale (\texttt{[G1]}, \texttt{[E1]}). \\
+\hline
+\textbf{5. Reasoning Agent} & Modèle Qwen2.5-3B-Instruct exploitant un prompt contraint pour synthétiser les probabilités vision, l'explicabilité et les règles ACR. & Proposition JSON structurée avec BI-RADS et justifications. \\
+\hline
+\textbf{6. Safety Agent} & Barrière de contrôle déterministe analysant l'exactitude numérique ($\pm 0.6\%$), le vocabulaire clinique et l'entropie d'incertitude. & Accord de conformité ou consigne de révision (max 2 essais). \\
+\hline
+\textbf{7. Reporting Agent} & Moteur d'édition dynamique produisant un document PDF officiel médecin (ReportLab) et une interface HTML technicien détaillée. & PDF vectoriel infalsifiable et vue Web interactive. \\
+\hline
+\end{tabularx}
 \end{table}
 
 \subsection{La Boucle de Rétroaction Active (Closed-Loop Active Revision)}
@@ -304,6 +358,7 @@ L'innovation architecturale centrale de BCMID r\'eside dans le couplage \'etroit
 % ==============================================================================
 % SECTION 3: CHOICE OF TOOLS & TECHNOLOGY STACK JUSTIFICATION
 % ==============================================================================
+\clearpage
 \section{Choix des Outils \& Justification de la Stack Technologique}
 \label{sec:choice_of_tools}
 
@@ -311,23 +366,32 @@ Chaque composant technique de BCMID a \'et\'e s\'electionn\'e en conformit\'e av
 
 \begin{table}[htbp]
 \centering
-\small
-\begin{tabularx}{\linewidth}{lp{3.2cm}p{3.2cm}X}
-\toprule
-\textbf{Domaine / Module} & \textbf{Technologie Retenue} & \textbf{Alternatives Écartées} & \textbf{Rationale \& Justification Technique / Clinique} \\
-\midrule
-\textbf{Backend \& Microservices} & \textbf{FastAPI (ASGI)} & Flask, Django, SpringBoot & Ingestion asynchrone non-bloquante, validation stricte des formats de requêtes et de réponses via \textbf{Pydantic}, documentation interactive OpenAPI/Swagger native, empreinte RAM inf\'erieure \`a 50~Mo. \\
-\textbf{Deep Learning \& XAI} & \textbf{PyTorch 2.6 \& Torchvision} & TensorFlow 2, JAX & \'Ecosyst\`eme de r\'ef\'erence en vision m\'edicale, graphe de calcul dynamique imp\'eratif pour l'extraction r\'etro-active des gradients de convolution (\textbf{Grad-CAM}), int\'egration directe CUDA. \\
-\textbf{Index Vectoriel Dense} & \textbf{FAISS (IndexFlatIP)} & Pinecone, ChromaDB, Weaviate & Moteur vectoriel C++ ultra-performant ex\'ecut\'e en m\'emoire vive locale. \'Elimine tout transfert de donn\'ees vers le cloud. Calcul exact de similarit\'e cosinus sans perte de pr\'ecision li\'ee \`a une quantification abusive. \\
-\textbf{Modèle d'Embeddings} & \textbf{BAAI/bge-small-en-v1.5} & OpenAI \texttt{text-embedding-3}, BioBERT & Vecteurs denses en 384 dimensions, premier rang au classement MTEB dans sa cat\'egorie d'empreinte, inf\'erence locale tr\`es rapide ($<15$~ms par passage sur CPU/GPU) sans co\^ut d'API. \\
-\textbf{Vision Médicale \& OCR} & \textbf{OpenCV \& EasyOCR} & Tesseract, PyMuPDF & Algorithmes de morphologie math\'ematique (Otsu) pour rogner le fond noir, r\'eseau neuronal OCR d\'etectant pr\'ecis\'ement les coordonn\'ees des incrustations textuelles pour guider l'inpainting Navier-Stokes. \\
-\textbf{Générateur de Rapports} & \textbf{ReportLab 4.4} & WeasyPrint, pdfkit, Puppeteer & Moteur vectoriel Python pur g\'en\'erant des PDF conformes et infalsifiables en deux passes (\texttt{NumberedCanvas}). \'Evite l'instabilit\'e et la lourdeur d'un navigateur Chromium sous Linux/Windows. \\
-\textbf{Orchestrateur Hospitalier} & \textbf{n8n (Auto-hébergé)} & Apache Airflow, LangGraph, Celery & Plateforme d'automatisation \'ev\'enementielle l\'eg\`ere \`a base de Webhooks, offrant un routage conditionnel d\'eterministe (\texttt{IF Node}) pour la gestion des urgences oncologiques. \\
-\textbf{Tests \& Intégration} & \textbf{pytest 9.1} & unittest standard, nose2 & Ex\'ecution automatis\'ee param\'etr\'ee des suites de tests de confidentialit\'e et de contr\^ole d\'eterministe (61 tests valid\'es en 1.84s). \\
-\bottomrule
-\end{tabularx}
-\caption{Tableau comparatif et justification technologique des outils s\'electionn\'es pour BCMID.}
+\footnotesize
+\renewcommand{\arraystretch}{1.2}
+\caption{Tableau comparatif et justification technologique des outils sélectionnés pour BCMID.}
 \label{tab:tools_justification}
+\begin{tabularx}{\linewidth}{|p{2.8cm}|p{2.6cm}|p{2.6cm}|X|}
+\hline
+\rowcolor{LightBlueBg}
+\textbf{Domaine / Module} & \textbf{Technologie Retenue} & \textbf{Alternatives Écartées} & \textbf{Rationale \& Justification Technique / Clinique} \\
+\hline
+\textbf{Backend \& Microservices} & \textbf{FastAPI (ASGI)} & Flask, Django, SpringBoot & Ingestion asynchrone non-bloquante, validation stricte des formats via \textbf{Pydantic}, documentation interactive OpenAPI/Swagger native, empreinte RAM $<50$~Mo. \\
+\hline
+\textbf{Deep Learning \& XAI} & \textbf{PyTorch 2.6 \& Torchvision} & TensorFlow 2, JAX & Écosystème de référence en vision médicale, graphe dynamique impératif pour l'extraction rétro-active des gradients (\textbf{Grad-CAM}), intégration CUDA. \\
+\hline
+\textbf{Index Vectoriel Dense} & \textbf{FAISS (IndexFlatIP)} & Pinecone, ChromaDB, Weaviate & Moteur vectoriel C++ ultra-performant exécuté en mémoire vive locale (zéro transfert cloud). Calcul exact de similarité cosinus sans perte de quantification. \\
+\hline
+\textbf{Modèle d'Embeddings} & \textbf{BAAI/bge-small-en-v1.5} & OpenAI \texttt{text-embedding-3}, BioBERT & Vecteurs denses en 384 dimensions, top MTEB, inférence locale très rapide ($<15$~ms par passage sur CPU/GPU) sans coût d'API ni dépendance réseau. \\
+\hline
+\textbf{Vision Médicale \& OCR} & \textbf{OpenCV \& EasyOCR} & Tesseract, PyMuPDF & Algorithmes morphologiques (Otsu) pour rogner le fond noir, détection des incrustations textuelles pour guider l'inpainting Navier-Stokes anti-raccourci. \\
+\hline
+\textbf{Générateur de Rapports} & \textbf{ReportLab 4.4} & WeasyPrint, pdfkit, Puppeteer & Moteur vectoriel Python pur générant des PDF infalsifiables en deux passes (\texttt{NumberedCanvas}). Évite la lourdeur d'un Chromium headless. \\
+\hline
+\textbf{Orchestrateur Hospitalier} & \textbf{n8n (Auto-hébergé)} & Apache Airflow, LangGraph, Celery & Automatisation événementielle légère à base de Webhooks avec routage conditionnel déterministe (\texttt{IF Node}) pour la gestion des urgences oncologiques. \\
+\hline
+\textbf{Tests \& Intégration} & \textbf{pytest 9.1} & unittest standard, nose2 & Exécution automatisée paramétrée des suites de tests de confidentialité et de contrôle déterministe (61 tests validés en 1.84s). \\
+\hline
+\end{tabularx}
 \end{table}
 
 % ==============================================================================
@@ -377,18 +441,18 @@ Le module Clinical RAG (Agent 4) structure la m\'emoire s\'emantique du syst\`em
 \begin{figure}[htbp]
 \centering
 \begin{tikzpicture}[
-    scale=0.85, transform shape,
-    indexnode/.style={cylinder, shape border rotate=90, draw=NavyBlue, fill=LightBlueBg, thick, aspect=0.25, minimum height=1.5cm, minimum width=2.2cm, align=center, font=\footnotesize\bfseries},
-    procnode/.style={rectangle, draw=DeepCyan, fill=white, thick, rounded corners=3pt, align=center, inner sep=6pt, font=\footnotesize},
+    scale=0.88, transform shape,
+    indexnode/.style={cylinder, shape border rotate=90, draw=NavyBlue, fill=LightBlueBg, thick, aspect=0.25, minimum height=1.4cm, text width=2.4cm, align=center, font=\scriptsize\bfseries},
+    procnode/.style={rectangle, draw=DeepCyan, fill=white, thick, rounded corners=3pt, align=center, inner sep=5pt, font=\scriptsize, text width=2.8cm},
     arrow/.style={-Latex, thick, draw=NavyBlue}
 ]
-    \node[procnode] (query) at (0, 0) {Requête Clinique BCMID\\(Scénario Patient + Signes Vision)};
-    \node[procnode] (embed) at (4.5, 0) {Embeddings BGE-small\\(Vecteur normalisé $\mathbf{q} \in \mathbb{R}^{384}$)};
+    \node[procnode] (query) at (0, 0) {\textbf{Requête Clinique}\\\tiny Scénario patient \& données d'imagerie};
+    \node[procnode] (embed) at (3.8, 0) {\textbf{Embeddings BGE-small}\\\tiny Vecteur normalisé $\mathbf{q} \in \mathbb{R}^{384}$};
 
-    \node[indexnode] (idx_guidelines) at (9.5, 1.3) {\texttt{acr\_guidelines.faiss}\\11 Directives ACR};
-    \node[indexnode] (idx_reports) at (9.5, -1.3) {\texttt{rag\_index.faiss}\\317 Cas Dé-identifiés};
+    \node[indexnode] (idx_guidelines) at (8.0, 1.2) {\texttt{acr\_guidelines.faiss}\\11 Directives ACR};
+    \node[indexnode] (idx_reports) at (8.0, -1.2) {\texttt{rag\_index.faiss}\\317 Cas Dé-identifiés};
 
-    \node[procnode, fill=LightGreenBg] (retrieval) at (14.5, 0) {Top-4 Passages Sourcés\\(\texttt{[G1], [G2], [E1], [E2]})};
+    \node[procnode, fill=LightGreenBg, draw=DeepCyan] (retrieval) at (12.2, 0) {\textbf{Top-4 Passages Sourcés}\\\tiny Directives \texttt{[G1]} \& Cas \texttt{[E1]}};
 
     \draw[arrow] (query) -- (embed);
     \draw[arrow] (embed) |- (idx_guidelines);
@@ -433,21 +497,28 @@ Le benchmark a compar\'e les performances des r\'eseaux de convolution travailla
 \begin{table}[htbp]
 \centering
 \small
-\begin{tabularx}{\linewidth}{lXcc}
-\toprule
-\textbf{Configuration du Modèle} & \textbf{Mécanisme Opérationnel} & \textbf{ROC-AUC} & \textbf{Sensibilité} \\
-\midrule
-Mammographie Seule & ResNet-18 sur incidence FFDM ($224\times 224$) & 0.7917 & 76.2\% \\
-Échographie Seule & ResNet-18 sur coupe ultrasonore B-Mode ($224\times 224$) & 0.6743 & 68.4\% \\
-\midrule
-Late Fusion (Score Moyen) & Moyenne arithm\'etique simple des probabilit\'es & 0.8150 & 81.5\% \\
-Fusion Pondérée des Logits & Combinaison lin\'eaire optimis\'ee des logits avant Softmax & 0.8160 & 81.8\% \\
-Fusion Basée sur l'Incertitude & Pond\'eration inverse par l'entropie de Shannon $\mathcal{H}_m$ & 0.8120 & 80.9\% \\
-\textbf{Ensemble Multimodal BCMID} & \textbf{Méta-modèle intégrant Logits, TTA et XAI} & \textbf{0.8198} & \textbf{83.1\%} \\
-\bottomrule
-\end{tabularx}
+\renewcommand{\arraystretch}{1.25}
 \caption{Comparaison des performances diagnostiques (Malin vs Autres) sur 323 patientes bivalentes.}
 \label{tab:multimodal_results}
+\begin{tabularx}{\linewidth}{|l|X|c|c|}
+\hline
+\rowcolor{LightBlueBg}
+\textbf{Configuration du Modèle} & \textbf{Mécanisme Opérationnel} & \textbf{ROC-AUC} & \textbf{Sensibilité} \\
+\hline
+Mammographie Seule & ResNet-18 sur incidence FFDM ($224\times 224$) & 0.7917 & 76.2\% \\
+\hline
+Échographie Seule & ResNet-18 sur coupe ultrasonore B-Mode ($224\times 224$) & 0.6743 & 68.4\% \\
+\hline
+Late Fusion (Score Moyen) & Moyenne arithm\'etique simple des probabilit\'es & 0.8150 & 81.5\% \\
+\hline
+Fusion Pondérée des Logits & Combinaison lin\'eaire optimis\'ee des logits avant Softmax & 0.8160 & 81.8\% \\
+\hline
+Fusion Basée sur l'Incertitude & Pond\'eration inverse par l'entropie de Shannon $\mathcal{H}_m$ & 0.8120 & 80.9\% \\
+\hline
+\rowcolor{LightGreenBg}
+\textbf{Ensemble Multimodal BCMID} & \textbf{Méta-modèle intégrant Logits, TTA et XAI} & \textbf{0.8198} & \textbf{83.1\%} \\
+\hline
+\end{tabularx}
 \end{table}
 
 \begin{keyfinding}
@@ -498,21 +569,29 @@ La probabilit\'e num\'erique continue $p_{\text{mal}}$ est convertie en cat\'ego
 \begin{table}[htbp]
 \centering
 \small
-\begin{tabularx}{\linewidth}{cllX}
-\toprule
-\textbf{Probabilité $p_{\text{mal}}$} & \textbf{Catégorie BI-RADS} & \textbf{Priorité n8n} & \textbf{Conduite à Tenir Clinique Prescrite} \\
-\midrule
-$p_{\text{mal}} < 0.02$ & \textbf{BI-RADS 1} (Négatif) & Routine & Poursuite du dépistage mammographique biennal standard. \\
-$0.02 \le p < 0.10$ & \textbf{BI-RADS 2} (Bénin) & Routine & Constat bénin (kyste simple, fibroadénome calcifié). Dépistage habituel. \\
-$0.10 \le p < 0.35$ & \textbf{BI-RADS 3} (Prob. Bénin) & Surveillance & Examen unilatéral rapproché à 6 mois. \\
-$0.35 \le p < 0.65$ & \textbf{BI-RADS 4A} (Suspicion Faible) & \textbf{URGENT} & Indication de macro-biopsie percutanée échoguidée. \\
-$0.65 \le p < 0.85$ & \textbf{BI-RADS 4B} (Suspicion Modérée) & \textbf{URGENT} & Biopsie histologique percutanée et confrontation en RCP. \\
-$0.85 \le p < 0.95$ & \textbf{BI-RADS 4C} (Suspicion Forte) & \textbf{URGENT} & Biopsie urgente et planification oncologique. \\
-$p_{\text{mal}} \ge 0.95$ & \textbf{BI-RADS 5} (Hautement Malin) & \textbf{URGENT} & Bilan d'extension immédiat, biopsie et consultation d'annonce. \\
-\bottomrule
-\end{tabularx}
-\caption{Grille de calibration d\'eterministe des d\'ecisions cliniques de BCMID.}
+\renewcommand{\arraystretch}{1.25}
+\caption{Grille de calibration déterministe des décisions cliniques de BCMID.}
 \label{tab:birads_calibration}
+\begin{tabularx}{\linewidth}{|c|l|l|X|}
+\hline
+\rowcolor{LightBlueBg}
+\textbf{Probabilité $p_{\text{mal}}$} & \textbf{Catégorie BI-RADS} & \textbf{Priorité n8n} & \textbf{Conduite à Tenir Clinique Prescrite} \\
+\hline
+$p_{\text{mal}} < 0.02$ & \textbf{BI-RADS 1} (Négatif) & Routine & Poursuite du dépistage mammographique biennal standard. \\
+\hline
+$0.02 \le p < 0.10$ & \textbf{BI-RADS 2} (Bénin) & Routine & Constat bénin (kyste simple, fibroadénome calcifié). Dépistage habituel. \\
+\hline
+$0.10 \le p < 0.35$ & \textbf{BI-RADS 3} (Prob. Bénin) & Surveillance & Examen unilatéral rapproché à 6 mois. \\
+\hline
+$0.35 \le p < 0.65$ & \textbf{BI-RADS 4A} (Suspicion Faible) & \textbf{URGENT} & Indication de macro-biopsie percutanée échoguidée. \\
+\hline
+$0.65 \le p < 0.85$ & \textbf{BI-RADS 4B} (Suspicion Modérée) & \textbf{URGENT} & Biopsie histologique percutanée et confrontation en RCP. \\
+\hline
+$0.85 \le p < 0.95$ & \textbf{BI-RADS 4C} (Suspicion Forte) & \textbf{URGENT} & Biopsie urgente et planification oncologique. \\
+\hline
+$p_{\text{mal}} \ge 0.95$ & \textbf{BI-RADS 5} (Hautement Malin) & \textbf{URGENT} & Bilan d'extension immédiat, biopsie et consultation d'annonce. \\
+\hline
+\end{tabularx}
 \end{table}
 
 % ==============================================================================
