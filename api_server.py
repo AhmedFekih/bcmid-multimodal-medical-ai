@@ -1414,14 +1414,26 @@ def build_medical_pdf(clean_id: str, triage: Optional[dict] = None, age: Optiona
     if not us_gc.exists() and (uploads_dir / safe_id / f"{safe_id}_us_gradcam.png").exists():
         us_gc = uploads_dir / safe_id / f"{safe_id}_us_gradcam.png"
 
+    def _draw_white_page_bg(canvas, doc):
+        """Peint un fond blanc opaque solide sur chaque page pour garantir la lisibilité en mode sombre (Outlook Web, mobile)."""
+        canvas.saveState()
+        canvas.setFillColor(colors.white)
+        canvas.rect(0, 0, doc.pagesize[0], doc.pagesize[1], fill=1, stroke=0)
+        canvas.restoreState()
+
     def _make_img(path, max_w=8.5*cm, max_h=4.8*cm):
         if not path or not Path(path).exists():
             return None
         try:
             with PILImage.open(path) as im:
                 orig_w, orig_h = im.size
+                # Conversion explicite en JPEG RGB 24-bit standard (élimine les conflits alpha et de palette Grayscale dans Outlook/PDF.js)
+                rgb_im = im.convert("RGB")
+                img_io = io.BytesIO()
+                rgb_im.save(img_io, format="JPEG", quality=90)
+                img_io.seek(0)
             scale = min(max_w / orig_w, max_h / orig_h)
-            return RLImage(str(path), width=orig_w * scale, height=orig_h * scale)
+            return RLImage(img_io, width=orig_w * scale, height=orig_h * scale)
         except Exception:
             return None
 
@@ -1474,7 +1486,7 @@ def build_medical_pdf(clean_id: str, triage: Optional[dict] = None, age: Optiona
         FOOT
     ))
 
-    doc.build(story)
+    doc.build(story, onFirstPage=_draw_white_page_bg, onLaterPages=_draw_white_page_bg)
     return buf.getvalue()
 
 
