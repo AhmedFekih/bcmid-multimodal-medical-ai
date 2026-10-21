@@ -421,7 +421,12 @@ def download_architecture_pdf(lang: str = "en"):
     return FileResponse(
         str(pdf_path),
         media_type="application/pdf",
-        headers={"Content-Disposition": 'inline; filename="BCMID_Technical_Report_EN.pdf"'}
+        headers={
+            "Content-Disposition": 'inline; filename="BCMID_Technical_Report_EN.pdf"',
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "Pragma": "no-cache",
+            "Expires": "0"
+        }
     )
 
 
@@ -431,15 +436,24 @@ def download_architecture_pdf(lang: str = "en"):
 @app.get("/grand-rapport-fr/pdf", include_in_schema=False)
 def download_technical_report_fr():
     """Retourne le Grand Rapport Technique & Architectural officiel BCMID en Français."""
-    pdf_path = REPORTS_DIR / "BCMID_Rapport_Technique_FR.pdf"
-    if not pdf_path.exists():
-        pdf_path = REPORTS_DIR / "BCMID_Grand_Rapport_Technique_FR.pdf"
+    downloads_path = Path(r"C:\Users\moham\Downloads\BCMID_Rapport_Final_Condense.pdf")
+    if downloads_path.exists():
+        pdf_path = downloads_path
+    else:
+        pdf_path = REPORTS_DIR / "BCMID_Rapport_Technique_FR.pdf"
+        if not pdf_path.exists():
+            pdf_path = REPORTS_DIR / "BCMID_Grand_Rapport_Technique_FR.pdf"
     if not pdf_path.exists():
         raise HTTPException(status_code=404, detail="Rapport technique FR non trouvé.")
     return FileResponse(
         str(pdf_path),
         media_type="application/pdf",
-        headers={"Content-Disposition": 'inline; filename="BCMID_Rapport_Technique_FR.pdf"'}
+        headers={
+            "Content-Disposition": 'inline; filename="BCMID_Rapport_Technique_FR.pdf"',
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "Pragma": "no-cache",
+            "Expires": "0"
+        }
     )
 
 
