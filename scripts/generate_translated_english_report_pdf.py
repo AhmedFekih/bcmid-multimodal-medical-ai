@@ -127,7 +127,9 @@ def build_english_pdf():
         leftMargin=1.8 * cm,
         rightMargin=1.8 * cm,
         topMargin=1.8 * cm,
-        bottomMargin=1.6 * cm
+        bottomMargin=1.6 * cm,
+        title="BCMID – Academic Project Report (Technical & Architecture)",
+        author="Ikbel Hamdi, Ahmed Fekih, Mohammed Malek Hammami, Samar Omrani"
     )
 
     styles = getSampleStyleSheet()

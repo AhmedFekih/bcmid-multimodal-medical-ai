@@ -26,7 +26,7 @@ sys.path.insert(0, str(Path(__file__).parent / "ikbelwork"))
 
 try:
     from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Request
-    from fastapi.responses import JSONResponse, HTMLResponse, FileResponse
+    from fastapi.responses import JSONResponse, HTMLResponse, FileResponse, RedirectResponse
     from fastapi.middleware.cors import CORSMiddleware
     from fastapi.staticfiles import StaticFiles
     import uvicorn
@@ -35,7 +35,7 @@ except ImportError:
     import subprocess
     subprocess.run([sys.executable, "-m", "pip", "install", "-q", "fastapi", "uvicorn[standard]", "python-multipart"])
     from fastapi import FastAPI, HTTPException, UploadFile, File, Form
-    from fastapi.responses import JSONResponse, HTMLResponse, FileResponse
+    from fastapi.responses import JSONResponse, HTMLResponse, FileResponse, RedirectResponse
     from fastapi.middleware.cors import CORSMiddleware
     from fastapi.staticfiles import StaticFiles
     import uvicorn
@@ -317,11 +317,11 @@ def choose_technical_report_language(lang: Optional[str] = None):
               <div>
                 <div style="font-size: 3rem;" class="mb-2">🇫🇷</div>
                 <h4 class="fw-bold text-dark mb-2">Version Française</h4>
-                <p class="text-muted small mb-4">Rapport académique officiel complet (12 pages) : Conception et évaluation d'un système intelligent d'aide à l'interprétation de l'imagerie mammaire.</p>
+                <p class="text-muted small mb-4">Rapport académique officiel complet (12 pages) : <code>BCMID_Rapport_Final_Condense.pdf</code> (9.1 Mo).</p>
               </div>
               <div>
-                <a href="/report/technical-report-fr/pdf" class="btn btn-primary w-100 fw-bold py-2 shadow-sm" style="border-radius: 8px;">
-                  <i class="ti ti-download me-1"></i> Télécharger (PDF FR 12p)
+                <a href="/BCMID_Rapport_Final_Condense.pdf" class="btn btn-primary w-100 fw-bold py-2 shadow-sm" style="border-radius: 8px;">
+                  <i class="ti ti-download me-1"></i> Télécharger (BCMID_Rapport_Final_Condense.pdf)
                 </a>
               </div>
             </div>
@@ -331,11 +331,11 @@ def choose_technical_report_language(lang: Optional[str] = None):
               <div>
                 <div style="font-size: 3rem;" class="mb-2">🇬🇧</div>
                 <h4 class="fw-bold text-dark mb-2">English Version</h4>
-                <p class="text-muted small mb-4">Official 12-page academic report translated in English : Design and Evaluation of an Intelligent Decision Support System for Breast Imaging Interpretation.</p>
+                <p class="text-muted small mb-4">Official 12-page academic report translated in English : <code>BCMID_Rapport_Final_EN.pdf</code> (7.8 Mo).</p>
               </div>
               <div>
-                <a href="/report/technical-report/pdf?lang=en" class="btn btn-outline-primary w-100 fw-bold py-2 shadow-sm" style="border-radius: 8px;">
-                  <i class="ti ti-download me-1"></i> Download (PDF EN 12p)
+                <a href="/BCMID_Rapport_Final_EN.pdf" class="btn btn-outline-primary w-100 fw-bold py-2 shadow-sm" style="border-radius: 8px;">
+                  <i class="ti ti-download me-1"></i> Download (BCMID_Rapport_Final_EN.pdf)
                 </a>
               </div>
             </div>
@@ -411,18 +411,73 @@ def view_report_direct(patient_id: str):
 def download_architecture_pdf(lang: str = "en"):
     """Returns the comprehensive publication-grade BCMID Technical Report PDF (English or French based on ?lang=fr)."""
     if lang.lower() in ["fr", "fra", "french", "francais"]:
-        return download_technical_report_fr()
+        return RedirectResponse(
+            url="/BCMID_Rapport_Final_Condense.pdf",
+            status_code=302,
+            headers={
+                "Cache-Control": "no-cache, no-store, must-revalidate",
+                "Pragma": "no-cache",
+                "Expires": "0"
+            }
+        )
+    return RedirectResponse(
+        url="/BCMID_Rapport_Final_EN.pdf",
+        status_code=302,
+        headers={
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "Pragma": "no-cache",
+            "Expires": "0"
+        }
+    )
 
-    pdf_path = REPORTS_DIR / "BCMID_Technical_Report_EN.pdf"
+
+@app.get("/BCMID_Rapport_Final_EN.pdf", summary="Official BCMID Academic Project Report (EN)")
+@app.get("/report/BCMID_Rapport_Final_EN.pdf", include_in_schema=False)
+def get_bcmid_rapport_final_en():
+    """Sert directement le PDF officiel BCMID_Rapport_Final_EN.pdf en Anglais."""
+    downloads_path = Path(r"C:\Users\moham\Downloads\BCMID_Rapport_Final_EN.pdf")
+    if downloads_path.exists():
+        pdf_path = downloads_path
+    else:
+        pdf_path = REPORTS_DIR / "BCMID_Rapport_Final_EN.pdf"
+        if not pdf_path.exists():
+            pdf_path = REPORTS_DIR / "BCMID_Technical_Report_EN.pdf"
+            if not pdf_path.exists():
+                pdf_path = REPORTS_DIR / "BCMID_Grand_Technical_Report.pdf"
     if not pdf_path.exists():
-        pdf_path = REPORTS_DIR / "BCMID_Grand_Technical_Report.pdf"
-    if not pdf_path.exists():
-        raise HTTPException(status_code=404, detail="Technical report EN not found.")
+        raise HTTPException(status_code=404, detail="Rapport BCMID_Rapport_Final_EN.pdf non trouvé.")
     return FileResponse(
         str(pdf_path),
         media_type="application/pdf",
         headers={
-            "Content-Disposition": 'inline; filename="BCMID_Technical_Report_EN.pdf"',
+            "Content-Disposition": 'inline; filename="BCMID_Rapport_Final_EN.pdf"',
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "Pragma": "no-cache",
+            "Expires": "0"
+        }
+    )
+
+
+@app.get("/BCMID_Rapport_Final_Condense.pdf", summary="Rapport Officiel BCMID Final Condensé (FR)")
+@app.get("/report/BCMID_Rapport_Final_Condense.pdf", include_in_schema=False)
+def get_bcmid_rapport_final_condense():
+    """Sert directement le PDF officiel BCMID_Rapport_Final_Condense.pdf en Français."""
+    downloads_path = Path(r"C:\Users\moham\Downloads\BCMID_Rapport_Final_Condense.pdf")
+    if downloads_path.exists():
+        pdf_path = downloads_path
+    else:
+        pdf_path = REPORTS_DIR / "BCMID_Rapport_Final_Condense.pdf"
+        if not pdf_path.exists():
+            pdf_path = REPORTS_DIR / "BCMID_Rapport_Technique_FR.pdf"
+            if not pdf_path.exists():
+                pdf_path = REPORTS_DIR / "BCMID_Grand_Rapport_Technique_FR.pdf"
+    if not pdf_path.exists():
+        raise HTTPException(status_code=404, detail="Rapport BCMID_Rapport_Final_Condense.pdf non trouvé.")
+    return FileResponse(
+        str(pdf_path),
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": 'inline; filename="BCMID_Rapport_Final_Condense.pdf"',
             "Cache-Control": "no-cache, no-store, must-revalidate",
             "Pragma": "no-cache",
             "Expires": "0"
@@ -435,21 +490,11 @@ def download_architecture_pdf(lang: str = "en"):
 @app.get("/rapport/technique/pdf", include_in_schema=False)
 @app.get("/grand-rapport-fr/pdf", include_in_schema=False)
 def download_technical_report_fr():
-    """Retourne le Grand Rapport Technique & Architectural officiel BCMID en Français."""
-    downloads_path = Path(r"C:\Users\moham\Downloads\BCMID_Rapport_Final_Condense.pdf")
-    if downloads_path.exists():
-        pdf_path = downloads_path
-    else:
-        pdf_path = REPORTS_DIR / "BCMID_Rapport_Technique_FR.pdf"
-        if not pdf_path.exists():
-            pdf_path = REPORTS_DIR / "BCMID_Grand_Rapport_Technique_FR.pdf"
-    if not pdf_path.exists():
-        raise HTTPException(status_code=404, detail="Rapport technique FR non trouvé.")
-    return FileResponse(
-        str(pdf_path),
-        media_type="application/pdf",
+    """Redirige immédiatement vers /BCMID_Rapport_Final_Condense.pdf pour afficher le rapport officiel sans problème de cache."""
+    return RedirectResponse(
+        url="/BCMID_Rapport_Final_Condense.pdf",
+        status_code=302,
         headers={
-            "Content-Disposition": 'inline; filename="BCMID_Rapport_Technique_FR.pdf"',
             "Cache-Control": "no-cache, no-store, must-revalidate",
             "Pragma": "no-cache",
             "Expires": "0"

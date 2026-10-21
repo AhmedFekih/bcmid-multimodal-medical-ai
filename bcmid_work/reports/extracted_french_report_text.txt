@@ -1,0 +1,572 @@
+RAPPORT DE PROJET
+ ACADÉMIQUE
+ Module : Deep Learning & Intelligence Artificielle
+ Cycle ingénieur – 5e année
+ BCMID
+ Breast Cancer Multimodal Imaging & Diagnosis
+ Conception et évaluation d’un système intelligent
+ d’aide à l’interprétation de l’imagerie mammaire
+Réalisé par :
+Ikbel Hamdi
+Ahmed Fekih
+Mohammed Malek Hammami
+Samar Omrani
+Encadrée par :
+Mme Oumayma Guesmi
+Établissement :
+ESPRIT – École Supérieure Privée
+d’Ingénierie et de Technologies
+Projet de recherche appliquée en IA médicale · Prototype académique soumis à validation humaine
+ 2026–2027
+
+
+--- PAGE BREAK ---
+
+ESPRIT / Deep Learning & IA
+BCMID / ESPRIT | 2026–2027
+2
+Résumé
+Le projet BCMID (Breast Cancer Multimodal Imaging & Diagnosis) vise à concevoir un prototype
+d’assistance à l’interprétation d’examens mammaires intégrant des données d’imagerie
+hétérogènes et des connaissances documentaires. L’approche relie la mammographie
+numérique plein champ (FFDM) et l’échographie à une architecture répartie en sept agents
+spécialisés, afin de produire un compte rendu structuré, explicable et soumis à vérification.
+Le dispositif comprend un prétraitement des examens, deux branches ResNet-18, des cartes
+Grad-CAM, un système de recherche documentaire Clinical RAG (BAAI/bge-small-en-v1.5 et
+FAISS), un agent de synthèse piloté par Qwen2.5-3B-Instruct et une couche de sécurité
+déterministe. L’orchestration est assurée par n8n, en relation avec des microservices FastAPI.
+Sur le corpus du projet (332 patientes, 2 001 images brutes, 321 rapports PDF), le sous-ensemble
+multimodal de 323 patientes obtient une ROC-AUC de 0,8198 (« malin contre autres »), contre
+0,7917 pour la mammographie seule et 0,6743 pour l’échographie seule. L’audit XAI rapporte
+87,4 % d’énergie Grad-CAM dans le masque mammaire ; 61/61 tests logiciels sont réussis. Ces
+résultats demeurent exploratoires : les annotations ne constituent pas une vérité terrain
+histologique, le corpus est limité et aucune validation clinique prospective n’est fournie.
+Mots-clés : imagerie mammaire, fusion multimodale, ResNet-18, Grad-CAM, RAG, FAISS,
+Qwen2.5, agents intelligents, sécurité clinique.
+Abstract
+BCMID is an academic prototype supporting the interpretation of breast imaging by combining
+full-field digital mammography, ultrasound and clinical documentary knowledge through seven
+specialized agents (data quality, dual-branch ResNet-18 vision with Grad-CAM, FAISS-based
+clinical retrieval, Qwen2.5-3B-Instruct reasoning, deterministic safety checks and structured
+reporting), coordinated by n8n and FastAPI. On 323 patients with both modalities, multimodal
+ensemble ROC-AUC reaches 0.8198 versus 0.7917 (mammography) and 0.6743 (ultrasound); 61
+software tests pass, 10/10 adversarial scenarios are neutralized and 17/20 reports are compliant
+on first pass. These observations do not establish medical effectiveness: labels derive from
+BI-RADS annotations, the cohort is small and no external clinical validation was conducted.
+Keywords: multimodal breast imaging, explainable deep learning, clinical RAG, multi-agent
+orchestration, human oversight.
+
+
+--- PAGE BREAK ---
+
+ESPRIT / Deep Learning & IA
+BCMID / ESPRIT | 2026–2027
+3
+Table des matières
+2
+Résumé
+2
+Abstract
+3
+Table des matières
+4
+Introduction générale
+5
+Contexte et architecture multi-agents
+  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . 5
+1.1 Contexte clinique et enjeux
+  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . 5
+1.2 Problématique, objectifs et périmètre
+  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . 5
+1.3 Justification d’une architecture agentique
+  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . 6
+1.4 Architecture globale et les sept agents
+7
+Données et analyse multimodale
+  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . 7
+2.1 Corpus médical et répartition des annotations
+  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . 7
+2.2 Prétraitement, contrôle qualité et protocole sans fuite
+  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . 8
+2.3 Modèles ResNet-18 et fusion multimodale
+  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . 8
+2.4 Explicabilité avec Grad-CAM
+9
+Clinical RAG et ingénierie des prompts
+  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . 9
+3.1 Base de connaissances et recherche sémantique
+  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . 9
+3.2 Choix et intégration de Qwen2.5-3B-Instruct
+  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . 9
+3.3 Conception des prompts médicaux structurés
+10
+Automatisation, validation et résultats
+  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . 10
+4.1 Services FastAPI et workflows n8n
+  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . 10
+4.2 Boucle de contrôle et correction automatique
+  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . 10
+4.3 Sûreté, protection des données et limites réglementaires
+  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . 11
+4.4 Performances de la classification multimodale
+  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . 11
+4.5 Audit de la chaîne agentique et étude de cas
+  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . 12
+4.6 Discussion critique et menaces à la validité
+12
+Conclusion générale
+12
+Références bibliographiques
+
+
+--- PAGE BREAK ---
+
+ESPRIT / Deep Learning & IA
+BCMID / ESPRIT | 2026–2027
+4
+Introduction générale
+Le cancer du sein constitue un enjeu majeur de santé publique, pour lequel la qualité de
+l’interprétation des examens d’imagerie joue un rôle déterminant. L’analyse mammaire mobilise
+la mammographie, l’échographie, les données cliniques et des référentiels de classification : ces
+sources sont complémentaires, mais leur hétérogénéité exige une démarche rigoureuse pour
+limiter les erreurs d’interprétation.
+Le deep learning permet d’apprendre des représentations utiles à la classification, et des
+méthodes d’IA explicable comme Grad-CAM visualisent les régions associées aux décisions du
+modèle. Néanmoins, une probabilité élevée ne constitue pas une preuve clinique, et une carte
+d’activation ne confirme pas l’existence d’une lésion. Les grands modèles de langage facilitent la
+production de synthèses, mais une réponse convaincante peut contenir une erreur numérique ou
+une affirmation non étayée. Il est donc essentiel de dissocier l’analyse des images, la recherche
+de connaissances et la rédaction du compte rendu, puis de soumettre les sorties à des contrôles
+indépendants.
+BCMID associe deux branches de vision ResNet-18 avec Grad-CAM, un module de recherche
+documentaire Clinical RAG (FAISS) et un modèle Qwen2.5-3B-Instruct, organisés en sept agents
+coordonnés par n8n et FastAPI. L’objectif central est d’étudier comment une architecture
+multimodale, explicable et traçable peut articuler prédiction visuelle, justification documentaire
+et génération de comptes rendus tout en maintenant la supervision humaine. BCMID est un
+prototype de recherche et de démonstration, et non un dispositif médical validé.
+
+
+--- PAGE BREAK ---
+
+ESPRIT / Deep Learning & IA
+BCMID / ESPRIT | 2026–2027
+5
+CHAPITRE 1
+Contexte et architecture multi-agents
+1.1 Contexte clinique et enjeux
+La mammographie numérique plein champ (FFDM, incidences CC et MLO) permet d’observer les
+microcalcifications et certaines distorsions architecturales ; l’échographie caractérise la nature
+solide ou liquidienne d’une anomalie, ses contours et son comportement acoustique postérieur.
+L’association des modalités vise à exploiter des informations non identiques. L’interprétation est
+plus difficile en présence de tissus denses, ce qui fait varier la sensibilité [1].
+ Figure 1.1 : Exemples de données mammographiques et échographiques du jeu d’images du projet.
+1.2 Problématique, objectifs et périmètre
+Comment analyser conjointement plusieurs modalités médicales, relier les résultats à des
+éléments documentaires, puis produire une synthèse structurée dont la cohérence peut être
+vérifiée avant consultation par un spécialiste ? Quatre défis en découlent : D1 Hétérogénéité
+des données ; D2 Interprétabilité (régions influentes sans les présenter comme lésions
+confirmées) ; D3 Fiabilité documentaire (synthèses adossées à des extraits identifiables) ; D4
+Sécurité des sorties (aucun contenu contradictoire, inexact ou sans mention de revue
+humaine).
+ Périmètre. BCMID est un prototype académique d’aide à l’interprétation, non un dispositif
+médical homologué ni un système de diagnostic autonome. La catégorie BI-RADS issue d’un
+barème de scores ne doit jamais être confondue avec une catégorisation radiologique validée
+suivant l’Atlas ACR [2]. Le champ human_review_required matérialise cette restriction.
+1.3 Justification d’une architecture agentique
+BCMID ne délègue pas toutes les opérations à un modèle génératif unique. Les images sont
+vérifiées avant analyse, les probabilités viennent du modèle de vision, les références sont
+récupérées par le RAG et le texte du LLM est contrôlé avant émission. Le découpage en agents
+rend indépendantes l’ingestion, la prédiction visuelle, la récupération documentaire, la rédaction
+et les contrôles de sûreté ; le séquencement par n8n rend identifiables les entrées, sorties et
+points de rejet de chaque étape. Cette justification est architecturale : elle ne constitue pas une
+comparaison expérimentale entre plusieurs orchestrations.
+
+
+--- PAGE BREAK ---
+
+ESPRIT / Deep Learning & IA
+BCMID / ESPRIT | 2026–2027
+6
+1.4 Architecture globale et les sept agents
+ Figure 1.2 : Architecture BCMID : sept agents, orchestrateur n8n, infrastructure, monitoring et utilisateurs.
+Agent
+Responsabilités et méthodes
+Technologies
+Sorties
+01 –
+Ingestion
+Réception, vérification des
+métadonnées, empreintes SHA-256,
+pseudonymisation
+Python, pandas
+Dossier vérifié,
+identifiant
+pseudonymisé
+02 – Data
+Quality
+Profilage, Otsu, OCR, inpainting,
+séparation par patiente
+OpenCV, EasyOCR
+Images normalisées,
+état qualité
+03 – Vision
+Deux ResNet-18, fusion, scores,
+Grad-CAM
+PyTorch, torchvision
+Probabilités,
+incertitude, cartes
+04 – Clinical
+RAG
+Encodage sémantique, deux index
+FAISS, filtrage des dossiers exclus
+bge-small-en-v1.5, FAISS
+IndexFlatIP
+Extraits et références
+[G1], [E1]
+05 –
+Reasoning
+Assemblage des preuves,
+génération contrainte
+Qwen2.5-3B-Instruct
+Proposition JSON
+interprétative
+06 – Quality
+& Safety
+Validation numérique, sémantique,
+documentaire
+Règles déterministes,
+pytest
+Autorisation, révision
+ou signalement
+07 –
+Reporting
+Restitution en formats structurés
+ReportLab, FastAPI,
+Pydantic, n8n
+Compte rendu PDF,
+JSON, vue web
+
+
+--- PAGE BREAK ---
+
+ESPRIT / Deep Learning & IA
+BCMID / ESPRIT | 2026–2027
+7
+CHAPITRE 2
+Données et analyse multimodale
+2.1 Corpus médical et répartition des annotations
+Le niveau patient constitue l’unité de regroupement principale afin de préserver l’indépendance
+entre les ensembles d’apprentissage et de validation.
+ Ensemble
+Volume
+Précision
+Patientes enregistrées
+332
+dont 327 avec étiquette supervisée
+Images médicales brutes
+2 001
+avant contrôles de qualité
+Images retenues
+1 974
+951 mammographies et 1 023 échographies
+Rapports médicaux PDF
+321
+320 conservés pour l’indexation après filtrage
+Patientes avec deux
+modalités
+323
+cohorte de la comparaison ROC-AUC
+Volume global
+12,11 Go
+indiqué dans le rapport source
+Les catégories sont normal (15,1 %), bénin (64,5 %), malin (19,0 %) et cinq cas BI-RADS 0 non
+étiquetés (1,5 %). La prédominance du bénin limite l’interprétation des métriques agrégées. La
+variable supervisée est dérivée des annotations BI-RADS et non d’une confirmation
+histologique indépendante : l’étude est une évaluation sur ces annotations de projet.
+ Figure 2.1 : Répartition des 332 patientes par catégorie d’annotation.
+2.2 Prétraitement, contrôle qualité et protocole sans fuite
+ Profilage et intégrité : formats, identifiants pseudonymisés, doublons, images absentes ou
+corrompues, concordance des métadonnées.
+ Prétraitement spatial : région mammaire par seuillage d’Otsu, réduction des arrière-plans,
+redimensionnement en 224 × 224 et normalisation.
+ Neutralisation d’inscriptions : texte des échographies localisé par EasyOCR, masqué puis
+reconstruit par inpainting de type Navier–Stokes.
+ Partitionnement : validation croisée GroupKFold à cinq plis par patiente ; le Clinical RAG
+exclut en outre le dossier courant et les documents de son pli.
+ Figure 2.2 : Exemples avant/après préparation et pseudonymisation.
+
+
+--- PAGE BREAK ---
+
+ESPRIT / Deep Learning & IA
+BCMID / ESPRIT | 2026–2027
+8
+Précaution méthodologique. Une séparation correcte au niveau image ne suffit pas
+lorsqu’une patiente a plusieurs examens. La séparation au niveau patient et l’isolation des
+documents RAG sont deux mesures distinctes contre la fuite d’information, à auditer à chaque
+reproduction.
+2.3 Modèles ResNet-18 et fusion multimodale
+Chaque modalité dispose d’un encodeur ResNet-18 [3] à entrée monocanal 224 × 224, ce qui
+tient compte de la différence de texture et d’acquisition. Quatre configurations de fusion sont
+décrites : la late fusion (moyenne des scores), la fusion pondérée des logits, la fusion guidée
+par l’incertitude (pondération inversement liée à l’entropie) et l’ensemble multimodal
+associant les précédentes à une augmentation au moment du test (TTA). L’entropie de Shannon
+H(p) = −Σ pc log pc sert d’indicateur d’incertitude ; elle ne transforme pas les scores en
+probabilités cliniquement calibrées. La comparaison porte sur 323 patientes (GroupKFold, «
+malin contre autres ») sans recherche d’hyperparamètres non documentée.
+2.4 Explicabilité avec Grad-CAM
+Grad-CAM [4] s’appuie sur les gradients d’une classe cible par rapport aux cartes de
+caractéristiques : αkc = (1/Z) Σi,j ∂yc/∂Aijk et Lc = ReLU(Σk αkc Ak). L’audit porte sur 387 cartes
+associées à 64 dossiers : l’énergie moyenne dans le masque mammaire atteint 87,4 % (12,6 % à
+l’extérieur). Cela soutient une attention spatialement plausible, sans démontrer une
+correspondance systématique avec des lésions.
+ Figure 2.3 : Vues originales, cartes d’activation et superpositions Grad-CAM pour les deux modalités.
+Articulation vision / agents documentaires. L’agent de vision transmet logits, probabilités,
+incertitudes et visualisations ; les agents documentaires et génératifs ne doivent pas altérer ces
+valeurs. Une bonne ROC-AUC et une carte plausible ne remplacent ni une référence histologique,
+ni l’avis d’un radiologue : d’où l’agent de vérification indépendant avant tout rendu.
+
+
+--- PAGE BREAK ---
+
+ESPRIT / Deep Learning & IA
+BCMID / ESPRIT | 2026–2027
+9
+CHAPITRE 3
+Clinical RAG et ingénierie des prompts
+3.1 Base de connaissances et recherche sémantique
+Le Clinical RAG récupère des passages décrivant règles et observations pertinentes afin que le
+moteur génératif justifie ses formulations à partir d’un contexte explicite ; il documente la
+synthèse sans certifier son exactitude médicale. Les documents sont extraits, nettoyés,
+segmentés, encodés par BAAI/bge-small-en-v1.5 (384 dimensions) et indexés dans FAISS
+IndexFlatIP (produit scalaire de vecteurs unitaires, équivalent à la similarité cosinus [5, 6]).
+Deux index sont conservés :
+  Index de directives : neuf règles de prototype inspirées des principes BI-RADS (non
+exhaustif, non officiel) ;
+ Index de cas : 320 rapports anonymisés (un sur 321 exclu), soit 995 passages.
+Les tailles de segments en tokens et le recouvrement ne sont pas documentés et ne sont donc pas
+présentés comme validés. La recherche renvoie jusqu’à quatre passages identifiés par [G1] ou
+[E1], dont la validité est vérifiée en aval. Deux filtres limitent la fuite : text_blind (suppression
+des mentions de catégorie BI-RADS, cancer confirmé ou traitement réalisé) et
+exclude_pseudo_id (retrait de la patiente évaluée et de son pli). Leur efficacité doit être
+confirmée par des contrôles à chaque pli.
+3.2 Choix et intégration de Qwen2.5-3B-Instruct
+Le LLM retenu [7] est motivé par sa taille, son exécution locale et son aptitude à suivre un format
+imposé (occupation d’environ 3,1 Go sur GPU Tesla T4 dans un notebook du projet, valeur
+dépendante de la configuration). Il n’a pas été fine-tuné : l’adaptation repose sur le prompt
+engineering et le contexte documentaire, tandis que l’apprentissage supervisé concerne les
+branches de vision. Un décodage à température nulle limite la variabilité sans garantir un
+déterminisme absolu. Aucun benchmark quantitatif entre LLM concurrents n’est disponible.
+3.3 Conception des prompts médicaux structurés
+ Partie
+Informations intégrées
+Contrainte visée
+SYSTEM
+Rôle de synthèse, neutralité, interdiction
+d’inventer des observations
+Limiter les affirmations non fondées,
+imposer le JSON
+CONTEXT
+Scores, incertitude, résumé Grad-CAM, contexte
+autorisé, extraits du RAG
+Séparer faits calculés et sources
+documentaires
+TASK
+Rapprochement des modalités, interprétation et
+suivi proposés
+Synthèse cohérente avec le contexte
+OUTPUT
+Champs obligatoires et types attendus
+Validation automatique
+Le schéma de sortie exige six champs : predicted_birads, confidence, interpretation,
+recommendations, limitations, human_review_required. Le champ confidence est un
+indicateur du prototype, non une probabilité clinique validée. Un ensemble de 190 prompts est
+documenté (64 image seule, 62 texte seul, 64 image + texte) ; ces nombres décrivent la
+construction des essais et ne suffisent pas à conclure à la supériorité d’une condition.
+ Évaluation du RAG. Aucun tableau chiffré de précision, de Recall@4 ou de comparaison des
+découpages n’est fourni dans le rapport de départ ; aucune valeur n’est inventée. Neuf règles et
+995 passages ne constituent pas une validation de la qualité de récupération. L’historique des
+versions de prompts doit être présenté à part, à partir des traces de laboratoire.
+
+
+--- PAGE BREAK ---
+
+ESPRIT / Deep Learning & IA
+BCMID / ESPRIT | 2026–2027
+10
+CHAPITRE 4
+Automatisation, validation et résultats
+4.1 Services FastAPI et workflows n8n
+Les traitements sont exposés par des services FastAPI ; n8n relie les étapes, applique les
+conditions de routage et conserve une trace des exécutions. Deux workflows figurent dans les
+sources : BCMID-Medical-Analysis (chaîne principale à huit nœuds, du webhook à la réponse
+avec résultats et rapport) et Triage (neuf nœuds : réception, extraction d’identifiant, appel du
+service de rapport, bifurcation conditionnelle, restitution). Le triage repose sur un champ logique
+requires_immediate_escalation ; la branche urgente correspond aux classes heuristiques
+BI-RADS 4A à 5. Ces actions ne démontrent pas une intégration clinique réelle à un PACS/HIS.
+4.2 Boucle de contrôle et correction automatique
+Le couplage Reasoning ↔ Quality & Safety est central : la proposition du LLM est soumise à des
+validations déterministes indépendantes de ses affirmations. En cas d’incohérence, l’Agent 6
+refuse la validation et produit une instruction corrective ciblée ; deux itérations sont autorisées,
+puis l’état FLAGGED_FOR_MANUAL_CLINICIAN_REVIEW est prévu, sans forcer un rapport présenté
+comme conforme.
+ Vérification
+Règle de contrôle
+Cohérence
+numérique
+Écart toléré entre probabilité citée et probabilité du modèle : |Δp| ≤ 0,006
+Incertitude
+Au-delà du seuil de prototype H ≥ 0,50, exiger une formulation prudente
+Entités cliniques
+Refuser les observations non attestées par la vision ou les textes validés
+Citations
+Chaque renvoi doit correspondre à un passage récupéré dans le contexte de la requête
+Format /
+supervision
+Vérifier les limites explicites ; imposer human_review_required = true
+Ces règles encadrent des comportements identifiés mais ne prouvent pas l’absence de toute
+erreur : un énoncé faux peut être bien structuré, et un contenu cité peut être hors contexte.
+4.3 Sûreté, protection des données et limites réglementaires
+Une table transforme le score continu de malignité en catégorie et priorité de workflow. Elle est
+strictement heuristique et non validée cliniquement ; elle ne doit ni être confondue avec la
+définition diagnostique ACR BI-RADS, ni guider une prise en charge réelle sans radiologue.
+ Score pmal
+Catégorie indicative
+Priorité interne
+p < 0,02
+BI-RADS 1
+Routine
+0,02 ≤ p < 0,10
+BI-RADS 2
+Routine
+0,10 ≤ p < 0,35
+BI-RADS 3
+Surveillance
+0,35 ≤ p < 0,65
+BI-RADS 4A
+Escalade prévue dans le workflow
+0,65 ≤ p < 0,85
+BI-RADS 4B
+Escalade prévue dans le workflow
+0,85 ≤ p < 0,95
+BI-RADS 4C
+Escalade prévue dans le workflow
+p ≥ 0,95
+BI-RADS 5
+Escalade prévue dans le workflow
+Le pipeline prévoit la pseudonymisation des identifiants par SHA-256 avec sel local et le
+masquage des inscriptions des échographies ; le fonctionnement local de FAISS et du LLM réduit
+le recours au cloud. La pseudonymisation n’est toutefois pas l’anonymisation définitive : gestion
+des clés, accès, journaux et durées de conservation restent indispensables. Le RGPD, HIPAA et,
+en cas de commercialisation en Europe, le règlement MDR 2017/745 [8] sont des cadres à
+examiner ; le projet ne fournit ni audit de conformité complet, ni certification.
+
+
+--- PAGE BREAK ---
+
+ESPRIT / Deep Learning & IA
+BCMID / ESPRIT | 2026–2027
+11
+4.4 Performances de la classification multimodale
+Les mesures ne portent pas sur les mêmes objets : classification (323 patientes), audit XAI (387
+cartes) et tests de résilience (cas de validation logicielle), avec des échantillons et critères
+distincts.
+ Configuration
+ROC-AUC
+Sensibilité
+Mammographie seule
+0,7917
+76,2 %
+Échographie seule
+0,6743
+68,4 %
+Late fusion
+0,8150
+81,5 %
+Fusion pondérée des logits
+0,8160
+81,8 %
+Fusion par incertitude
+0,8120
+80,9 %
+Ensemble multimodal avec TTA
+0,8198
+83,1 %
+ Figure 4.1 : Comparaison des ROC-AUC déclarées (axe tronqué à 0,60).
+L’ensemble dépasse la mammographie seule de 0,0281 point de ROC-AUC et l’échographie seule
+de 0,1455 ; la sensibilité passe de 76,2 % à 83,1 %. Les écarts entre méthodes de fusion sont
+limités et aucun test de significativité ni intervalle de confiance n’est documenté.
+4.5 Audit de la chaîne agentique et étude de cas
+ Objet
+Résultat
+Portée de la mesure
+Prompts construits
+190
+64 image seule ; 62 texte seul ; 64 image + texte
+Tests adversariaux
+10/10
+Injection et consignes contradictoires, échantillon limité
+Rapports conformes au 1er
+contrôle
+17/20
+3 rapports à revoir après première passe (85 %)
+Exécutions n8n
+23
+5 échecs (21,7 %) rapportés dans le suivi
+Durée moyenne affichée
+5,54 s
+Indicateur du journal n8n ; périmètre à documenter
+Exécution complète réussie
+12,984 s
+Exemple observé, non mesure statistique
+Tests pytest
+61/61
+Passés en 1,84 s dans l’environnement présenté
+Étude de cas. Le dossier pseudonymisé Paacb1ec57b (mammographie et échographie ciblée)
+donne une catégorie issue de la logique du prototype BI-RADS 3, pmal = 0,12, confiance affichée
+de 78 %, entropie H = 0,38 et 89,2 % d’énergie Grad-CAM dans le masque. Il s’agit d’un exemple
+de sortie du prototype, à valider par un professionnel.
+
+
+--- PAGE BREAK ---
+
+ESPRIT / Deep Learning & IA
+BCMID / ESPRIT | 2026–2027
+12
+4.6 Discussion critique et menaces à la validité
+ Limites structurantes. • Cohorte : 332 patientes, déséquilibre de classes, 323 pour la
+comparaison multimodale. • Vérité terrain : étiquettes dérivées de BI-RADS sans vérification
+histologique. • Généralisation : pas de validation externe multicentrique ni prospective. •
+Comparaisons : pas d’intervalle de confiance, de test statistique entre fusions, ni de
+benchmark entre LLM. • XAI : 12,6 % de l’énergie Grad-CAM hors de la région mammaire. •
+Intégration : 5 échecs n8n sur 23 ; 3 rapports sur 20 à réviser dès la première passe. •
+Décision médicale : seuils de correspondance score–BI-RADS et d’incertitude non validés
+cliniquement.
+Conclusion générale
+Le projet assemble des contributions complémentaires : intégration de deux modalités
+d’imagerie, évaluation comparative de stratégies de fusion, éléments XAI, base documentaire
+vectorielle locale et encadrement des sorties d’un LLM par des règles indépendantes. La force du
+dispositif réside moins dans un composant isolé que dans la séparation des responsabilités
+entre prédiction, récupération documentaire, rédaction et validation. La fusion obtient une
+ROC-AUC supérieure à celle de chaque modalité seule (0,8198), Grad-CAM apporte une
+information spatiale, le RAG donne accès à des extraits documentaires et les agents de
+raisonnement et de sécurité structurent puis contrôlent le compte rendu.
+Perspectives. Validation externe avec références cliniques indépendantes ; audit de la stabilité
+des workflows n8n ; évaluation quantitative du RAG (Recall@4, exactitude des citations) et des
+itérations de prompts ; calibration des scores ; examen des erreurs critiques et vérification
+spécialisée des règles de triage avant toute extension vers des environnements médicaux réels.
+Cette contribution demeure celle d’un prototype académique, où toute sortie est traçable, toute
+incertitude signalée et toute interprétation soumise à l’expertise humaine.
+Références bibliographiques
+ [1]  P. A. Carney et al. « Individual and Combined Effects of Age, Breast Density, and Hormone Replacement Therapy on
+ the Accuracy of Screening Mammography ». Annals of Internal Medicine 138(3), 2003, p. 168-175.
+[2]  American College of Radiology. ACR BI-RADS Atlas, 5e éd. Reston, VA, 2013.
+ [3]  K. He, X. Zhang, S. Ren, J. Sun. « Deep Residual Learning for Image Recognition ». CVPR, 2016, p. 770-778.
+ [4]  R. R. Selvaraju et al. « Grad-CAM : Visual Explanations from Deep Networks via Gradient-Based Localization ». ICCV,
+ 2017, p. 618-626.
+[5]  J. Johnson, M. Douze, H. Jégou. « Billion-Scale Similarity Search with GPUs ». IEEE Trans. Big Data 7(3), 2021, p.
+ 535-547.
+[6]  S. Xiao et al. C-Pack : Packaged Resources to Advance General Chinese Embedding. 2023. arXiv:2309.07597.
+ [7]  A. Yang et al. Qwen2.5 Technical Report. 2024. arXiv:2412.15115.
+ [8]  Parlement européen et Conseil de l’UE. Règlement (UE) 2017/745 relatif aux dispositifs médicaux. JOUE, 2017.
+ 

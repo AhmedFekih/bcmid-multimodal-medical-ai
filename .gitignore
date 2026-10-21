@@ -43,6 +43,9 @@ build/
 *.sqlite
 *.sqlite3
 
+# Temporary & Scratch Files
+scratch/
+
 # Operating System & IDE Files
 .DS_Store
 Thumbs.db

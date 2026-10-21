@@ -7,13 +7,46 @@
       "acquisition_device": "Standard (Uploaded via Web)"
     },
     "age": 51,
+    "predicted_birads": "1",
+    "prediction_available": true,
+    "confidence": 0.94,
+    "confidence_note": "Keyword-heuristic simulation — no CNN checkpoint deployed. Not clinically calibrated.",
+    "reasoning_mode": "keyword_heuristic_simulation",
+    "simulation_mode": true,
+    "interpretation": "Bilateral breast screening for patient Paacb1ec57b shows no discrete masses, architectural distortion, or suspicious microcalcifications. Malignancy probability is minimal (0.02).",
+    "supporting_evidence": [
+      "E1: [ACR BI-RADS Category 4B: Moderate Suspicion for Malignancy] ACR BI-RADS Category 4B: Moderate suspi",
+      "E2: [ACR BI-RADS Category 5: Highly Suggestive of Malignancy] ACR BI-RADS Category 5: Highly Suggestive ",
+      "E3: [ACR BI-RADS Category 4C: High Suspicion for Malignancy] ACR BI-RADS Category 4C: High suspicion for"
+    ],
+    "recommendations": [
+      "Negative bilateral examination. Standard age-appropriate annual screening mammography."
+    ],
+    "quality_safety_check": {
+      "safety_status": "checks_passed",
+      "agent_status": "APPROVED_BY_SAFETY_AGENT",
+      "approved": true,
+      "validation_errors": [],
+      "safety_attempts": 1,
+      "human_review_required": true,
+      "human_review_note": "Automated checks only — radiologist review mandatory for any clinical use"
+    }
+  },
+  {
+    "patient_summary": {
+      "pseudo_id": "Pf9bea655cf",
+      "age": 25,
+      "condition": "les_deux",
+      "acquisition_device": "Standard (Uploaded via Web)"
+    },
+    "age": 25,
     "predicted_birads": "3",
     "prediction_available": true,
     "confidence": 0.78,
     "confidence_note": "Keyword-heuristic simulation — no CNN checkpoint deployed. Not clinically calibrated.",
     "reasoning_mode": "keyword_heuristic_simulation",
     "simulation_mode": true,
-    "interpretation": "Findings in patient Paacb1ec57b exhibit predominantly benign morphological characteristics with low probability of malignancy (0.12). Short-interval surveillance is appropriate.",
+    "interpretation": "Findings in patient Pf9bea655cf exhibit predominantly benign morphological characteristics with low probability of malignancy (0.12). Short-interval surveillance is appropriate.",
     "supporting_evidence": [
       "E1: [ACR BI-RADS Category 4B: Moderate Suspicion for Malignancy] ACR BI-RADS Category 4B: Moderate suspi",
       "E2: [ACR BI-RADS Category 3: Probably Benign] ACR BI-RADS Category 3: Probably Benign finding. Finding h",
@@ -35,41 +68,18 @@
   },
   {
     "patient_summary": {
-      "pseudo_id": "Pf9bea655cf",
-      "age": 46,
-      "condition": "les_deux",
-      "acquisition_device": "Standard (Uploaded via Web)"
-    },
-    "age": 46,
-    "predicted_birads": "3",
-    "prediction_available": true,
-    "confidence": 0.78,
-    "confidence_note": "Calibrated multimodal vision + RAG confidence",
-    "interpretation": "Findings in patient Pf9bea655cf exhibit predominantly benign morphological characteristics with low probability of malignancy (0.12). Short-interval surveillance is appropriate.",
-    "supporting_evidence": [
-      "E1: [ACR BI-RADS Category 4B: Moderate Suspicion for Malignancy] ACR BI-RADS Category 4B: Moderate suspi",
-      "E2: [ACR BI-RADS Category 3: Probably Benign] ACR BI-RADS Category 3: Probably Benign finding. Finding h",
-      "E3: [ACR BI-RADS Category 4A: Low Suspicion for Malignancy] ACR BI-RADS Category 4A: Low suspicion for m"
-    ],
-    "recommendations": [
-      "Short-interval 6-month follow-up imaging (unilateral).",
-      "Comparison with baseline views."
-    ],
-    "quality_safety_check": {
-      "safety_status": "checks_passed",
-      "validation_errors": []
-    }
-  },
-  {
-    "patient_summary": {
       "pseudo_id": "P1eb742860c",
+      "age": 58,
       "condition": "les_deux",
       "acquisition_device": "Standard (Uploaded via Web)"
     },
+    "age": 58,
     "predicted_birads": "4A",
     "prediction_available": true,
     "confidence": 0.74,
-    "confidence_note": "Calibrated multimodal vision + RAG confidence",
+    "confidence_note": "Keyword-heuristic simulation — no CNN checkpoint deployed. Not clinically calibrated.",
+    "reasoning_mode": "keyword_heuristic_simulation",
+    "simulation_mode": true,
     "interpretation": "Mammography and Ultrasound multimodal evaluation for patient P1eb742860c reveals suspicious focal parenchymal asymmetry with estimated malignancy probability of 0.74. ACR 4A suspicion warrants histopathological confirmation.",
     "supporting_evidence": [
       "E1: [ACR BI-RADS Category 4B: Moderate Suspicion for Malignancy] ACR BI-RADS Category 4B: Moderate suspi",
@@ -83,7 +93,12 @@
     ],
     "quality_safety_check": {
       "safety_status": "checks_passed",
-      "validation_errors": []
+      "agent_status": "APPROVED_BY_SAFETY_AGENT",
+      "approved": true,
+      "validation_errors": [],
+      "safety_attempts": 1,
+      "human_review_required": true,
+      "human_review_note": "Automated checks only — radiologist review mandatory for any clinical use"
     }
   },
   {
