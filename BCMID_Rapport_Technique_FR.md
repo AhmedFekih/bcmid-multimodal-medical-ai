@@ -307,7 +307,7 @@ Le projet BCMID concrétise un système d'IA médicale d'envergure industrielle 
 | **Cartes XAI Grad-CAM** | Fichiers PNG dans `uploads/` | Précalculées et servies en direct | 387 cartes disponibles |
 | **Index Vectoriel RAG** | `rag_index.faiss` (1.46 Mo) | Moteur vectoriel FAISS local | Pleinement opérationnel |
 | **Directives ACR Atlas** | `acr_guidelines_index.faiss` | Moteur vectoriel FAISS local | 11 règles officielles indexées |
-| **Quality & Safety Agent**| `ikbelwork/safety_agent.py` | Barrière déterministe Python | Pleinement opérationnel |
+| **Quality & Safety Agent**| `clinical_pipeline/safety_agent.py` | Barrière déterministe Python | Pleinement opérationnel |
 | **Microservices FastAPI** | `api_server.py` | Actif sur port 8000 | Interface Web et API REST actives |
 | **Orchestrateur Hospitalier**| `bcmid-workflow.json` | Actif sur port 5678 | Topologie à 9 nœuds de production |
 

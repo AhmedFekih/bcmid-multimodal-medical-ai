@@ -308,7 +308,7 @@ The BCMID Multimodal Medical AI Automation System successfully demonstrates an e
 | **Grad-CAM XAI Maps** | PNGs in `bcmid_work/uploads/` | Pre-computed & served live | 387 heatmaps available |
 | **Clinical RAG Index** | `rag_index.faiss` (1.46 MB) | Local FAISS vector engine | Fully operational |
 | **ACR Guidelines Base** | `acr_guidelines_index.faiss` | Local FAISS vector engine | 11 official rules indexed |
-| **Quality & Safety Agent**| `ikbelwork/safety_agent.py` | Active Python deterministic gate| Fully operational |
+| **Quality & Safety Agent**| `clinical_pipeline/safety_agent.py` | Active Python deterministic gate| Fully operational |
 | **FastAPI Microservices** | `api_server.py` | Active on `http://localhost:8000`| Serving REST endpoints & Web UI |
 | **Hospital Orchestrator** | `bcmid-workflow.json` | Active on `http://localhost:5678`| 9-Node production topology |
 

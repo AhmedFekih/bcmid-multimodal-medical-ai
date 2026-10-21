@@ -96,7 +96,7 @@ deeplearning5eme/
 ├── BCMID_annotations.tsv        # Clinical Metadata & Ground-Truth Labels
 ├── README.md                     # Engineering & Research Documentation
 │
-├── ikbelwork/                    # Modular Clinical Agents
+├── clinical_pipeline/            # Modular Clinical Agents (Safety, RAG, Reporting)
 │   ├── clinical_rag_enhancer.py  # Block 4: ACR BI-RADS Vector RAG Engine
 │   ├── safety_agent.py           # Block 6: Quality / Safety Verification Agent
 │   ├── medical_report_generator.py # Block 7: Box 7 Medical Report Generator

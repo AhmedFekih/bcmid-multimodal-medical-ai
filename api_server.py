@@ -21,6 +21,7 @@ except Exception:
     pass
 
 # Ensure local imports work
+sys.path.insert(0, str(Path(__file__).parent / "clinical_pipeline"))
 sys.path.insert(0, str(Path(__file__).parent / "ikbelwork"))
 
 try:
@@ -40,11 +41,17 @@ except ImportError:
     import uvicorn
     from pydantic import BaseModel
 
-# ── Import du pipeline ──────────────────────────────────────────────────────
-from ikbelwork.clinical_rag_enhancer import ClinicalRAGEngine
-from ikbelwork.safety_agent import QualitySafetyAgent
-from ikbelwork.medical_report_generator import MedicalReportGenerator
-from ikbelwork.run_orchestrator import mock_reasoning_agent_llm, run_pipeline
+# ── Import du pipeline clinique ─────────────────────────────────────────────
+try:
+    from clinical_pipeline.clinical_rag_enhancer import ClinicalRAGEngine
+    from clinical_pipeline.safety_agent import QualitySafetyAgent
+    from clinical_pipeline.medical_report_generator import MedicalReportGenerator
+    from clinical_pipeline.run_orchestrator import mock_reasoning_agent_llm, run_pipeline
+except ImportError:
+    from ikbelwork.clinical_rag_enhancer import ClinicalRAGEngine
+    from ikbelwork.safety_agent import QualitySafetyAgent
+    from ikbelwork.medical_report_generator import MedicalReportGenerator
+    from ikbelwork.run_orchestrator import mock_reasoning_agent_llm, run_pipeline
 
 # ── Setup ───────────────────────────────────────────────────────────────────
 BASE_DIR = Path(__file__).parent
@@ -301,8 +308,8 @@ def choose_technical_report_language(lang: Optional[str] = None):
       <div class="container" style="max-width: 760px;">
         <div class="text-center mb-4">
           <span class="badge bg-blue-lt text-uppercase px-3 py-1 mb-2 fw-bold" style="letter-spacing:1px;">BCMID · Architecture & XAI</span>
-          <h2 class="fw-bold text-dark mb-1">Rapport Technique Officiel (9 Pages)</h2>
-          <p class="text-muted">Sélectionnez la langue de votre document PDF à télécharger / Select report language:</p>
+          <h2 class="fw-bold text-dark mb-1">Rapport de Projet Académique Officiel (12 Pages)</h2>
+          <p class="text-muted">Sélectionnez la langue du rapport officiel à télécharger / Select official report language:</p>
         </div>
         <div class="row g-4">
           <div class="col-md-4">
@@ -310,11 +317,11 @@ def choose_technical_report_language(lang: Optional[str] = None):
               <div>
                 <div style="font-size: 3rem;" class="mb-2">🇫🇷</div>
                 <h4 class="fw-bold text-dark mb-2">Version Française</h4>
-                <p class="text-muted small mb-4">Rapport complet (9 pages PDF) avec architecture multimodale, audit de sécurité et annexes.</p>
+                <p class="text-muted small mb-4">Rapport académique officiel complet (12 pages) : Conception et évaluation d'un système intelligent d'aide à l'interprétation de l'imagerie mammaire.</p>
               </div>
               <div>
                 <a href="/report/technical-report-fr/pdf" class="btn btn-primary w-100 fw-bold py-2 shadow-sm" style="border-radius: 8px;">
-                  <i class="ti ti-download me-1"></i> Télécharger (PDF FR)
+                  <i class="ti ti-download me-1"></i> Télécharger (PDF FR 12p)
                 </a>
               </div>
             </div>
@@ -324,11 +331,11 @@ def choose_technical_report_language(lang: Optional[str] = None):
               <div>
                 <div style="font-size: 3rem;" class="mb-2">🇬🇧</div>
                 <h4 class="fw-bold text-dark mb-2">English Version</h4>
-                <p class="text-muted small mb-4">Complete 9-page PDF technical report covering multimodal vision, RAG, agentic safety & Appendix A.</p>
+                <p class="text-muted small mb-4">Official 12-page academic report translated in English : Design and Evaluation of an Intelligent Decision Support System for Breast Imaging Interpretation.</p>
               </div>
               <div>
                 <a href="/report/technical-report/pdf?lang=en" class="btn btn-outline-primary w-100 fw-bold py-2 shadow-sm" style="border-radius: 8px;">
-                  <i class="ti ti-download me-1"></i> Download (PDF EN)
+                  <i class="ti ti-download me-1"></i> Download (PDF EN 12p)
                 </a>
               </div>
             </div>
@@ -338,7 +345,7 @@ def choose_technical_report_language(lang: Optional[str] = None):
               <div>
                 <div style="font-size: 3rem;" class="mb-2">📄</div>
                 <h4 class="fw-bold text-dark mb-2">Code Source LaTeX</h4>
-                <p class="text-muted small mb-4">Fichier maître <code>.tex</code> (8-10 pages) structuré pour Overleaf ou compilation TeX locale.</p>
+                <p class="text-muted small mb-4">Fichier maître <code>.tex</code> officiel structuré avec tableaux quadrillés complets et diagrammes TikZ aérés (Overleaf / TeX Live).</p>
               </div>
               <div>
                 <a href="/report/latex" class="btn btn-dark w-100 fw-bold py-2 shadow-sm" style="border-radius: 8px;">

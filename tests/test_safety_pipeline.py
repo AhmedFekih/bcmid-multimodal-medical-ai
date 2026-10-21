@@ -15,9 +15,13 @@ import sys
 from pathlib import Path
 import pytest
 
-# Allow imports from ikbelwork/
+# Allow imports from clinical_pipeline/ and ikbelwork/
+sys.path.insert(0, str(Path(__file__).parent.parent / "clinical_pipeline"))
 sys.path.insert(0, str(Path(__file__).parent.parent / "ikbelwork"))
-from safety_agent import QualitySafetyAgent
+try:
+    from clinical_pipeline.safety_agent import QualitySafetyAgent
+except ImportError:
+    from safety_agent import QualitySafetyAgent
 
 
 @pytest.fixture

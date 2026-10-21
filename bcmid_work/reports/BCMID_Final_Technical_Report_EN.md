@@ -91,10 +91,10 @@ The complete architecture follows a modular, feed-forward pipeline with an activ
 1. **Bloc 1 — Ingestion Agent (`src/ingestion/`):** Validates raw patient files, validates MIME types, checks image decodability, and outputs structured dossiers with SHA-256 metadata checksums.
 2. **Bloc 2 — Data Quality Agent (`dq_agent/`):** Executes Otsu bounding box cropping, polarity inversion, EasyOCR metadata inpainting, bilateral breast matching, and GroupKFold (5-fold) patient-level split creation.
 3. **Bloc 3 — Multimodal Vision Agent + XAI (`src/vision/`):** Evaluates ResNet-18 dual branches (Mammo + US), generates 387 Grad-CAM visual explanation heatmaps, computes Shannon entropy, and applies weighted multimodal fusion.
-4. **Bloc 4 — Clinical RAG Agent (`ikbelwork/clinical_rag_enhancer.py`):** Encodes clinical queries via `BAAI/bge-small-en-v1.5` embeddings into dual FAISS indices (ACR BI-RADS guidelines + historical de-identified case chunks).
+4. **Bloc 4 — Clinical RAG Agent (`clinical_pipeline/clinical_rag_enhancer.py`):** Encodes clinical queries via `BAAI/bge-small-en-v1.5` embeddings into dual FAISS indices (ACR BI-RADS guidelines + historical de-identified case chunks).
 5. **Bloc 5 — Medical Reasoning Agent (`src/reasoning/`):** Interfaces with `Qwen2.5-3B-Instruct` to synthesize multimodal vision probabilities, heatmaps, and RAG evidence into structured JSON.
-6. **Bloc 6 — Quality & Safety Agent (`ikbelwork/safety_agent.py`):** Deterministic audit gate checking for hallucinations, numeric consistency (±0.6%), ungrounded claims, and entropy warnings; triggers an automated revision loop if violations occur.
-7. **Bloc 7 — Final Structured Output (`ikbelwork/medical_report_generator.py`):** Produces tailored doctor-facing PDFs (ReportLab) and technician-facing interactive HTML dashboards with embedded XAI overlays.
+6. **Bloc 6 — Quality & Safety Agent (`clinical_pipeline/safety_agent.py`):** Deterministic audit gate checking for hallucinations, numeric consistency (±0.6%), ungrounded claims, and entropy warnings; triggers an automated revision loop if violations occur.
+7. **Bloc 7 — Final Structured Output (`clinical_pipeline/medical_report_generator.py`):** Produces tailored doctor-facing PDFs (ReportLab) and technician-facing interactive HTML dashboards with embedded XAI overlays.
 
 ---
 
@@ -536,7 +536,7 @@ Recommendations are dynamically populated from retrieved ACR BI-RADS Atlas rules
 
 ## 11. Codebase Audit & Implemented Corrections
 
-During the comprehensive audit of `api_server.py` and the `ikbelwork/` modules, four critical architectural defects were identified and rectified:
+During the comprehensive audit of `api_server.py` and the `clinical_pipeline/` modules, four critical architectural defects were identified and rectified:
 
 | Defect ID | Original Architectural Flaw | Implemented Engineering Correction | Verifying Test Case |
 |---|---|---|---|
@@ -593,7 +593,7 @@ tests\test_vision_agent.py ..........                                     [100%]
 | **Grad-CAM XAI Heatmaps** | PNG files in `uploads/` | ✅ Pre-computed & Served | 387 heatmaps produced during Kaggle GPU run. |
 | **Clinical RAG Index** | `rag_index.faiss` (1.46 MB) | ✅ Fully Operational | Dense vector cosine retrieval via BGE embeddings. |
 | **ACR Guidelines Base** | `acr_guidelines_index.faiss` | ✅ Fully Operational | Official 11 ACR Atlas normative rules indexed. |
-| **Safety Audit Engine** | `ikbelwork/safety_agent.py` | ✅ Fully Operational | Deterministic checks executing with active feedback loop. |
+| **Safety Audit Engine** | `clinical_pipeline/safety_agent.py` | ✅ Fully Operational | Deterministic checks executing with active feedback loop. |
 | **FastAPI Microservices** | `api_server.py` | ✅ Active on Port 8000 | Serving Web UI, REST endpoints, and PDF generators. |
 | **n8n Orchestrator** | Standalone npm instance | ✅ Active on Port 5678 | User authenticated; workflow JSON importable. |
 

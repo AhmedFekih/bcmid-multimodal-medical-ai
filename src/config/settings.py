@@ -13,7 +13,10 @@ UPLOADS_DIR = BCMID_WORK / "uploads"
 REPORTS_DIR = BCMID_WORK / "reports"
 VALIDATED_DIR = BCMID_WORK / "validated"
 MODELS_DIR = BCMID_WORK / "models"
-IKBELWORK_DIR = BASE_DIR / "ikbelwork"
+CLINICAL_PIPELINE_DIR = BASE_DIR / "clinical_pipeline"
+if not CLINICAL_PIPELINE_DIR.exists():
+    CLINICAL_PIPELINE_DIR = BASE_DIR / "ikbelwork"
+IKBELWORK_DIR = CLINICAL_PIPELINE_DIR
 
 # ── Data files ────────────────────────────────────────────────────────────────
 MANIFEST_CSV = VALIDATED_DIR / "manifest.csv"
@@ -22,7 +25,7 @@ SPLITS_JSON = VALIDATED_DIR / "splits.json"
 FINAL_REPORTS_JSON = BCMID_WORK / "final_medical_reports.json"
 RAG_INDEX_FAISS = BCMID_WORK / "rag_index.faiss"
 RAG_CHUNKS_CSV = BCMID_WORK / "rag_chunks.csv"
-ACR_GUIDELINES_JSON = IKBELWORK_DIR / "acr_birads_guidelines.json"
+ACR_GUIDELINES_JSON = CLINICAL_PIPELINE_DIR / "acr_birads_guidelines.json"
 
 # ── Model checkpoints ─────────────────────────────────────────────────────────
 MAMMO_CHECKPOINT = MODELS_DIR / "resnet18_mammo.pth"

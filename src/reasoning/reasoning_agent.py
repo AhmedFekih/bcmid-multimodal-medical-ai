@@ -12,7 +12,8 @@ import sys
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
-# Allow ikbelwork imports
+# Allow clinical_pipeline and ikbelwork imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "clinical_pipeline"))
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "ikbelwork"))
 
 
@@ -60,7 +61,10 @@ class ReasoningAgent:
 
     def _llm_synthesize(self, patient_case, retrieved_evidence, revision_feedback):
         """Real LLM synthesis path via transformers."""
-        from ikbelwork.run_orchestrator import _build_prompt_for_llm  # type: ignore
+        try:
+            from clinical_pipeline.run_orchestrator import _build_prompt_for_llm  # type: ignore
+        except ImportError:
+            from ikbelwork.run_orchestrator import _build_prompt_for_llm  # type: ignore
         prompt = _build_prompt_for_llm(patient_case, retrieved_evidence, revision_feedback)
         result = self.pipeline(prompt, max_new_tokens=512, do_sample=False, temperature=1.0)
         raw_output = result[0]["generated_text"]

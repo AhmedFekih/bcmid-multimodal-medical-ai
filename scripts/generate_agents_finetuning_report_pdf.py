@@ -433,7 +433,7 @@ def build_agents_finetuning_pdf(output_path: str):
         "• <b>Moteur Vectoriel : FAISS (Facebook AI Similarity Search) :</b> Utilisation d'index plats avec similarité cosinus (<code>IndexFlatIP</code>). "
         "Entièrement exécuté en RAM locale, sans nécessiter de base de données vectorielle cloud externe (Qdrant/Pinecone), garantissant l'indépendance réseau.<br/>"
         "• <b>Corpus Indexé :</b> 11 règles cliniques formelles issues de l'<b>Atlas ACR BI-RADS 5ème Édition</b> et 317 passages de cas historiques annotés.<br/>"
-        "• <b>Sécurité Anti-Fuite (*Cross-Fold Leakage Prevention*) :</b> Le module <code>ikbelwork/clinical_rag_enhancer.py</code> intègre le paramètre "
+        "• <b>Sécurité Anti-Fuite (*Cross-Fold Leakage Prevention*) :</b> Le module <code>clinical_pipeline/clinical_rag_enhancer.py</code> intègre le paramètre "
         "<code>exclude_pseudo_id</code> qui interdit au système d'extraire les données historiques de la patiente en cours d'analyse."
     )
     story.append(Paragraph(p_rag_details, BODY))
