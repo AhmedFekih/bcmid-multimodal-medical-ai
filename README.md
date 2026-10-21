@@ -3,6 +3,8 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-009688.svg?logo=fastapi)](https://fastapi.tiangolo.com)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-EE4C2C.svg?logo=pytorch)](https://pytorch.org)
 [![Tests Passing](https://img.shields.io/badge/pytest-61%2F61%20passing-brightgreen.svg?logo=pytest)](https://docs.pytest.org)
+[![Demo Video](https://img.shields.io/badge/Demo_Video-MP4_(46MB)-E50914.svg?logo=youtube)](./demo.mp4)
+[![Presentation Slides](https://img.shields.io/badge/Presentation-Slides_(29p)-orange.svg)](./_Presentation%20deep%20finale%20%20(1).pdf)
 [![n8n](https://img.shields.io/badge/n8n-Orchestration-FF6D5A.svg?logo=n8n)](https://n8n.io)
 [![Regulatory](https://img.shields.io/badge/Regulatory-SaMD_Class_IIa-blue.svg)](https://health.ec.europa.eu)
 [![Institution](https://img.shields.io/badge/Academic-ESPRIT_Engineering-003366.svg)](https://esprit.tn)
@@ -137,16 +139,27 @@ Sur la cohorte binationale de **332 patientes** (2 001 clichés, 321 comptes-ren
 
 ---
 
-## 📑 Rapports Techniques Officiels (12 Pages)
+## 📑 Rapports Techniques Officiels, Présentation & Démo Vidéo
 
-Les livrables académiques de référence du projet sont disponibles en téléchargement direct :
+Les livrables académiques de référence du projet sont disponibles en téléchargement et visionnage direct :
 
-| Livrable | Langue | Description | Lien Direct |
+| Livrable | Format / Langue | Description | Accès Direct |
 | :--- | :---: | :--- | :--- |
-| **BCMID Rapport Final Condensé** | 🇫🇷 Français | Rapport académique officiel complet (12 pages, figures, tableaux et méthodologie) | [Télécharger (PDF FR)](http://localhost:8000/report/technical-report-fr/pdf) |
-| **BCMID Academic Project Report** | 🇬🇧 Anglais | Official English translated technical report (12 pages, matching typography and XAI figures) | [Download (PDF EN)](http://localhost:8000/report/technical-report/pdf?lang=en) |
-| **Code Source LaTeX** | 📄 LaTeX | Archive source `.tex` avec tableaux quadrillés complets et diagrammes vectoriels TikZ | [Télécharger (.tex)](http://localhost:8000/report/latex) |
-| **Portail Bilingue** | 🌐 Web | Interface interactive de sélection et téléchargement des rapports | [Accéder au Portail](http://localhost:8000/report/technical-report) |
+| **Vidéo Démo Système** | 🎬 Vidéo MP4 (46.5 Mo) | Parcours clinique complet en direct : Ingestion FFDM/US, Grad-CAM XAI, RAG ACR, Validation de Sécurité et Déclenchement n8n | [Visionner demo.mp4 (Dépôt Git)](./demo.mp4) · [Stream Local HTTP](http://localhost:8000/demo) |
+| **Présentation Finale de Soutenance** | 📊 Diaporama (PDF 58 Mo) | Support officiel de soutenance du projet (29 slides Canva de synthèse architecturale, benchmarks multimodaux et démonstration clinique) | [Ouvrir le Diaporama (Dépôt Git)](./_Presentation%20deep%20finale%20%20(1).pdf) · [Accès HTTP Direct](http://localhost:8000/presentation/pdf) |
+| **BCMID Rapport Final Condensé** | 🇫🇷 Français (12p) | Rapport académique officiel complet (12 pages, figures, tableaux et méthodologie) | [Télécharger (PDF FR)](http://localhost:8000/report/technical-report-fr/pdf) |
+| **BCMID Academic Project Report** | 🇬🇧 Anglais (12p) | Official English translated technical report (12 pages, matching typography and XAI figures) | [Download (PDF EN)](http://localhost:8000/report/technical-report/pdf?lang=en) |
+| **Code Source LaTeX** | 📄 LaTeX (.tex) | Archive source `.tex` avec tableaux quadrillés complets et diagrammes vectoriels TikZ | [Télécharger (.tex)](http://localhost:8000/report/latex) |
+| **Portail Bilingue & Livrables** | 🌐 Web Console | Interface interactive de sélection et consultation des rapports, diaporama et vidéo démo | [Accéder au Portail](http://localhost:8000/report/technical-report) |
+
+---
+
+## 🎬 Vidéo de Démonstration Clinique (Walkthrough)
+
+Retrouvez la vidéo complète démontrant l'ensemble du workflow clinique en direct (ingestion des clichés mammographie + échographie, extraction Grad-CAM, interrogation du RAG clinique, audit de l'agent de sécurité et dispatching hospitalier sous n8n) :
+
+* 📺 **Visionnage direct (Dépôt Git) :** [`demo.mp4`](./demo.mp4) (46.5 Mo)
+* 🌐 **Streaming local HTTP :** [http://localhost:8000/demo](http://localhost:8000/demo)
 
 ---
 
@@ -154,6 +167,10 @@ Les livrables académiques de référence du projet sont disponibles en téléch
 
 ```
 deeplearning5eme/
+├── demo.mp4                      # Vidéo de démonstration clinique complète (46.5 Mo)
+├── _Presentation deep finale  (1).pdf # Support officiel de présentation de soutenance (29 slides)
+├── BCMID_Rapport_Final_Condense.pdf  # Rapport académique officiel français (12 pages)
+├── BCMID_Rapport_Final_EN.pdf        # Rapport académique officiel anglais (12 pages)
 ├── api_server.py                 # Serveur FastAPI (Microservices Blocs 1 à 7 + Triage)
 ├── n8n_bcmid_workflow.json       # Workflow d'orchestration officiel n8n (8 nœuds)
 ├── requirements.txt              # Dépendances Python de production

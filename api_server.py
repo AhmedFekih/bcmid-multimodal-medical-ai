@@ -305,51 +305,83 @@ def choose_technical_report_language(lang: Optional[str] = None):
       </style>
     </head>
     <body>
-      <div class="container" style="max-width: 760px;">
+      <div class="container" style="max-width: 980px;">
         <div class="text-center mb-4">
           <span class="badge bg-blue-lt text-uppercase px-3 py-1 mb-2 fw-bold" style="letter-spacing:1px;">BCMID · Architecture & XAI</span>
-          <h2 class="fw-bold text-dark mb-1">Rapport de Projet Académique Officiel (12 Pages)</h2>
-          <p class="text-muted">Sélectionnez la langue du rapport officiel à télécharger / Select official report language:</p>
+          <h2 class="fw-bold text-dark mb-1">Rapports de Projet, Présentation & Démo Vidéo</h2>
+          <p class="text-muted">Sélectionnez le document officiel ou la vidéo de démonstration à consulter / Select official document or demo video :</p>
+        </div>
+
+        <!-- Bannière Démo Vidéo -->
+        <div class="card p-3 mb-4 shadow-sm text-white border-0" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 12px;">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div class="d-flex align-items-center">
+              <span style="font-size: 2.2rem;" class="me-3">🎬</span>
+              <div>
+                <h5 class="fw-bold mb-1 text-white">Vidéo Démonstration Complète du Système BCMID</h5>
+                <p class="small text-white-50 mb-0">Parcours clinique complet en direct : Ingestion FFDM/US, Grad-CAM, RAG ACR, Validation de Sécurité et Triage n8n (MP4, 46.5 Mo).</p>
+              </div>
+            </div>
+            <div>
+              <a href="/demo" class="btn btn-danger fw-bold px-4 py-2 shadow-sm" style="border-radius: 8px;">
+                <i class="ti ti-player-play me-1"></i> Visionner la Démo (MP4)
+              </a>
+            </div>
+          </div>
         </div>
         <div class="row g-4">
-          <div class="col-md-4">
-            <div class="card lang-card shadow-sm p-4 text-center h-100 d-flex flex-column justify-content-between">
+          <div class="col-md-3">
+            <div class="card lang-card shadow-sm p-3 text-center h-100 d-flex flex-column justify-content-between">
               <div>
-                <div style="font-size: 3rem;" class="mb-2">🇫🇷</div>
-                <h4 class="fw-bold text-dark mb-2">Version Française</h4>
-                <p class="text-muted small mb-4">Rapport académique officiel complet (12 pages) : <code>BCMID_Rapport_Final_Condense.pdf</code> (9.1 Mo).</p>
+                <div style="font-size: 2.5rem;" class="mb-2">🇫🇷</div>
+                <h5 class="fw-bold text-dark mb-2">Version FR</h5>
+                <p class="text-muted small mb-3">Rapport officiel complet (12 pages) : <code>BCMID_Rapport_Final_Condense.pdf</code>.</p>
               </div>
               <div>
                 <a href="/BCMID_Rapport_Final_Condense.pdf" class="btn btn-primary w-100 fw-bold py-2 shadow-sm" style="border-radius: 8px;">
-                  <i class="ti ti-download me-1"></i> Télécharger (BCMID_Rapport_Final_Condense.pdf)
+                  <i class="ti ti-download me-1"></i> PDF FR (12p)
                 </a>
               </div>
             </div>
           </div>
-          <div class="col-md-4">
-            <div class="card lang-card shadow-sm p-4 text-center h-100 d-flex flex-column justify-content-between">
+          <div class="col-md-3">
+            <div class="card lang-card shadow-sm p-3 text-center h-100 d-flex flex-column justify-content-between">
               <div>
-                <div style="font-size: 3rem;" class="mb-2">🇬🇧</div>
-                <h4 class="fw-bold text-dark mb-2">English Version</h4>
-                <p class="text-muted small mb-4">Official 12-page academic report translated in English : <code>BCMID_Rapport_Final_EN.pdf</code> (7.8 Mo).</p>
+                <div style="font-size: 2.5rem;" class="mb-2">🇬🇧</div>
+                <h5 class="fw-bold text-dark mb-2">Version EN</h5>
+                <p class="text-muted small mb-3">Official translated report (12 pages) : <code>BCMID_Rapport_Final_EN.pdf</code>.</p>
               </div>
               <div>
                 <a href="/BCMID_Rapport_Final_EN.pdf" class="btn btn-outline-primary w-100 fw-bold py-2 shadow-sm" style="border-radius: 8px;">
-                  <i class="ti ti-download me-1"></i> Download (BCMID_Rapport_Final_EN.pdf)
+                  <i class="ti ti-download me-1"></i> PDF EN (12p)
                 </a>
               </div>
             </div>
           </div>
-          <div class="col-md-4">
-            <div class="card lang-card shadow-sm p-4 text-center h-100 d-flex flex-column justify-content-between border-primary">
+          <div class="col-md-3">
+            <div class="card lang-card shadow-sm p-3 text-center h-100 d-flex flex-column justify-content-between border-warning">
               <div>
-                <div style="font-size: 3rem;" class="mb-2">📄</div>
-                <h4 class="fw-bold text-dark mb-2">Code Source LaTeX</h4>
-                <p class="text-muted small mb-4">Fichier maître <code>.tex</code> officiel structuré avec tableaux quadrillés complets et diagrammes TikZ aérés (Overleaf / TeX Live).</p>
+                <div style="font-size: 2.5rem;" class="mb-2">📊</div>
+                <h5 class="fw-bold text-dark mb-2">Présentation</h5>
+                <p class="text-muted small mb-3">Support de soutenance officiel (29 slides de synthèse architecturale et XAI).</p>
+              </div>
+              <div>
+                <a href="/presentation/pdf" class="btn btn-warning w-100 fw-bold py-2 shadow-sm text-dark" style="border-radius: 8px;">
+                  <i class="ti ti-presentation me-1"></i> Slides (29p)
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card lang-card shadow-sm p-3 text-center h-100 d-flex flex-column justify-content-between border-primary">
+              <div>
+                <div style="font-size: 2.5rem;" class="mb-2">📄</div>
+                <h5 class="fw-bold text-dark mb-2">Source LaTeX</h5>
+                <p class="text-muted small mb-3">Fichier maître <code>.tex</code> officiel structuré avec tableaux quadrillés complets.</p>
               </div>
               <div>
                 <a href="/report/latex" class="btn btn-dark w-100 fw-bold py-2 shadow-sm" style="border-radius: 8px;">
-                  <i class="ti ti-file-code me-1"></i> Télécharger (.tex)
+                  <i class="ti ti-file-code me-1"></i> Code (.tex)
                 </a>
               </div>
             </div>
@@ -502,6 +534,53 @@ def download_technical_report_fr():
     )
 
 
+
+
+@app.get("/presentation/pdf", summary="Télécharger la Présentation Finale du Projet BCMID (29 slides)")
+@app.get("/report/presentation/pdf", include_in_schema=False)
+@app.get("/presentation", include_in_schema=False)
+@app.get("/_Presentation_deep_finale.pdf", include_in_schema=False)
+def download_presentation_pdf():
+    """Retourne la présentation officielle de soutenance BCMID (29 slides)."""
+    pres_path = Path(__file__).parent / "_Presentation deep finale  (1).pdf"
+    if not pres_path.exists():
+        downloads_path = Path(r"C:\Users\moham\Downloads\_Presentation deep finale  (1).pdf")
+        if downloads_path.exists():
+            pres_path = downloads_path
+    if not pres_path.exists():
+        raise HTTPException(status_code=404, detail="Présentation finale PDF non trouvée.")
+    return FileResponse(
+        str(pres_path),
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": 'inline; filename="BCMID_Presentation_Finale.pdf"',
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "Pragma": "no-cache",
+            "Expires": "0"
+        }
+    )
+
+
+@app.get("/demo", summary="Visualiser / Télécharger la Vidéo Démonstrative BCMID (MP4)")
+@app.get("/demo.mp4", include_in_schema=False)
+@app.get("/video/demo", include_in_schema=False)
+def get_demo_video():
+    """Sert la vidéo de démonstration complète du système BCMID (MP4, 46.5 Mo)."""
+    video_path = Path(__file__).parent / "demo.mp4"
+    if not video_path.exists():
+        downloads_path = Path(r"C:\Users\moham\Downloads\demo.mp4")
+        if downloads_path.exists():
+            video_path = downloads_path
+    if not video_path.exists():
+        raise HTTPException(status_code=404, detail="Vidéo démo demo.mp4 non trouvée.")
+    return FileResponse(
+        str(video_path),
+        media_type="video/mp4",
+        headers={
+            "Content-Disposition": 'inline; filename="BCMID_Demo_Systeme.mp4"',
+            "Cache-Control": "public, max-age=3600"
+        }
+    )
 
 
 @app.get("/report/fine-tuning/pdf", summary="Télécharger le Rapport Spécialisé Fine-Tuning PDF")
