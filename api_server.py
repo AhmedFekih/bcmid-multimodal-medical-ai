@@ -330,58 +330,44 @@ def choose_technical_report_language(lang: Optional[str] = None):
           </div>
         </div>
         <div class="row g-4">
-          <div class="col-md-3">
-            <div class="card lang-card shadow-sm p-3 text-center h-100 d-flex flex-column justify-content-between">
+          <div class="col-md-4">
+            <div class="card lang-card shadow-sm p-4 text-center h-100 d-flex flex-column justify-content-between">
               <div>
-                <div style="font-size: 2.5rem;" class="mb-2">🇫🇷</div>
-                <h5 class="fw-bold text-dark mb-2">Version FR</h5>
-                <p class="text-muted small mb-3">Rapport officiel complet (12 pages) : <code>BCMID_Rapport_Final_Condense.pdf</code>.</p>
+                <div style="font-size: 2.8rem;" class="mb-2">🇫🇷</div>
+                <h4 class="fw-bold text-dark mb-2">Version Française</h4>
+                <p class="text-muted small mb-4">Rapport académique officiel complet (12 pages) : <code>BCMID_Rapport_Final_Condense.pdf</code>.</p>
               </div>
               <div>
                 <a href="/BCMID_Rapport_Final_Condense.pdf" class="btn btn-primary w-100 fw-bold py-2 shadow-sm" style="border-radius: 8px;">
-                  <i class="ti ti-download me-1"></i> PDF FR (12p)
+                  <i class="ti ti-download me-1"></i> Télécharger (PDF FR 12p)
                 </a>
               </div>
             </div>
           </div>
-          <div class="col-md-3">
-            <div class="card lang-card shadow-sm p-3 text-center h-100 d-flex flex-column justify-content-between">
+          <div class="col-md-4">
+            <div class="card lang-card shadow-sm p-4 text-center h-100 d-flex flex-column justify-content-between">
               <div>
-                <div style="font-size: 2.5rem;" class="mb-2">🇬🇧</div>
-                <h5 class="fw-bold text-dark mb-2">Version EN</h5>
-                <p class="text-muted small mb-3">Official translated report (12 pages) : <code>BCMID_Rapport_Final_EN.pdf</code>.</p>
+                <div style="font-size: 2.8rem;" class="mb-2">🇬🇧</div>
+                <h4 class="fw-bold text-dark mb-2">English Version</h4>
+                <p class="text-muted small mb-4">Official translated technical report (12 pages) : <code>BCMID_Rapport_Final_EN.pdf</code>.</p>
               </div>
               <div>
                 <a href="/BCMID_Rapport_Final_EN.pdf" class="btn btn-outline-primary w-100 fw-bold py-2 shadow-sm" style="border-radius: 8px;">
-                  <i class="ti ti-download me-1"></i> PDF EN (12p)
+                  <i class="ti ti-download me-1"></i> Download (PDF EN 12p)
                 </a>
               </div>
             </div>
           </div>
-          <div class="col-md-3">
-            <div class="card lang-card shadow-sm p-3 text-center h-100 d-flex flex-column justify-content-between border-warning">
+          <div class="col-md-4">
+            <div class="card lang-card shadow-sm p-4 text-center h-100 d-flex flex-column justify-content-between border-warning">
               <div>
-                <div style="font-size: 2.5rem;" class="mb-2">📊</div>
-                <h5 class="fw-bold text-dark mb-2">Présentation</h5>
-                <p class="text-muted small mb-3">Support de soutenance officiel (29 slides de synthèse architecturale et XAI).</p>
+                <div style="font-size: 2.8rem;" class="mb-2">📊</div>
+                <h4 class="fw-bold text-dark mb-2">Présentation</h4>
+                <p class="text-muted small mb-4">Support de soutenance officiel (29 slides de synthèse architecturale, benchmarks et XAI).</p>
               </div>
               <div>
                 <a href="/presentation/pdf" class="btn btn-warning w-100 fw-bold py-2 shadow-sm text-dark" style="border-radius: 8px;">
-                  <i class="ti ti-presentation me-1"></i> Slides (29p)
-                </a>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="card lang-card shadow-sm p-3 text-center h-100 d-flex flex-column justify-content-between border-primary">
-              <div>
-                <div style="font-size: 2.5rem;" class="mb-2">📄</div>
-                <h5 class="fw-bold text-dark mb-2">Source LaTeX</h5>
-                <p class="text-muted small mb-3">Fichier maître <code>.tex</code> officiel structuré avec tableaux quadrillés complets.</p>
-              </div>
-              <div>
-                <a href="/report/latex" class="btn btn-dark w-100 fw-bold py-2 shadow-sm" style="border-radius: 8px;">
-                  <i class="ti ti-file-code me-1"></i> Code (.tex)
+                  <i class="ti ti-presentation me-1"></i> Consulter les Slides (29p)
                 </a>
               </div>
             </div>

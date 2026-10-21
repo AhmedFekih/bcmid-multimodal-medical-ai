@@ -149,7 +149,6 @@ Les livrables académiques de référence du projet sont disponibles en téléch
 | **Présentation Finale de Soutenance** | 📊 Diaporama (PDF 58 Mo) | Support officiel de soutenance du projet (29 slides Canva de synthèse architecturale, benchmarks multimodaux et démonstration clinique) | [Ouvrir le Diaporama (Dépôt Git)](./_Presentation%20deep%20finale%20%20(1).pdf) · [Accès HTTP Direct](http://localhost:8000/presentation/pdf) |
 | **BCMID Rapport Final Condensé** | 🇫🇷 Français (12p) | Rapport académique officiel complet (12 pages, figures, tableaux et méthodologie) | [Télécharger (PDF FR)](http://localhost:8000/report/technical-report-fr/pdf) |
 | **BCMID Academic Project Report** | 🇬🇧 Anglais (12p) | Official English translated technical report (12 pages, matching typography and XAI figures) | [Download (PDF EN)](http://localhost:8000/report/technical-report/pdf?lang=en) |
-| **Code Source LaTeX** | 📄 LaTeX (.tex) | Archive source `.tex` avec tableaux quadrillés complets et diagrammes vectoriels TikZ | [Télécharger (.tex)](http://localhost:8000/report/latex) |
 | **Portail Bilingue & Livrables** | 🌐 Web Console | Interface interactive de sélection et consultation des rapports, diaporama et vidéo démo | [Accéder au Portail](http://localhost:8000/report/technical-report) |
 
 ---
